@@ -1,0 +1,63 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/buttonShowAPs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show APs" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/textViewLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location:"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/buttonScanWifi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan Wifi" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonWhereAmI"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Where am I?" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dip"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="5dip"
+            android:fontFamily="monospace"
+            android:text="Some Text"
+            android:textSize="20sp" />
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,122 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr7"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr7.MainActivity"
+            android:label="Android P7" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr7.NFCActivity"
+            android:label="NFCActivity" >
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr7.NetworkScannerActivity"
+            android:label="NetworkScannerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.AllMyIPsActivity"
+            android:label="AllMyIPsActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.TimeClientNISTActivity"
+            android:label="TimeClientNISTActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.JSONBooksActivity"
+            android:label="JSONBooksActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.GSONCitiesActivity"
+            android:label="GSONCitiesActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.WebServerActivity"
+            android:label="WebServerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.FileServerActivity"
+            android:label="FileServerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.TCPChatActivity"
+            android:label="TCPChatActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.UDPChatActivity"
+            android:label="UDPChatActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.GameServerActivity"
+            android:label="GameServerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.GameClientActivity"
+            android:label="GameClientActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.GameClient2Activity"
+            android:label="GameClient2Activity" />
+        <activity
+            android:name="variationenzumthema_pr7.BTDiscoveryActivity"
+            android:label="BTDiscoveryActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.BTChatServerActivity"
+            android:label="BTChatServerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.BTChatClientActivity"
+            android:label="BTChatClientActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.BLEScannerActivity"
+            android:label="BLEScannerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.BLEBeaconFinderActivity"
+            android:label="BLEBeaconFinderActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.BLETurnOnBTActivity"
+            android:label="BLETurnOnBTActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.CellTowerActivity"
+            android:label="CellTowerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.WifiScannerActivity"
+            android:label="WifiScannerActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.IndoorLocationActivity"
+            android:label="IndoorLocationActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.HotSpotActivity"
+            android:label="HotSpotActivity" />
+        <activity
+            android:name="variationenzumthema_pr7.RemoteDesktopClientActivity"
+            android:label="RemoteDesktopClient" />
+        <activity
+            android:name="variationenzumthema_pr7.TicTacToeActivity"
+            android:label="TicTacToeActivity" />
+    </application>
+
+</manifest>

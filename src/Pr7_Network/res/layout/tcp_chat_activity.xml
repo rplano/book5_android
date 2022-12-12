@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/btnStartServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Run as Server" />
+
+    <RelativeLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="Connect" />
+
+        <EditText
+            android:id="@+id/editServerIP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/btnConnect"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/btnConnect"
+            android:ems="10"
+            android:text="192.168.1.1"
+            android:textSize="20sp" >
+
+            <requestFocus />
+        </EditText>
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/editMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter message here..." />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Send" />
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp" >
+
+        <TextView
+            android:id="@+id/textConversation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Conversation:"
+            android:textSize="18sp" />
+    </ScrollView>
+
+</LinearLayout>

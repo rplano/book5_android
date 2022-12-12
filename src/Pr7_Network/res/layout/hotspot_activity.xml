@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Some Text"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/btn_StartHotSpot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start HotSpot" />
+
+    <Button
+        android:id="@+id/btn_CheckForClients"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Check for Clients" />
+
+    <Button
+        android:id="@+id/btn_StopHotSpot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop HotSpot" />
+
+</LinearLayout>
