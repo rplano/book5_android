@@ -1,0 +1,48 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.st2"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_st2.MainActivity"
+            android:label="Android S2" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="variationenzumthema_st2.HelloWorld" />
+        <activity android:name="variationenzumthema_st2.BeatingGOval" />
+        <activity android:name="variationenzumthema_st2.FireWorksCleanAntiFreezeActivity" />
+        <activity android:name="variationenzumthema_st2.TicTacToe" />
+        <activity android:name="variationenzumthema_st2.MinesClone" />
+        <activity android:name="variationenzumthema_st2.GrayImage" />
+        <activity android:name="variationenzumthema_st2.SlidingPuzzle" />
+        <activity android:name="variationenzumthema_st2.GeometryRun" />
+        <activity android:name="variationenzumthema_st2.Tree" />
+        <activity android:name="variationenzumthema_st2.Asteroids" />
+        <activity android:name="variationenzumthema_st2.Hexagon" />
+        <activity android:name="variationenzumthema_st2.SpeedRace" />
+        <activity android:name="variationenzumthema_st2.AnimatedPacman" />
+        <activity android:name="variationenzumthema_st2.BattleShip" />
+        <activity android:name="variationenzumthema_st2.FlappyBall" />
+        <activity android:name="variationenzumthema_st2.CityAtNight" />
+        <activity android:name="variationenzumthema_st2.TrafficLight" />
+        <activity android:name="variationenzumthema_st2.Tetris" />
+        <activity android:name="variationenzumthema_st2.TwinkleTwinkle" />
+        <activity android:name="variationenzumthema_st2.ConnectTheClicks" />
+        <activity android:name="variationenzumthema_st2.Confetti" />
+        <activity android:name="variationenzumthema_st2.MouseTracker" />
+        <activity android:name="variationenzumthema_st2.Builder" />
+        <activity android:name="variationenzumthema_st2.Billiards" />
+        <activity android:name="variationenzumthema_st2.BrickBreakerProgram" />
+    </application>
+
+</manifest>
