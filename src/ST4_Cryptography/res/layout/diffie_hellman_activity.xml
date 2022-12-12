@@ -1,0 +1,69 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <EditText
+        android:id="@+id/et_p"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="p="
+        android:inputType="number"
+        android:textSize="24dp" />
+
+    <EditText
+        android:id="@+id/et_g"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="g="
+        android:inputType="number"
+        android:textSize="24dp" />
+
+    <EditText
+        android:id="@+id/et_a"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="a="
+        android:inputType="number"
+        android:textSize="24dp" />
+
+    <Button
+        android:id="@+id/btnCalculateA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Calculate A"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textviewA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="A="
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/et_B"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="B="
+        android:inputType="number"
+        android:textSize="24dp" />
+
+    <Button
+        android:id="@+id/btnCalculateS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Calculate Secret"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textviewS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="s="
+        android:textSize="24sp" />
+
+</LinearLayout>

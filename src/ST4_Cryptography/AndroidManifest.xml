@@ -1,0 +1,61 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.st4"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_st4.MainActivity"
+            android:label="Android S4" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_st4.HashCashActivity"
+            android:label="HashCashActivity" />
+        <activity
+            android:name="variationenzumthema_st4.DiffieHellmanActivity"
+            android:label="DiffieHellmanActivity" />
+        <activity
+            android:name="variationenzumthema_st4.DigitalSignatureActivity"
+            android:label="DigitalSignatureActivity" />
+        <activity
+            android:name="variationenzumthema_st4.AsymmetricEncryptionActivity"
+            android:label="AsymmetricEncryptionActivity" />
+        <activity
+            android:name="variationenzumthema_st4.PassPhraseEncryptionActivity"
+            android:label="PassPhraseEncryptionActivity" />
+        <activity
+            android:name="variationenzumthema_st4.SymmetricEncryptionActivity"
+            android:label="SymmetricEncryptionActivity" />
+        <activity
+            android:name="variationenzumthema_st4.XORCipherActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="XORCipherActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_st4.CaesarCipherActivity"
+            android:label="CaesarCipherActivity" />
+        <activity
+            android:name="variationenzumthema_st4.CryptoHashActivity"
+            android:label="CryptoHashActivity" />
+        <activity
+            android:name="variationenzumthema_st4.ChecksumActivity"
+            android:label="ChecksumActivity" />
+        <activity
+            android:name="variationenzumthema_st4.HashActivity"
+            android:label="HashActivity" />
+    </application>
+
+</manifest>
