@@ -1,0 +1,84 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr4"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr4.MainActivity"
+            android:label="Android P4" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.HelpPagesActivity"
+            android:label="HelpPagesActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.PaintingActivity"
+            android:label="PaintingActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.EditorActivity"
+            android:label="EditorActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.LanguagesActivity"
+            android:label="LanguagesActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.SpellCheckerActivity"
+            android:label="SpellCheckerActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.RhymeHelperActivity"
+            android:label="RhymeHelperActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.SubwayActivity"
+            android:label="SubwayActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.SynonymsActivity"
+            android:label="SynonymsActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.UniversalTranslatorActivity"
+            android:label="UniversalTranslatorActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.CalendarSearchActivity"
+            android:label="CalendarSearchActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.MusicSearchActivity"
+            android:label="MusicSearchActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.ContactsSearchActivity"
+            android:label="ContactsSearchActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.ContactsExportActivity"
+            android:label="ContactsExportActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr4.HexEditorActivity"
+            android:label="HexEditorActivity" >
+        </activity>
+    </application>
+
+</manifest>

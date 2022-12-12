@@ -1,0 +1,7090 @@
+# based on http://wordnetcode.princeton.edu/standoff-files/core-wordnet.txt, Boyd-Graber, J., Fellbaum, C., Osherson, D., and Schapire, R. (2006). "Adding dense, weighted connections to WordNet.'' In: Proceedings of the Third Global WordNet Meeting, Jeju Island, Korea, January 2006
+# Princeton University "About WordNet." WordNet. Princeton University. 2010. <http://wordnet.princeton.edu>
+able, capable
+absolute, perfect or complete
+abstract, existing only in the mind
+abundant, plentiful
+active, vigorous
+addicted, hooked
+agile, nimble
+agile, spry
+agile, quick
+alive, live
+aloof, distant
+amber, yellowish
+ambiguous, equivocal
+ample, sizable
+ample, capacious
+annual, yearly
+applied, concerned with concrete problems or data
+arrogant, self-important
+artificial, unreal
+artificial, unnatural
+assertive, self-assured
+astonishing, astounding
+astonishing, staggering
+attractive, pleasing to the eye or mind
+automatic, operating with minimal human intervention
+available, obtainable
+aware, mindful
+awful, dreadful
+awful, terrible
+bad, immoral
+bad, evil
+bad, below average in quality or performance
+bad, defective
+bad, spoiled
+bad, spoilt
+bad, capable of harming
+bald, lacking hair
+bare, lacking its natural or customary covering
+basic, pertaining to a base or basis
+beautiful, possessing beauty
+bitter, acrimonious
+bitter, resentful
+bitter, bitter-tasting
+black, achromatic
+black, without cream or sugar
+bland, tasteless
+bland, insipid
+bland, flavorless
+blank, empty
+blank, not filled in
+blind, unsighted
+blonde, light-haired
+bloody, covered with blood
+bold, fearless and daring
+brave, courageous
+brave, fearless
+broken, physically separated into pieces
+brown, having a brown color
+central, in or near a center
+certain, sure
+charismatic, possessing a magnetic personality
+cheap, inexpensive
+childish, infantile
+clean, free from dirt
+clear, free from clouds or mist or haze
+clear, well-defined
+close, close in relevance or relationship
+close, near
+closed, shut
+closed, unopen
+cold, physically cold
+cold, without human warmth or emotion
+color-blind, unable to distinguish colors
+colorful, vivid in color
+comfortable, comfy
+common, average or ordinary or usual
+common, belonging to a community
+common, mutual
+complete, having every necessary part
+complex, complicated
+comprehensive, all-including
+concrete, material
+conscious, aware
+conservative, resistant to change
+constant, steadfast
+constant, unwavering
+constant, unending
+constant, incessant
+constitutional, relating to a/the constitution
+content, contented
+continental, relating to a continent
+continuous, uninterrupted
+conventional, following accepted customs
+cool, neither warm or very cold in temperature
+cool, unenthusiastic
+cool, unfriendly
+cool, unresponsive
+cooperative, co-operative
+critical, tending to find errors and flaws
+critical, being in a state of crisis or emergency
+critical, vital urgently needed
+crude, unrefined
+crude, unprocessed
+crude, primitive
+cruel, brutal
+cruel, barbarous
+cultural, relating to arts
+cute, attractive
+dangerous, unsafe
+dark, devoid of light
+dead, inanimate
+deadly, lethal
+decisive, determining
+decorative, cosmetic
+decorative, ornamental
+deep, having great spatial extension downward
+definite, precise
+definite, explicit
+delicate, exquisitely fine and subtle
+delicate, fragile
+delicate, frail
+delicate, easily broken
+delicate, sensitive
+democratic, based upon the principles of democracy
+different, unlike
+different, dissimilar
+difficult, hard
+digital, discrete
+diplomatic, diplomatical
+diplomatic, suave
+direct, without deviation or interruption
+dirty, soiled
+dirty, unclean
+dirty, obscene
+dirty, indecent
+discreet, keeping private
+discreet, prudent
+discreet, restrained
+distant, separated in space or time
+distinct, easy to perceive
+domestic, concerning the internal affairs of a nation
+domestic, relating to the home
+dominant, exercising influence or control
+dramatic, pertaining to theater
+dry, free from liquid or moisture
+due, owed
+dull, not having a sharp edge or point
+dull, boring
+dull, lacking in liveliness or animation
+dynamic, dynamical
+dynamic, characterized by action
+easy, posing no difficulty
+economic, relating to economics
+effective, effectual
+effective, efficacious
+elegant, refined
+elegant, tasteful
+articulate, eloquent
+articulate, well-spoken
+empirical, empiric
+empirical, derived from experiment and observation
+environmental, relating to the external surroundings
+equal, like
+equal, equivalent
+equal, same
+essential, basic and fundamental
+established, set up or accepted
+eternal, everlasting
+eternal, perpetual
+eternal, unending
+ethnic, cultural
+even, level
+even, flush
+even, divisible by two
+exact, precise
+exclusive, excluding much or all
+exotic, foreign
+exotic, alien
+exotic, unusual
+exotic, strikingly strange
+experienced, knowledgeable
+explicit, expressed
+express, without unnecessary stops
+extinct, non-existent
+extinct, not surviving
+fair, impartial
+faithful, sexually trustworthy
+false, not in accordance with fact or reality
+familiar, well known
+far, at a long distance
+fashionable, stylish
+fast, at a rapid tempo
+fastidious, finicky
+fat, having much flesh
+fat, especially fat
+favorable, encouraging
+favorable, approving
+feminine, womanly
+financial, fiscal
+fine, small-grained or smooth
+finished, ruined
+first, initial
+first-hand, direct
+flat, horizontally level
+flawed, imperfect
+flawed, blemished
+flawed, faulty
+flexible, bendable
+formal, adhering to traditional standards
+forward, at
+forward, near or directed toward the front
+fragrant, pleasant-smelling
+frank, candid
+frank, blunt
+frank, forthright
+free, able to act at will
+free, complimentary
+free, costless
+free, gratis
+free, not occupied
+fresh, recently made
+fresh, produced
+fresh, or harvested
+fresh, insolent
+fresh, impertinent
+fresh, impudent
+fresh, sassy
+friendly, befitting a friend
+frozen, unthawed
+full, containing as much as is possible
+full, replete
+full, filled to satisfaction with food
+functional, designed for or capable of a particular function
+funny, amusing
+funny, laughable
+general, applying to most members of a category
+genetic, genetical
+genuine, not fake or counterfeit
+good, beneficial
+good, salutary
+good, just
+good, upright
+good, virtuous
+gradual, proceeding in small stages
+grand, luxurious
+grand, opulent
+grand, sumptuous
+graphic, explicit
+graphic, descriptive
+graphic, pictorial
+graphic, lifelike
+graphic, vivid
+grateful, thankful
+great, outstanding
+great, very valuable
+great, large in size
+great, number or extent
+green, unripe
+green, unripened
+gregarious, sociable
+handy, easy to use
+hard, not yielding to pressure
+harmful, noxious
+harsh, coarse
+harsh, large-grained or rough to the touch
+healthy, fit
+heavy, of great physical weight
+helpless, incapacitated
+high, greater than normal in degree or intensity or amount
+hilarious, uproarious
+homosexual, gay
+honest, sincere
+hostile, characterized by enmity or ill will
+hot, being of high temperature
+hot, marked by intensity
+hot, vehemence
+hot, passion
+huge, immense
+huge, vast
+ignorant, lacking basic knowledge
+ignorant, naive
+ignorant, unsophisticated
+immune, resistant
+imperial, relating to an empire
+implicit, inexplicit
+important, significant
+inappropriate, not suitable
+incapable, incompetent
+incongruous, discrepant
+incredible, unbelievable
+indirect, not direct in manner or language
+indoor, inside
+infinite, having no limits or boundaries in time or space
+innocent, guiltless
+innocent, clean-handed
+integrated, not segregated
+interactive, synergistic
+intermediate, lying between two extremes
+invisible, unseeable
+jealous, covetous
+jealous, envious
+joint, united or combined
+judicial, juridical
+judicial, juridic
+junior, younger or lower in rank
+just, equitable
+large, big
+last, concluding
+last, final
+last, terminal
+late, belated
+late, tardy
+latest, newest
+latest, up-to-date
+lazy, indolent
+lazy, otiose
+lazy, slothful
+lazy, work-shy
+left, belonging to the political or intellectual left
+liberal, tolerant of change
+light, of little weight
+light, light-colored
+light, bright
+light, emitting light
+likely, probable
+likely, plausible
+limited, small in range or scope
+linear, one-dimensional
+live, unrecorded
+lonely, alone
+lonely, lone
+lonely, solitary
+long, of great spatial extension
+long, of relatively great duration
+loose, not tight
+loose, constrained or constricted
+lost, no longer in your possession or control
+lost, spiritually or physically doomed or destroyed
+loud, characterized by sound of great volume
+low, being at small elevation
+depressed, blue
+magnetic, relating to magnetism
+main, chief
+main, primary
+main, principal
+major, greater in scope or effect
+major, of full legal age
+manual, requiring human effort
+marine, nautical
+marine, maritime
+marine, relating to the sea
+mature, having reached full natural growth or development
+mature, ripe
+mature, fully developed and ready to be eaten
+maximum, maximal
+mechanical, using a mechanism
+medieval, from the Middle Ages
+mild, moderate
+minimum, minimal
+minor, lesser in scope or effect
+miserable, abject
+miserable, scummy
+miserable, contemptible
+mobile, moving or capable of moving readily
+modest, not offensive to sexual mores
+monstrous, atrocious
+monstrous, heinous
+monstrous, grotesque
+moral, relating to principles of right and wrong
+moving, arousing deep emotion
+musical, talented in or devoted to music
+mutual, reciprocal
+narrow, not wide spatially
+narrow, narrow-minded
+national, relating to a nation or country
+native, belonging to one by birth
+negative, disconfirming
+negative, reckoned in a direction opposite to positive
+nervous, neural
+nervous, skittish
+neutral, of no distinctive quality
+new, recently created
+new, unused or little used
+new, unfamiliar
+noble, having elevated character
+noble, belonging to hereditary aristocracy
+normal, conforming with a norm or standard
+notorious, ill-famed
+notorious, infamous
+nuclear, atomic
+obese, overweight
+objective, nonsubjective
+obscure, unknown
+offensive, unpleasant or disgusting
+offensive, for the purpose of attack
+official, having official authority
+old, elderly
+old, having lived for a relatively long time
+open, affording free passage
+open, overt
+operational, pertaining to a process
+opposed, being in opposition
+oral, of or involving the mouth
+ordinary, not exceptional
+original, fresh
+original, unusual
+original, first
+orthodox, adhering to what is commonly accepted
+other, not the same
+outer, being on the outside
+outside, outdoor
+outside, out-of-door
+parallel, equidistant and not intersecting
+paralyzed, paralytic
+paralyzed, unable to move
+particular, finicky
+particular, fussy
+particular, peculiar
+particular, special
+passive, inactive
+past, earlier than the present time
+perfect, complete
+perfect, without defect
+permanent, lasting
+persistent, lasting
+personal, concerning a particular person
+petty, small-minded
+physical, involving the body
+plain, simple
+pleasant, delightful
+polite, courteous
+poor, characterized by poverty
+popular, regarded with great favor
+popular, approval
+popular, or affection
+positive, accepting
+positive, confirming
+possible, potential
+practical, concerned with actual use or practice
+practical, efficient
+premature, untimely
+present, intermediate between past and future
+present, being here
+presidential, relating to a president or presidency
+primary, of first rank or importance or value
+private, concerning things personal
+productive, generative
+profound, deep
+progressive, favoring or promoting progress
+proper, suitable
+proud, feeling self-respect
+provincial, characteristic of the provinces
+public, not private
+pure, having no faults
+pure, sinless
+pure, free of extraneous elements of any kind
+qualified, meeting the standards and requirements
+quiet, silent
+quiet, quiescent
+random, arbitrary
+rare, infrequent
+rare, uncommon
+rational, based on reasoning
+raw, not treated with heat
+ready, prepared
+real, actual
+real, existent
+real, being or occurring in fact or actuality
+real, actual
+real, genuine
+reasonable, sensible
+reckless, foolhardy
+regular, in accordance with fixed order or procedure
+related, connected by kinship
+related, connected logically or causally
+relative, not absolute
+reliable, dependable
+representative, standing for something else
+resident, living in a particular place
+respectable, worthy of respect
+responsible, held accountable
+responsible, worthy of trust
+restless, antsy
+restless, itchy
+restless, fidgety
+retired, no longer active in your work
+revolutionary, advocating or engaged in revolution
+rich, possessing material wealth
+right, correct
+romantic, amatory
+romantic, amorous
+rotten, decayed
+rotten, rotted
+rotten, crappy
+rotten, lousy
+rotten, shitty
+rotten, stinking
+rotten, stinky
+rough, unsmooth
+round, circular
+sacred, concerned with religion or religious purposes
+safe, free from danger
+satisfied, quenched
+satisfied, slaked
+seasonal, occurring at a particular season
+seasonal, occurring at or dependent on a particular season
+secular, laic
+secular, lay
+secure, protected
+senior, older or higher in rank
+sensitive, having acute mental or emotional sensibility
+separate, independent
+serious, sober
+shallow, lacking physical depth
+shallow, lacking depth of intellect or knowledge or feeling
+sharp, having a thin edge or sharp point
+short, having little length
+short, of limited duration
+shy, timid
+shy, diffident
+sick, ill
+similar, alike
+similar, like
+single, unmarried
+single, individual
+single, separate
+skilled, skillful
+slippery, slippy
+slow, not moving quickly
+small, little
+smart, clever
+smart, bright
+smooth, having a surface free from roughness
+social, living together or enjoying life in communities
+socialist, socialistic
+soft, lacking in hardness
+soft, relatively low in volume
+soft, nonalcoholic
+solid, neither liquid nor gaseous
+solid, entirely of one substance with no holes inside
+sound, in good condition
+sour, having a sharp biting taste
+spontaneous, self-generated
+square, having four equal sides and four right angles
+stable, resistant to change
+standard, conforming to a standard of measurement
+steep, having a sharp inclination
+sticky, gluey
+sticky, glutinous
+sticky, gummy
+muggy, sticky
+muggy, steamy
+still, inactive
+still, motionless
+still, static
+straight, square
+straight, honest
+straight, fair
+straight, decent
+straight, free from curves or angles
+strange, unusual
+strategic, strategical
+strict, severe
+strict, nonindulgent
+strong, potent
+strong, hard
+strong, having a high alcoholic content
+strong, firm
+strong, secure
+strong, unattackable
+stubborn, obstinate
+stunning, strikingly beautiful or attractive
+superior, of high or superior quality
+supplementary, auxiliary
+supplementary, subsidiary
+sweet, sweet-tasting
+sympathetic, appealing
+sympathetic, likeable
+systematic, characterized by order and planning
+talented, gifted
+talkative, chatty
+talkative, gabby
+talkative, garrulous
+tasty, delicious
+temporary, impermanent
+tender, easy to cut or chew
+tender, gentle
+tender, sympathetic
+tender, feeling
+tense, taut
+tense, rigid
+tense, stretched tight
+tense, in a state of physical or nervous tension
+terminal, endmost
+thick, of a specific thickness
+thick, dense in consistency
+thin, lean
+thirsty, needing or desiring to drink
+thoughtful, considerate
+thoughtful, showing concern
+tidy, neat
+tidy, orderly
+tidy, clean
+tight, constrained
+tight, constricted
+tight, constricting
+tired, fatigued
+tolerant, respecting others
+tough, tough
+tough, hard
+tough, rough
+tough, not given to gentleness or sentimentality
+transparent, see-through
+transparent, sheer
+trivial, banal
+trivial, commonplace
+tropical, typical of the tropics
+true, consistent with fact or reality
+unanimous, in complete agreement
+unaware, unwitting
+unfair, partial
+unfair, biased
+unfortunate, not favored by fortune
+uniform, unvarying
+unique, unequaled
+unique, unparalleled
+global, universal
+global, worldwide
+unlawful, illegitimate
+unlawful, illicit
+unlike, unequal
+unlikely, improbable
+unpleasant, disagreeable
+useful, utile
+vague, undefined
+vain, self-conceited
+vain, swollen-headed
+valid, well grounded in logic or truth
+vertical, perpendicular
+viable, feasible
+viable, practicable
+viable, workable
+vigorous, strong physically or mentally
+visible, seeable
+visual, ocular
+visual, optic
+visual, optical
+warm, producing a comfortable degree of heat
+warm, friendly and responsive
+weak, having little physical or spiritual strength
+well, in good health
+white, achromatic
+white, caucasian
+whole, including all components
+wild, untamed
+wild, marked by lack of restraint or control
+wrong, contrary to conscience or morality or law
+wrong, based on error
+young, youthful
+abbey, monastery
+abortion, termination pregnancy
+absence, failure to be present
+absorption, preoccupation
+absorption, engrossment
+absorption, soaking up
+absorption, social assimilation
+abuse, maltreatment
+abuse, ill-treatment
+abuse, insult
+academy, learned establishment
+accent, speech pattern
+acceptance, adoption
+acceptance, espousal
+acceptance, favorable reception
+access, entree
+access, accession
+access, admittance
+access, right to obtain or make use of
+accident, fortuity
+accident, chance event
+accident, mishap
+account, explanation
+account, accounting
+account, account statement
+accountant, comptroller
+accountant, controller
+accumulation, accretion
+achievement, accomplishment
+acid, water-soluble compound with sour taste
+acquaintance, familiarity
+acquaintance, personal knowledge
+acquaintance, familiar person
+acquisition, possession
+act, human action
+act, human activity
+act, subdivision of a play or opera or ballet
+action, legal action
+action, military action
+action, series of events that form a plot
+activity, activeness
+activity, trait of being active
+addition, summation
+addition, plus
+addition, add-on
+addition, improver
+address, place where a person or organization can be found
+administration, presidency
+admiration, esteem
+admission, acknowledgment
+admission, entrance fee
+adoption, child adoption
+adult, grownup
+advance, cash advance
+advantage, benefit
+adventure, escapade
+adventure, risky venture
+advertising, ad
+advertising, advertisement
+advice, proposal for an appropriate course of action
+adviser, advisor
+adviser, consultant
+advocate, proponent
+affair, affaire
+affair, intimacy
+affair, liaison
+affair, involvement
+affinity, natural attraction
+affinity, kinship
+age, how long something has existed
+old age, years
+age, historic period
+agency, business that serves other businesses
+agenda, order of business
+agent, representative who acts on behalf of others
+agent, federal agent
+agony, torment
+agreement, accord
+agriculture, farming
+agriculture, husbandry
+aid, economic aid
+AIDS, acquired immune deficiency syndrome
+air, mixture of gases
+aisle, passage between seats or supermarket shelves
+alarm, warning device
+alarm, alarm system
+alarm, alarm clock
+alarm, dismay
+alarm, consternation
+alarm, fear
+album, book of blank pages
+album, record album
+alcohol, alcoholic beverage
+alcohol, intoxicant
+alcohol, inebriant
+allocation, allotment
+allocation, share
+allowance, money allowed or granted
+ally, friendly nation
+ally, friend
+aluminium, aluminum
+aluminium, Al
+aluminium, silvery metal
+ambiguity, equivocalness
+ambition, ambitiousness
+analysis, psychoanalysis
+analyst, psychoanalyst
+angel, spiritual being
+anger, ire
+angle, slant
+angle, bias
+angle, space between two lines
+animal, animate being
+animal, beast
+animal, brute
+animal, creature
+animal, fauna
+ankle, ankle joint
+anniversary, day of remembrance
+announcement, proclamation
+announcement, declaration
+ant, social insect
+anticipation, expectancy
+anxiety, anxiousness
+apathy, absence of emotion or enthusiasm
+apology, expression of regret
+apparatus, setup
+apparatus, equipment
+appeal, appealingness
+appeal, charm
+appeal, solicitation
+appearance, visual aspect
+appendix, body part
+appendix, supplementary material
+appetite, craving
+apple, fruit with red
+apple, yellow or green skin
+application, practical application
+application, verbal or written request for assistance or employment or admission
+appointment, job
+appointment, post
+approval, blessing
+aquarium, fish tank
+aquarium, marine museum
+arch, archway
+architecture, building design
+archive, archives
+area, expanse
+area, surface area
+arena, place for spectacles
+argument, argumentation
+argument, debate
+arm, human limb
+army, ground forces
+arrangement, placement
+arrow, projectile
+arrow, pointer
+arrow, indicator
+art, artistic creation
+art, artistic production
+article, nonfictional prose forming an independent part of a publication
+artist, creative person
+ash, residue from a fire
+aspect, facet
+assault, physical attack
+rape, rape
+rape, violation
+rape, assault
+rape, ravishment
+assembly, assemblage
+assembly, gathering of people
+assembly, fabrication
+assembly, construction
+assessment, judgment
+assessment, judgement
+assessment, appraisal
+asset, plus
+asset, valuable quality
+assignment, task
+association, mental connection
+association, formal organization of people
+association, affiliation
+assumption, premise
+assumption, premiss
+asylum, refuge
+asylum, sanctuary
+asylum, shelter
+athlete, jock
+athlete, sportive person
+atmosphere, envelope of gases
+atmosphere, ambiance
+atmosphere, ambience
+attachment, supplementary part
+attachment, affection
+attachment, fondness
+attack, onslaught
+attack, physical attack
+attack, strong criticism
+attention, faculty or power of mental concentration
+attic, loft
+attic, garret
+attitude, mental attitude
+attraction, attractiveness
+attraction, entertainment offered to the public
+attraction, physical force
+auction, auction sale
+audience, spectators
+audience, listeners
+auditor, student
+aunt, auntie
+aunt, relative
+authority, expert whose views are taken as definitive
+authority, persons who exercise administrative control
+autonomy, self-sufficiency
+autonomy, personal independence
+avenue, boulevard
+average, norm
+aviation, operation of aircraft
+award, prize
+axis, axis of rotation
+baby, babe
+baby, infant
+back, rear
+back, side that goes last or is not normally seen
+back, spinal column
+back, vertebral column
+back, spine
+back, backbone
+background, social heritage
+background, ground
+background, part of a scene behind objects
+background, setting context
+bacon, pork
+suitcase, bag
+suitcase, luggage
+bag, supple container
+balance, proportion
+balance, proportionality
+balance, equality between credit and debit
+balance, state of equilibrium
+ball, object that is hit or thrown or kicked in games
+ball, formal dance
+ball, globe
+ball, orb
+ball, object with a spherical shape
+ballet, dance
+ballot, voting document
+ban, prohibition
+ban, proscription
+banana, elongated crescent-shaped yellow fruit
+band, banding
+band, stripe
+band, ring
+band, jewelry
+band, range of frequencies between two limits
+band, instrumentalists
+bang, clap
+bang, eruption
+bang, blast
+bang, bam
+bank, depository financial institution
+bank, sloping land
+banner, streamer
+bar, rigid piece of metal or wood
+bar, barroom
+bar, saloon
+bar, horizontal rod that serves as a support for gymnasts
+bar, legal profession
+bark, tree covering
+barrel, cask
+barrel, gun barrel
+barrier, separator obstructing vision or access
+base, pedestal
+base, stand
+base, flat bottom on which something sits
+base, bottom side of a geometric figure
+baseball, baseball game
+basin, washbasin
+basin, washbowl
+basin, washstand
+basin, lavatory
+basis, base
+basis, foundation
+basis, fundament
+basket, handbasket
+basketball, hoops
+basketball, basketball game
+bat, nocturnal mouselike mammal
+bathtub, bath
+bathtub, bathing tub
+bathtub, tub
+bathroom, bath
+bathroom, toilet
+bathroom, lavatory
+battery, assault
+battery, electric battery
+battle, conflict
+battle, fight
+battle, engagement
+battlefield, battleground
+battlefield, field of battle
+battlefield, field
+bay, indentation of a shoreline
+beach, shore
+beam, long thick piece of wood
+beam, metal or concrete
+beam, light beam
+beam, ray
+bean, edible bean
+bear, omnivorous mammal
+beard, facial hair
+beat, pulse
+beat, pulsation
+beat, heartbeat
+bed, piece of furniture
+bed, plot of ground in which plants are growing
+bedroom, sleeping room
+bee, insect
+beef, meat
+beer, alcoholic beverage
+beginning, first part or section of something
+behavior, conduct
+belief, cognitive content held as true
+bell, doorbell
+bell, buzzer
+belly, abdomen
+belly, stomach
+belt, clothing accessory
+bench, long seat
+bench, workbench
+beneficiary, recipient
+benefit, welfare
+benefit, performance to raise money for a charitable cause
+berry, small edible fruit
+bet, wager
+Bible, Christian Bible
+Bible, Book
+Bible, Good Book
+Bible, Holy Scripture
+motorcycle, motorbike
+motorcycle, bike
+bill, beak
+bill, circular
+bill, handbill
+bill, broadside
+bill, broadsheet
+bill, flier
+bin, container
+biography, life story
+biology, plant and animal life
+bird, warm-blooded egg-laying vertebrate
+birthday, anniversary of the day someone is born
+biscuit, cookie
+bishop, clergyman
+bitch, female dog
+bitch, unpleasant woman
+snack, bite
+snack, collation
+snack, light meal
+bite, sting
+bite, insect bite
+black, total darkness
+black, blackness
+blackmail, extortion
+blade, part of a knife
+blade, leaf blade
+blast, explosion
+block, city block
+block, cube
+bloodshed, gore
+blow, powerful stroke
+blow, reversal
+blow, setback
+blue, blueness
+blue, color
+blue jean, jeans
+blue jean, denim pants
+board, gameboard
+board, committee having supervisory powers
+board, plank
+board, stout length of sawn timber
+boat, a small vessel for travel on water
+body, organic structure
+body, physical structure
+body, torso
+body, trunk
+body, dead body
+bolt, type of screw that screws into a nut
+bolt, thunderbolt
+bolt, bolt of lightning
+bomb, explosive device
+bomber, military aircraft
+bomber, person who plants bombs
+bond, shackle
+bond, hamper
+bond, bail
+bond, alliance
+bone, body part
+book, volume
+book, written work
+boom, economic prosperity
+boot, footwear
+border, boundary line
+border, borderline
+border, delimitation
+bottle, vessel
+freighter, merchant ship
+bottom, underside
+bottom, undersurface
+bow, arrow launcher
+bow, interlaced ribbons
+bowel, intestine
+bowel, gut
+bowl, vessel
+stadium, bowl
+stadium, arena
+stadium, sports stadium
+box, container
+boy, young male
+boy, male child
+bracket, punctuation mark
+bracket, category
+brain, encephalon
+brain, grey matter
+brain, genius
+brain, mastermind
+brake, restraint used to stop a vehicle
+branch, limb
+brand, make
+bread, breadstuff
+bread, food made from dough
+break, fracture
+break, pause
+break, intermission
+break, interruption
+break, suspension
+breakdown, equipment failure
+breakdown, mental or physical crack-up
+breakfast, morning meal
+breast, bosom
+breast, tit
+breeze, zephyr
+breeze, gentle wind
+breeze, air
+breeze, gust
+brick, block of baked clay
+bride, participant in a marriage ceremony
+bridge, span
+broadcast, transmitted message
+broccoli, vegetable
+bronze, sculpture made of bronze
+brother, sibling
+brother, brother by blood or adoption
+brother, Brother
+brother, monk
+brother, comrade
+brush, implement with hairs or bristles
+bubble, hollow globule of gas
+bucket, pail
+budget, sum of money allocated
+buffet, meal set out on a counter
+building, edifice
+bulb, light bulb
+bulb, plant bulb
+bullet, slug
+bullet, projectile
+bulletin, brief report
+bundle, sheaf
+burial, entombment
+burial, inhumation
+burial, interment
+burn, injury
+suntan, tan
+suntan, sunburn
+bus, autobus
+bus, coach
+bush, shrub
+bush, woody plant
+business, occupation
+business, job
+business, line of work
+business, line
+business, commercial enterprise
+business, business enterprise
+butterfly, diurnal insect
+button, round fastener for clothes
+button, push button
+cabin, aircraft cabin
+cabin, small wooden house
+cabinet, cupboard-like repository
+cabinet, persons appointed by a head of state
+cable, strong thick rope
+cafe, coffee shop
+cafe, coffee bar
+cage, coop
+cake, mixture of flour and sugar and eggs
+calculation, computation
+calculation, figuring
+calculation, reckoning
+calculation, deliberation
+calculation, planning
+calendar, system of timekeeping
+calf, young cattle
+call, brief social visit
+call, phone call
+call, telephone call
+call, cry
+call, outcry
+call, yell
+call, shout
+call, vociferation
+call, birdcall
+call, birdsong
+call, song
+calorie, kilocalorie
+calorie, nutritionist's calorie
+camera, photographic camera
+camp, forced labor prison
+camp, summer camp
+camp, refugee camp
+clique, coterie
+clique, ingroup
+clique, inner circle
+clique, pack
+clique, camp
+campaign, military campaign
+safari, hunting expedition
+campaign, political campaign
+cancer, malignant disease
+candidate, campaigner
+candidate, nominee
+candle, taper
+candle, wax light
+cane, walking stick
+canvas, canvass
+canvas, fabric
+cap, headdress
+cap, bottle top
+capital, capital letter
+capital, upper case
+capital, seat of government
+capital, wealth in the form of money or property
+captain, skipper
+captain, naval officer
+car, auto
+car, automobile
+car, motorcar
+carbon, C
+carbon, atomic number 6
+card, playing card
+card, postcard
+card, identity card
+card, calling card
+card, visiting card
+card, menu
+card, bill of fare
+card, carte du jour
+card, carte
+care, maintenance
+care, upkeep
+care, attention
+care, aid
+care, tending
+care, caution
+care, precaution
+care, forethought
+care, judiciousness
+concern, fear
+concern, anxious feeling
+career, calling
+career, vocation
+carpet, rug
+carpet, carpeting
+carriage, baby carriage
+carriage, perambulator
+carriage, pram
+carriage, stroller
+posture, bearing
+posture, carriage
+mail carrier, mailman
+mail carrier, postman
+mail carrier, letter carrier
+carrot, deep orange edible root
+cart, handcart
+cart, pushcart
+case, lawsuit
+case, suit
+case, cause
+case, causa
+case, display case
+case, showcase
+case, vitrine
+case, instance
+case, example
+cash, hard cash
+cash, hard currency
+cassette, container holding magnetic tape
+cast, plaster cast
+cast, plaster bandage
+cast, actors
+castle, fortified building
+casualty, someone injured or killed
+cat, feline
+catalogue, catalog
+catch, hidden drawback
+category, general concept
+cathedral, large church
+cattle, cows
+cattle, bull
+cause, causal agent
+cave, underground enclosure
+ceiling, surface of a room
+ceiling, cap
+ceiling, upper limit
+celebration, festivity
+cell, basic structural and functional unit of all organisms
+cell, jail cell
+cell, cubicle
+cell phone, cellular telephone
+cellar, basement
+cemetery, graveyard
+cemetery, burial site
+cemetery, burial ground
+censorship, deletion of material in art works
+census, nose count
+center, building dedicated to a particular activity
+center, midpoint
+center, middle
+center, heart
+century, period of 100 years
+cereal, breakfast food
+ceremony, ceremonial occasion
+chain, series of rings or links
+necklace, chain
+chain, number of similar establishments
+chair, professorship
+chair, seat
+chalk, piece of chalk
+challenge, questioning a statement
+challenge, demanding or stimulating situation
+champagne, bubbly wine
+champion, champ
+champion, title-holder
+chance, probability
+chance, luck
+chance, fortune
+chance, hazard
+chance, opportunity
+change, alteration
+change, modification
+change, money received in return
+channel, TV channel
+channel, narrow body of water
+channel, canal
+chaos, pandemonium
+chaos, bedlam
+chaos, topsy-turvyness
+crevice, cranny
+crevice, crack
+crevice, fissure
+chapter, subdivision of a written work
+character, grapheme
+character, graphic symbol
+character, written symbol
+character, fictional character
+character, good repute
+characteristic, distinguishing quality
+charge, billing
+charge, accusation
+charge, electric charge
+charity, gift
+charity, institution set up to provide help for the needy
+charm, good luck charm
+chart, map for navigation
+chart, display of information
+charter, document
+chauvinist, prejudiced person
+check, chess move
+check, confirmation
+check, verification
+check, tab
+check, restaurant bill
+check, check mark
+check, tick
+cheek, boldness
+cheek, nerve
+cheek, brass
+cheek, face
+cheek, side of the face
+cheek, impudence
+cheek, impertinence
+cheese, food
+chemistry, chemical science
+cheque, check
+cheque, bank check
+cherry, fruit
+chest, chest of drawers
+chest, bureau
+chest, dresser
+chest, thorax
+chest, pectus
+chest, part of the human torso
+chicken, domestic fowl
+chicken, wimp
+chicken, crybaby
+chief, foreman
+chief, boss
+child, kid
+chimney, flue
+chin, lower jaw
+chip, microchip
+chip, crisp
+chip, potato chip
+chip, bit
+chip, flake
+chip, fleck
+chip, scrap
+chip, small fragment
+chocolate, sweet food
+choice, option
+choice, alternative
+chord, combination of notes
+chorus, choir
+chorus, singing group
+church, church building
+cigarette, butt
+cigarette, fag
+cinema, movie theater
+cinema, theater
+circle, geometric figure
+circulation, movement through a circuit
+circumstance, context
+citizen, member of a state
+city, metropolis
+city, urban center
+civilian, nonmilitary citizen
+civilization, society in an advanced state
+claim, demand
+claim, assertion
+clash, friction
+clash, conflict
+class, social class
+class, socio-economic class
+class, form
+class, grade
+classroom, schoolroom
+corpse, cadaver
+corpse, remains
+clay, fine-grained soil
+clearance, headroom
+clerk, clerical worker
+salesperson, salesclerk
+salesperson, shop clerk
+climate, clime
+climate, weather
+clinic, medical establishment
+clock, timepiece
+clothes, apparel
+clothes, wearing apparel
+clothes, dress
+club, bat
+club, stout stick that is larger at one end
+club, playing card in the minor suit of clubs
+club, cabaret
+club, nightclub
+club, nightspot
+club, society
+club, guild
+club, gild
+club, lodge
+club, order
+clue, cue
+clue, evidence
+clue, hint
+cluster, bunch
+cluster, clump
+coach, private instructor
+coach, tutor
+coal, fossil fuel
+coalition, coalescence
+coalition, conglutination
+coast, seashore
+coast, seacoast
+coast, sea-coast
+coat, garment
+coat, coating
+coat, thin layer
+code, coding system for brief or secret messages
+code, computer code
+coffee, beverage
+coffin, casket
+coin, money
+coincidence, happenstance
+cold, coldness
+cold, low temperature
+cold, common cold
+collar, harness
+colleague, co-worker
+colleague, fellow worker
+collection, aggregation
+collection, accumulation
+collection, assemblage
+college, institution of higher education
+colon, part of the large intestine
+colon, punctuation mark
+colony, politically controlled country
+color, hue
+column, pillar
+column, support
+column, linear array of numbers
+coma, deep unconsciousness
+combination, things occurring together
+comedy, humorous drama
+comfort, consolation
+comfort, solace
+comfort, comfortableness
+comfort, ease
+comfort, financial freedom
+command, control
+command, mastery
+command, authoritative instruction
+comment, remark
+gossip, scuttlebutt
+commerce, commercialism
+commerce, mercantilism
+commission, deputation
+commission, delegation
+commission, fee
+commitment, allegiance
+commitment, loyalty
+commitment, dedication
+committee, commission
+communication, something communicated between people
+communist, Marxist
+community, residential district
+community, residential area
+compact, compact car
+company, troupe
+company, companionship
+company, fellowship
+company, society
+compartment, small space or subdivision for storage
+compensation, recompense
+compensation, payment
+competence, competency
+competition, contention
+competition, rivalry
+competition, contest
+compliance, conformity
+compliance, abidance
+complication, complex situation
+composer, music composer
+compound, chemical compound
+compromise, allowance
+compromise, accommodation with concessions
+computer, computing machine
+computing, computer science
+concentration, strength of solution
+concentration, engrossment
+concentration, absorption
+concentration, immersion
+concept, conception
+concept, construct
+conception, fertilization
+concern, interest
+concern, feeling of sympathy
+concert, musical performance
+concession, point conceded
+conclusion, ending
+conclusion, finish
+concrete, strong building material
+condition, circumstance
+condition, precondition
+condition, stipulation
+terms, condition
+condition, status
+condition, state
+conductor, person who collects fares
+conductor, substance that readily transmits electricity or heat
+conference, meeting
+confession, admission of misdeeds
+confidence, feeling of trust
+conflict, incompatibility of dates or events
+conflict, state of opposition between persons or ideas
+confrontation, clash
+confusion, mix-up
+conglomerate, empire
+conglomerate, group of companies
+congress, national legislative assembly
+connection, shifting from one transportation to another
+connection, person who is influential
+connection, link
+connection, connectedness
+conscience, scruples
+conscience, moral sense
+consciousness, alert cognitive state
+consensus, agreement
+conservation, preservation
+conservation, environmental management
+consideration, thoughtfulness
+consideration, careful thought
+conspiracy, cabal
+conspiracy, plot
+constellation, configuration of stars
+constituency, body of voters
+constitution, composition
+constitution, makeup
+constitution, fundamental law
+constraint, restraint
+constraint, physical constraint
+consultation, discussion to consider a point
+consumer, person who uses goods or services
+consumption, ingestion
+contact, close interaction
+contact, touch
+contact, middleman
+contemporary, coeval
+contempt, disdain
+contempt, scorn
+contempt, despite
+contempt, lack of respect
+content, capacity
+context, linguistic context
+context, context of use
+continuation, lengthiness
+continuation, prolongation
+continuation, extension
+contract, binding agreement between two or more persons
+contraction, muscular contraction
+contradiction, contradiction in terms
+contrary, exact opposition
+contrast, opposition or dissimilarity
+contribution, donation
+control, restraint
+control, discipline in personal activities
+control, dominance
+convenience, appliance
+convenience, contraption
+convenience, gadget
+convenience, gizmo
+convention, custom
+convention, large formal assembly
+conversation, talk
+conviction, strong belief
+cooperation, group action
+cooperation, collaboration
+copper, Cu
+copper, metal
+copy, secondary representation of an original
+copyright, right of publication
+cord, corduroy
+cord, fabric
+core, center of an object
+corn, edible corn
+corner, point where three areas or surfaces meet
+corner, recess
+corner, recession
+corner, niche
+correction, rectification
+correspondence, exchange of letters
+corruption, bribery
+costume, attire for special occasions
+cottage, bungalow
+cottage, small house
+cotton, cotton cloth
+cotton, fabric
+council, administrative body
+counter, business table
+country, state
+country, nation
+country, land
+country, rural area
+countryside, rural regions
+coup, coup d'etat
+coup, putsch
+coup, takeover
+couple, twosome
+couple, duo
+couple, duet
+courage, bravery
+courage, braveness
+course, course of action
+course, course of study
+course, course of instruction
+course, class
+course, path
+course, track
+court, courtyard
+court, tribunal
+court, judicature
+court, royal court
+courtesy, considerate act
+cousin, first cousin
+cover, blanket
+cover, screen
+cover, concealment
+coverage, reporting
+coverage, reportage
+coverage, insurance coverage
+cow, bovine
+wisecrack, crack
+wisecrack, quip
+wisecrack, witty remark
+crack, cleft
+crack, crevice
+crack, fissure
+cunning, craftiness
+cunning, guile
+cunning, slyness
+cunning, wiliness
+craft, craftsmanship
+craft, workmanship
+craftsman, artisan
+crash, wreck
+crash, serious accident
+crash, collapse
+crash, financial decline
+cream, ointment
+cream, emollient
+cream, balm
+cream, fat part of milk
+creation, creative activity
+credibility, credibleness
+credibility, believability
+credit, course credit
+credit, recognition
+credit, deferred payment
+credit, money available for a client to borrow
+credit card, plastic money
+creed, credo
+creed, system of principles or beliefs
+crew, men who man a ship or aircraft
+cricket, insect
+crime, law-breaking
+criminal, felon
+criminal, crook
+criminal, outlaw
+criminal, malefactor
+crisis, unstable situation
+critic, one who offers opinions on art
+criticism, critique
+criticism, unfavorable judgment
+crop, harvest
+cross, hybrid
+cross, wooden structure
+crosswalk, crossing
+crosswalk, crossover
+crossing, intersection
+crossing, crossroad
+crowd, large number of things or people
+crown, diadem
+crown, jewelled headdress
+cruelty, mercilessness
+cruelty, pitilessness
+cruelty, ruthlessness
+crutch, staff used as walking aid
+crystal, fancy glassware
+crystal, quartz glass
+crystal, quartz
+crystal, vitreous silica
+cucumber, cuke
+cucumber, green salad vegetable
+culture, product of cultivating micro-organisms
+culture, attitudes and behavior
+culture, civilization
+culture, civilisation
+culture, polish
+culture, refinement
+cup, small open container used for drinking
+cup, cupful
+cupboard, closet
+currency, money
+current, electric current
+curriculum, course of study
+curriculum, academic program
+curtain, drape
+curve, bend
+curve, curved road or river segment
+curve, line on a graph
+curve, curved shape
+custody, holding by the police
+customer, client
+customer, patron
+snub, cold shoulder
+cut, reduction of amount or number
+cut, share of the profits
+cut, gash
+cut, slash
+cut, wound
+cutting, clipping
+cutting, newspaper clipping
+cycle, periodically repeated sequence
+cylinder, shape
+dairy, dairy farm
+damage, harm
+damage, impairment
+danger, condition of being susceptible to harm
+dark, darkness
+date, sweet edible fruit
+date, appointment
+date, engagement
+date, escort
+date, day of the month
+daughter, girl
+daughter, offspring
+day, twenty-four hours
+day, solar day
+deal, act of distributing playing cards
+deal, agreement
+deal, bargain
+dealer, trader
+death, decease
+death, expiry
+death, departure from life
+debate, disputation
+debate, public debate
+debt, money
+debt, goods or services owed
+decade, decennary
+decade, decennium
+decade, period of 10 years
+decay, decomposition
+decay, rotting
+decay, radioactive decay
+deck, floor on a ship
+deck, pack of cards
+deck, deck of cards
+declaration, statement
+decoration, ornament
+decoration, ornamentation
+decrease, lessening
+decrease, drop-off
+deer, forest animal
+default, default option
+nonremittal, default
+nonremittal, nonpayment
+defeat, frustration
+defeat, feeling of defeat
+defendant, suspect
+deficiency, insufficiency
+deficiency, inadequacy
+deficit, shortage
+deficit, shortfall
+definition, concise explanation
+degree, grade
+degree, level
+degree, position on a scale
+degree, seriousness of something
+degree, academic degree
+degree, unit of temperature
+delay, holdup
+delivery, birth
+demand, urgent or peremptory request
+demand, ability and desire to purchase goods and services
+demonstration, public display
+demonstration, demo
+demonstrator, protester
+denial, disaffirmation
+density, denseness
+dentist, tooth doctor
+departure, going away
+dependence, addiction
+deposit, sediment
+deposit, down payment
+deposit, bank deposit
+depression, natural depression
+depression, geological formation
+depression, low
+depression, low pressure
+depression, slump
+depression, economic crisis
+depression, depressive disorder
+depression, clinical depression
+deprivation, want
+deprivation, neediness
+deputy, surrogate
+descent, movement downward
+lineage, descent
+desert, arid land
+design, preliminary sketch
+design, outline
+design, invention
+design, innovation
+architect, designer of buildings
+designer, couturier
+designer, fashion designer
+designer, interior designer
+designer, interior decorator
+desire, feeling
+desk, furniture
+despair, desperate feeling
+destruction, demolition
+destruction, wipeout
+detail, particular
+detail, item
+detective, investigator
+detective, police detective
+detector, sensor
+development, land developed for some purpose
+development, growth
+development, growing
+development, maturation
+deviation, diversion
+deviation, digression
+deviation, deflection
+diagram, drawing
+dialect, idiom
+dialect, special language
+dialogue, lines spoken in drama or fiction
+dialogue, dialog
+dialogue, conversation
+diameter, line through the center of a circle
+diamond, gem
+dictionary, lexicon
+diet, dieting
+difference, dispute
+difference, difference of opinion
+difference, conflict
+difference, remainder
+difference, number that remains after subtraction
+difficulty, trouble
+difficulty, difficultness
+dignity, self-respect
+dignity, self-esteem
+dignity, self-regard
+dilemma, quandary
+dimension, magnitude
+dinner, supper
+diplomat, official engaged in international negotiations
+direction, course
+direction, orientation
+direction, guidance
+direction, counsel
+director, conductor
+director, music director
+director, member of a board of directors
+directory, alphabetical list of names and addresses
+disability, disablement
+disability, handicap
+disability, impairment
+disagreement, dissension
+disagreement, dissonance
+disagreement, discord
+disappointment, letdown
+disaster, calamity
+disaster, catastrophe
+disaster, tragedy
+discipline, correction
+discipline, punishment
+disco, discotheque
+discount, price reduction
+discount, deduction
+sermon, preaching
+sermon, discourse
+discovery, breakthrough
+discovery, find
+discrimination, unfair treatment
+dish, container
+dish, dish aerial
+dish, dish antenna
+dish, item of prepared food
+disk, disc
+disk, flat circular plate
+dismissal, pink slip
+disorder, disorderliness
+disorder, mess
+display, exhibit
+display, showing
+disposition, temperament
+distance, property created by the space between two objects or points
+distance, aloofness
+distortion, misrepresenting
+distortion, optical aberration
+distributor, marketing company
+district, territory
+district, territorial dominion
+disturbance, disruption
+disturbance, commotion
+disturbance, stir
+dividend, bonus
+division, arithmetic operation
+division, army unit
+division, administrative unit
+doctor, doc
+doctor, physician
+doctor, MD
+doctor, Dr.
+doctor, person who holds Ph.D. degree
+document, written document
+document, papers
+dog, domestic dog
+hotdog, frankfurter
+doll, toy
+dollar, dollar bill
+dollar, buck
+dome, hemispherical roof
+domination, mastery
+donor, organ donor
+door, swinging or sliding barrier
+dose, portion of medicine
+double, twice the quantity
+double, stunt man
+double, stand-in per person
+doubt, question
+doubt, dubiousness
+doubt, doubtfulness
+doubt, uncertainty
+doubt, incertitude
+doubt, dubiety
+doubt, doubtfulness
+dough, flour mixture
+dozen, twelve
+draft, conscription
+draft, selective service
+draft, draft copy
+draft, preliminary version
+draft, draught
+draft, air current
+dragon, mythical creature
+drain, drainpipe
+drain, waste pipe
+drama, dramatic event
+drawer, part of a piece of furniture
+drawing, lottery
+drawing, representation
+drawing, artwork
+dream, dreaming
+dream, ambition
+dream, aspiration
+dressing, medical dressing
+drift, something heaped up by wind or water
+drift, gradual departure from a course
+drill, training of soldiers to march
+drill, tool with a sharp point
+drink, beverage
+drink, drinkable
+drink, potable
+drive, ride
+drive, journey
+drive, driveway
+drive, high motivation
+driver, operator of a motor vehicle
+drop, cliff
+drop, drop-off
+drop, bead
+drop, pearl
+drug, substance used as a medicine or narcotic
+drum, tympan
+drum, percussion instrument
+drum, barrel
+duck, bird
+duke, nobleman
+duty, work that you are obliged to perform
+duty, tariff
+eagle, bird
+eagle, emblem representing power
+ear, sense organ
+earthquake, quake
+earthquake, seism
+east, East
+east, Orient
+east, due east
+east, E
+echo, reverberation
+echo, sound reflection
+economics, economic science
+economist, economic expert
+economy, thriftiness
+economy, frugality
+economy, economic system
+edge, sharp side formed by the intersection of two surfaces of an object
+edge, slight competitive advantage
+edition, publication
+education, instruction
+education, teaching
+education, pedagogy
+education, knowledge acquired by learning
+effect, impression
+effect, consequence
+effect, outcome
+effect, result
+effort, attempt
+effort, endeavor
+egg, eggs
+egg, food
+ego, egotism
+ego, self-importance
+elbow, elbow joint
+election, vote
+electron, elementary particle
+electronics, branch of physics
+element, component
+element, constituent
+element, chemical element
+elephant, pachyderm
+elite, elite group
+embarrassment, shame
+embryo, conceptus
+embryo, fertilized egg
+emergency, exigency
+emergency, pinch
+emergency, crisis
+emotion, strong feeling
+emphasis, accent
+empire, monarchy
+employee, worker
+end, goal
+end, conclusion
+end, close
+end, closing
+end, ending
+end, boundary
+enemy, hostile people
+energy, vigor
+engagement, betrothal
+engine, motor
+engine, locomotive
+engineer, applied scientist
+engineer, technologist
+entertainment, amusement
+enthusiasm, lively interest
+entitlement, right granted by law or contract
+entry, entrance
+entry, entranceway
+entry, entryway
+entry, submission
+environment, environs
+environment, surroundings
+episode, installment
+episode, part of a broadcast serial
+equation, mathematical statement
+era, epoch
+error, mistake
+error, fault
+error, erroneous belief
+essay, literary composition
+perfume, essence
+estate, everything you own
+estimate, estimation
+estimate, approximation
+estimate, esteem
+estimate, respect
+estimate, appraisal of value
+estimate, likely cost
+ethics, moral philosophy
+Europe, continent
+evening, eve
+evolution, phylogeny
+evolution, phylogenesis
+examination, test
+example, illustration
+example, instance
+example, representative
+example, exemplar
+example, model
+example, good example
+excavation, dig
+excavation, archeological site
+exception, instance that does not conform to a rule
+excess, surplus
+exchange, act of changing one thing for another
+exchange, mutual expression of views
+excitement, agitation
+excitement, turmoil
+excitement, upheaval
+excitement, hullabaloo
+excitement, excitation
+excitement, fervor
+excitement, mental state
+excuse, alibi
+excuse, exculpation
+excuse, self-justification
+execution, capital punishment
+execution, death penalty
+executive, branch of government
+executive, administrator
+exemption, immunity
+exercise, exercising
+exercise, physical exercise
+exhibition, exposition
+exhibition, expo
+exile, deportation
+exile, expatriation
+exile, expulsion
+exit, issue
+exit, outlet
+exit, way out
+expansion, enlargement
+expectation, anticipation
+expenditure, outgo
+expenditure, outlay
+experience, accumulation of knowledge or skill
+experiment, experimentation
+expertise, expertness
+exploration, geographic expedition
+explosion, detonation
+explosion, blowup
+exposure, vulnerability to the elements
+expression, saying
+expression, locution
+extension, wing
+extension, annex
+extension, addition to a building
+extension, telephone extension
+extension, delay of deadline
+extent, point or degree to which something extend
+extraterrestrial, alien
+extreme, highest degree
+eye, oculus
+eye, optic
+eye, organ of sight
+eyebrow, brow
+facade, frontage
+facade, frontal
+face, human face
+facility, installation
+facility, building or place providing a particular service
+facility, adeptness
+facility, adroitness
+facility, deftness
+facility, quickness
+factor, anything that contributes causally to a result
+factory, mill
+factory, manufacturing plant
+factory, manufactory
+failure, loser
+failure, nonstarter
+failure, unsuccessful person
+failure, lack of success
+failure, bankruptcy
+fair, traveling show
+fair, carnival
+fair, funfair
+fair, promotional gathering of producers
+fairy, faery
+fairy, faerie
+fairy, sprite
+fairy, magical creature
+faith, religion
+faith, religious belief
+fall, drop
+fall, free descent
+descent, declivity
+descent, decline
+descent, fall
+fall, autumn
+twilight, dusk
+twilight, nightfall
+fame, celebrity
+fame, renown
+family, folk
+family, kinfolk
+family, kinsfolk
+family, kin
+fan, buff
+fan, devotee
+fan, lover
+fantasy, illusion
+fantasy, phantasy
+fantasy, fancy
+fare, transportation fee
+fashion, latest style
+fashion, rage
+fashion, fad
+fat, excess bodily weight
+fat, soft greasy substance
+father, male parent
+fault, responsibility for a bad situation
+fault, defect
+fault, flaw
+favor, kind act
+favor, gracious act
+favour, act of gracious kindness
+favourite, darling
+favourite, favorite
+favourite, pet
+fax, facsimile
+fear, fearfulness
+fear, fright
+feast, banquet
+feather, plume
+feather, plumage
+feature, facial feature
+feature, characteristic
+federation, confederation
+federation, confederacy
+federation, political union
+fee, fixed charge
+feedback, response
+feeling, intuitive feeling
+feeling, touch
+feeling, touch sensation
+feminist, women's rightist
+fence, barrier
+ferry, ferryboat
+fever, high body temperature
+few, indefinite but relatively small number
+fibre, fiber
+fiction, literary work
+field, piece of land
+field, playing field
+field, athletic field
+fig, fruit
+fight, fighting
+fight, combat
+figure, design
+figure, pattern
+figure, amount of money expressed numerically
+file, steel hand tool
+file, file cabinet
+file, filing cabinet
+file, data file
+file, single file
+file, Indian file
+film, thin coating
+film, photographic film
+film, cinema
+filter, device that removes something small
+final, final examination
+finance, management of money
+finger, terminal members of the hand
+fireplace, fire
+fire, attack
+fire, flak
+fire, flack
+fire, blast
+fire, ardor
+fire, fervor
+fire, fervency
+fire, fervidness
+fire, flame
+firefighter, fireman
+firm, house
+firm, business firm
+firm, company
+fish, cold-blooded aquatic vertebrates
+fish, flesh of fish used as food
+fisherman, fisher
+fist, clenched fist
+convulsion, fit
+convulsion, paroxysm
+fitness, physical fitness
+fitness, good shape
+fixture, object firmly fixed in place
+flag, emblem
+flash, photoflash
+flash, flashbulb
+flash, flare
+flash, burst of light
+flash, heartbeat
+flash, instant
+flash, jiffy
+flash, split second
+flat, apartment
+flat, flat tire
+flavor, savor
+flavor, smack
+flavor, tang
+flavor, taste experience
+fleet, group of ships
+flesh, body tissue
+flesh, pulp
+flesh, part of a fruit
+flight, escape
+flight, trip by plane
+flight, flight of stairs
+flock, group of animals
+flood, inundation
+floor, flooring
+flour, powdery foodstuff
+flower, plant cultivated for its blooms or blossoms
+flu, influenza
+flu, viral disease
+fluctuation, wavering
+fluctuation, instability
+fly, insect
+fog, daze
+fog, haze
+fog, confusion
+fog, water vapor
+fold, crease
+fold, crimp
+folk music, ethnic music
+folk, folks
+folk, common people
+folklore, unwritten literature or songs
+food, nutrient
+fool, moron
+fool, clown
+fool, jester
+foot, human foot
+foot, ft
+foot, linear unit of length equal to 12 inches
+football, football game
+force, violence
+force, act of aggression
+force, forcefulness
+force, strength
+force, physical energy
+force, intensity
+force, military unit
+force, military force
+force, military group
+forecast, prognosis
+foreigner, alien
+foreigner, noncitizen
+forest, woodland
+forest, timberland
+forest, timber
+forestry, science of planting and caring for forests
+fork, cutlery
+form, shape
+form, pattern
+form, printed document with spaces in which to write
+form, variant
+form, strain
+format, formatting
+format, data format
+format, data formatting
+formation, spatial arrangement
+formula, statement of a fundamental principle
+fortune, luck
+fortune, wealth
+fortune, prosperity
+fate, destiny
+fate, fortune
+fate, luck
+fate, lot
+fate, circumstances
+forum, public meeting
+fossil, plant or animal remains
+foundation, institution supported by an endowment
+foundation, basis
+fountain, water dispenser
+fountain, font
+fox, animal
+fraction, quotient
+fragment, broken-off piece
+skeleton, frame
+skeleton, bones and cartilages
+franchise, dealership
+fraud, fraudulence
+fraud, dupery
+fraud, hoax
+imposter, pretender
+imposter, fake
+imposter, faker
+imposter, sham
+imposter, fraud
+freckle, skin pigment
+freedom, condition of being free
+freight, transportation
+frequency, frequence
+frequency, oftenness
+freshman, first year student
+refrigerator, fridge
+friend, acquaintance
+frog, toad
+frog, toad frog
+front, the side that is seen or that goes first
+front, battlefront
+front, front line
+front, atmospheric phenomenon at the boundary between two air masses
+fruit, ripened reproductive body of a seed plant
+fuel, energy
+fun, merriment
+fun, playfulness
+function, affair
+function, occasion
+function, social occasion
+function, mathematical function
+fund, monetary fund
+funeral, ceremony
+fur, pelt
+fur, hairy coat of a mammal
+furniture, piece of furniture
+fuss, bustle
+fuss, hustle
+fuss, flurry
+fuss, ado
+fuss, stir
+future, hereafter
+future, futurity
+future, time to come
+galaxy, extragalactic nebula
+gallery, art gallery
+gallon, gal
+gallon, liquid unit
+game, contest with rules to determine a winner
+game, amusement or pastime
+gap, crack
+gap, narrow opening
+garage, building
+garage, car repair shop
+garbage, refuse
+garbage, waste
+garlic, aromatic bulb used as seasoning
+gas pedal, accelerator
+gas, state of matter distinguished from solid and liquid
+gas, gasoline
+gas, petrol
+gate, door
+gear, gear mechanism
+gene, segment of DNA
+general, full general
+general, officer
+generation, coevals
+generation, contemporaries
+brilliance, brilliance
+gesture, motion of hands or body
+ghost, visible disembodied soul
+ghostwriter, ghost
+giant, hulk
+giant, very large person
+gift, present
+girlfriend, lady friend
+girl, female child
+glacier, mass of ice
+glance, glimpse
+glance, quick look
+glass, drinking glass
+glass, looking glass
+glass, mirror
+glass, brittle transparent solid
+glasses, eyeglasses
+glasses, spectacles
+glimpse, brief view
+gloom, gloominess
+gloom, glumness
+gloom, atmosphere of depression
+glory, prestige
+glove, handwear
+glow, steady even light
+glue, adhesive
+goal, successful attempt at scoring
+goal, sports equipment
+goal, finish
+goal, destination
+goalkeeper, goalie
+goalkeeper, goaltender
+goat, domestic animal
+god, deity
+god, divinity
+gold, Au
+gold, atomic number 79
+golf, golf game
+good, commodity
+good, trade good
+good, goodness
+good, moral excellence
+government, authorities
+government, regime
+governor, head of a state
+gown, robe for ceremonial occasions
+grace, beauty of movement
+grace, good will
+grace, kindness
+gradient, grade of a slope
+graduate, alumnus
+graduate, alumna
+graduate, alum
+graduate, grad
+grain, food grain
+grain, cereal
+grain, small hard particle
+grandfather, gramps
+grandfather, grandad
+grandmother, grandma
+grant, monetary aid
+grass, pot
+grass, dope
+grass, weed
+grass, Mary Jane
+grass, marijuana
+grass, lawn
+grave, tomb
+gravel, crushed rock
+gravity, graveness
+gravity, sobriety
+gravity, soberness
+gravity, somberness
+gravity, gravitation
+gravity, gravitational force
+green, greenness
+green, viridity
+green, Green
+green, environmentalist
+greeting, salutation
+grief, heartache
+grief, heartbreak
+grief, brokenheartedness
+grimace, face
+grimace, contorted facial expression
+grip, grasp
+grip, controlling influence
+traction, grip
+traction, adhesive friction
+ground, land
+ground, dry land
+ground, earth
+ground, solid ground
+ground, terra firma
+grounds, evidence
+grounds, basis for belief or disbelief
+growth, vegetation that has grown
+growth, increase
+growth, increment
+growth, abnormal proliferation of tissue
+guarantee, warrant
+guarantee, warrantee
+guard, bodyguard
+guard, watchman
+guerrilla, insurgent
+guest, invitee
+guide, guidebook
+guide, someone who shows the way
+guideline, guidepost
+guideline, rule of thumb
+guilt, guiltiness
+guitar, stringed instrument
+gun, weapon
+gutter, trough
+gutter, channel for collecting rainwater
+habit, established custom
+habitat, home ground
+hair, natural body covering
+haircut, hairstyle
+half, one-half
+half, one of two equal parts
+hall, large building for meetings or entertainment
+hall, large room for gatherings or entertainment
+hall, hallway
+dorm, dormitory
+dorm, residence hall
+hallway, passage
+hallway, corridor
+halt, freeze
+halt, interruption
+halt, temporary suspension
+ham, meat
+hammer, hand tool
+hand, helping hand
+hand, manus
+hand, mitt
+hand, paw
+hand, round of applause
+hand, deal
+hand, cards held in a game by a player
+hand, hired hand
+hand, hired man
+harbor, seaport
+hardship, adversity
+hardware, computer hardware
+harmony, concord
+harmony, harmoniousness
+harmony, compatibility
+harmony, musical harmony
+harvest, harvest time
+hat, headdress
+hay, grass mowed and cured
+head, obverse side of a tail
+head, body part
+head, chief
+head, top dog
+head, person who is in charge
+headline, newspaper headline
+headquarters, central office
+headquarters, main office
+health, wellness
+health, healthy state of wellbeing
+health, general condition of body and mind
+heart, playing card in the major suit of hearts
+heart, bodily organ
+heart, locus of feelings and intuitions
+heart, figure with rounded sides curving inward at the top
+heat, heating system
+heat, passion
+heaven, paradise
+heaven, place of complete bliss
+heel, back of the foot
+height, altitude
+heir, inheritor
+heir, heritor
+helicopter, chopper
+hell, infernal region
+hell, netherworld
+helmet, headgear
+help, aid
+help, assist
+help, assistance
+help, assistant
+help, helper
+help, supporter
+hemisphere, cerebral hemisphere
+hemisphere, half of the terrestrial globe
+hen, female chicken
+herb, cooking herb
+herd, group of cattle
+sandwich, bomber
+sandwich, grinder
+sandwich, hero
+sandwich, hoagie
+sandwich, sub
+hero, person with exceptional courage
+heroin, drug
+hierarchy, power structure
+hierarchy, pecking order
+highlight, high spot
+hill, elevation of the land
+hip, either side of the body below the waist and above the thigh
+history, discipline that interprets past events
+history, account
+history, chronicle
+history, story
+history, the aggregate of past events
+custody, detention
+custody, detainment
+custody, hold
+hole, opening into or through something
+mess, difficult situation
+mess, fix
+mess, jam
+mess, muddle
+mess, pickle
+holiday, vacation
+holiday, day on which work is suspended
+home, dwelling
+home, domicile
+home, abode
+home, habitation
+home, nursing home
+home, rest home
+honey, sweet food
+honor, honorableness
+honor, laurels
+hook, bent implement
+bait, come-on
+bait, lure
+bait, sweetener
+bait, hook
+hope, wish
+hope, desire and expectancy
+horizon, skyline
+horn, bony outgrowths on the head
+horn, car horn
+horoscope, prediction of the future
+horror, repugnance
+horror, repulsion
+horror, revulsion
+horse, animal
+horse, knight
+horse, chessman
+hospital, infirmary
+hospitality, cordial reception
+hospitality, kindness in welcoming guests or strangers
+host, master of ceremonies
+host, emcee
+host, inviter
+hostage, prisoner held for ransom
+hostility, aggression
+hostility, enmity
+hostility, antagonism
+hour, hr
+hour, 60 minutes
+hour, period of time
+hour, time of day
+hour, clock time
+house, dwelling
+house, legislature
+family, household
+family, home
+family, menage
+houseplant, plant for indoor use
+housewife, homemaker
+housing, lodging
+housing, living accommodations
+human body, physical body
+humanity, humanness
+humor, sense of humor
+hunter, huntsman
+hunting, hunt
+husband, hubby
+hut, hovel
+hut, hutch
+hut, shack
+hypothesis, guess
+hypothesis, conjecture
+hypothesis, surmise
+hypothesis, speculation
+ice, frozen water
+ice cream, frozen dessert
+idea, thought
+ideal, paragon
+ideal, model of excellence or perfection
+identification, identity papers
+identity, personal identity
+identity, individuality
+identity, identicalness
+identity, indistinguishability
+ideology, political theory
+ignorance, lack of knowledge
+illness, unwellness
+illness, malady
+illness, sickness
+illusion, false mental representation
+image, mental image
+image, double
+image, look-alike
+impact, striking of one body against another
+impact, forceful consequence
+impact, strong effect
+implication, logical implication
+import, importation
+improvement, condition superior to an earlier one
+momentum, impulse
+momentum, force
+impulse, caprice
+impulse, whim
+incentive, inducement
+incentive, motivator
+incentive, carrot
+inch, in
+inch, unit of length
+incident, event
+increase, increment
+index finger, forefinger
+index, alphabetical listing
+indication, suggestion
+industry, manufacture
+industry, diligence
+industry, industriousness
+infection, contagion
+infection, transmission
+inflation, rising prices
+influence, power to affect persons or events
+influence, effect of one thing or person
+information, info
+infrastructure, basic features of a system
+inhabitant, habitant
+inhabitant, dweller
+inhabitant, denizen
+inhibition, suppression
+inhibition, conscious exclusion of unacceptable thoughts or desires
+initial, first letter of a word
+initiative, first step
+injection, shot
+injury, hurt
+injury, harm
+injury, trauma
+inn, hostel
+inn, hostelry
+inn, lodge
+innovation, invention
+inquiry, inquest
+inside, interior
+brainstorm, sudden insight
+insight, perceptiveness
+insight, understanding
+insistence, insistency
+insistence, act of insisting
+inspector, examiner
+inspiration, sudden intuition
+instinct, inherent aptitude
+institution, mental hospital
+institution, establishment
+instruction, teaching
+instruction, pedagogy
+instrument, device
+instrument, musical instrument
+insurance, indemnity
+insurance, protection
+integration, desegregation
+integrity, moral soundness
+intelligence, ability to comprehend
+intelligence, intelligence service
+intelligence, intelligence agency
+intention, volition
+interest, pastime
+interest, pursuit
+interest, fixed charge for borrowing money
+interface, user interface
+interference, hindrance
+interference, hitch
+interference, preventive
+interference, encumbrance
+intervention, interference
+introduction, first section of a communication
+introduction, presentation
+introduction, intro
+introduction, basic instructional text
+invasion, encroachment
+invasion, intrusion
+investigation, probe
+investment, investment funds
+iron, ferrous metal
+irony, sarcasm
+irony, satire
+island, land mass surrounded by water
+isolation, state of separation
+issue, important question
+offspring, progeny
+offspring, issue
+item, token
+item, individual instance
+ivory, tusk
+jacket, short coat
+jam, preserve
+jar, vessel
+jaw, part of the skull
+jelly, gelatinous substance
+jet, squirt
+jet, spurt
+jet, spirt
+jewel, gem
+jewel, precious stone
+job, task
+job, chore
+job, workplace
+jockey, rider
+joint, disreputable place of entertainment
+joint, body part
+joke, gag
+joke, laugh
+joke, jest
+journal, periodical
+journal, diary
+joy, joyousness
+joy, joyfulness
+judge, justice
+judge, jurist
+judge, magistrate
+judgment, judicial decision
+judgment, cognitive process
+jump, leap
+jump, sudden increase
+jungle, impenetrable forest
+jurisdiction, legal power
+jury, trial jury
+justice, justness
+kettle, boiler
+kettle, metal pot
+key, opening device
+key, tonality
+key, legend
+key, list of words that explain symbols
+kick, sudden stimulation
+kid, young goat
+kidney, bean-shaped excretory organ
+killer, slayer
+king, chess piece
+king, playing card
+king, male monarch
+kingdom, monarchy
+kinship, family relationship
+kit, outfit
+kit, gear
+kitchen, room equipped for preparing meals
+kite, toy
+knee, knee joint
+knife, tool
+knot, fastening formed by looping and tying
+knowledge, cognition
+knowledge, result of perception
+knowledge, learning
+knowledge, or reasoning
+Koran, Quran
+Koran, al-Qur'an
+Koran, Islam Holy Book
+laboratory, lab
+laboratory, research lab
+labour, toil
+labour, working class
+labour, proletariat
+laborer, manual laborer
+lace, delicate fabric
+lack, deficiency
+lack, want
+ladder, steps
+lake, body of water
+lamb, young sheep
+lamp, furniture holding lightbulbs
+land, estate
+land, landed estate
+land, kingdom
+land, realm
+landowner, landholder
+landowner, property owner
+landscape, scenery
+lane, narrow road
+language, linguistic communication
+language, terminology
+language, nomenclature
+lap, body part
+laser, coherent light
+laundry, wash
+laundry, washables
+law, natural scientific law
+law, jurisprudence
+law, police
+law, police force
+lawyer, attorney
+layer, thin sheet
+layout, plan
+layout, design
+lead, position of leadership
+leash, tether
+lead, advantage held by a competitor
+lead, Pb
+lead, atomic number 82
+lead, soft heavy toxic metal
+leader, commander
+leader, person who rules or guides or inspires others
+leadership, leading
+leaf, leafage
+leaf, foliage
+leaflet, brochure
+leaflet, folder
+leaflet, pamphlet
+lease, rental lease
+farewell, leave
+farewell, leave-taking
+farewell, parting
+leave, leave of absence
+lecture, instruction
+lecture, teaching
+left, left side
+left, left hand side
+leftovers, leftover food
+leg, one of the supports for a piece of furniture
+leg, limb
+legend, caption
+legend, fable
+legend, story
+legislation, legislating
+legislation, lawmaking
+legislature, legislative assembly
+lemon, defective artifact
+lemon, fruit
+length, duration
+length, continuance in time
+length, extent of something from beginning to end
+lesson, unit of instruction
+letter, missive
+letter, written message addressed
+letter, letter of the alphabet
+level, floor
+level, storey
+level, story
+level, layer
+level, stratum
+level, grade
+level, tier
+liability, legal obligation and responsibility
+liberty, freedom
+licence, license
+licence, permit
+lid, movable top
+lid, eyelid
+lie, prevarication
+lifestyle, way of living
+lift, ride in a car
+lift, elevator
+lift, ski tow
+lift, ski lift
+light, light source
+light, source of illumination
+lighter, igniter
+lighter, device for lighting or igniting
+light, luminosity
+light, brightness
+light, luminance
+lily, flower
+limb, body part
+limit, demarcation
+limit, demarcation line
+limit, limitation
+line, railway line
+line, rail line
+line, telephone line
+line, phone line
+line, production line
+line, assembly line
+line, dividing line
+line, demarcation
+line, argumentation
+line, logical argument
+line, line of reasoning
+line, line of text
+line, formation of people or things one behind another
+line, wrinkle
+line, furrow
+line, crease
+line, crinkle
+line, seam
+linen, white goods
+link, fastener
+lion, king of beasts
+lip, brim
+lip, rim
+lip, top edge of a vessel
+lip, fleshy folds of tissue surrounding the mouth
+list, tilt
+list, inclination
+list, listing
+literacy, ability to read and write
+literature, creative writing
+litigation, judicial proceeding
+liver, organ
+load, burden
+load, weight
+loan, temporary provision of money
+lobby, vestibule
+lobby, foyer
+lobby, entrance hall
+lobby, pressure group
+location, point in space
+lock, fastener fitted to a door
+lock, curl
+lock, ringlet
+lock, whorl
+log, logarithm
+log, tree trunk
+look, physical appearance
+look, spirit
+look, tone
+look, feel
+look, feeling
+look, flavor
+loop, iteration
+loop, round or oval shape
+loss, red ink
+loss, financial loss
+loss, something that is lost
+lot, parcel of land having fixed boundaries
+lot, deal
+lot, flock
+lot, good deal
+lot, great deal
+lot, heap
+lounge, waiting room
+lounge, waiting area
+sofa, couch
+love, passion
+love, beloved
+love, dear
+love, dearest
+love, loved one
+love, honey
+lover, significant other
+loyalty, trueness
+lump, chunk
+lump, gob
+lump, clod
+lunch, luncheon
+lunch, midday meal
+lung, respiratory organ
+machinery, machines
+magazine, periodic publication
+magnitude, size
+magnitude, extent
+maid, maidservant
+maid, housemaid
+mail, earth mail
+mainstream, prevailing thought
+majority, absolute majority
+majority, legal age
+makeup, cosmetics
+man, homo
+man, human being
+man, human
+man, adult male
+man, male
+management, direction
+manager, director
+manner, personal manner
+manner, way of acting or behaving
+manual, handbook
+manufacture, fabrication
+manufacturer, producer
+map, representation of the earth's surface
+marathon, footrace of 26 miles
+marble, glass ball for games
+marble, rock
+march, marching music
+march, procession of people
+march, March
+march, month
+margin, edge
+margin, blank space on a page
+mark, scratch
+mark, scrape
+mark, scar
+mark, indication of damage
+mark, grade
+mark, score
+market, grocery store
+market, grocery
+market, food market
+marketing, promoting and selling
+wedding, marriage
+wedding, marriage ceremony
+marriage, married couple
+marriage, man and wife
+Mars, the red planet
+marsh, marshland
+marsh, fen
+marsh, fenland
+mask, disguise
+mass, body of matter
+master, maestro
+master, artist of consummate skill
+match, lighter
+match, friction match
+match, formal contest
+match, peer
+match, equal
+match, compeer
+match, catch
+match, a good matrimonial prospect
+material, fabric
+material, cloth
+material, textile
+material, stuff
+mathematics, math
+mathematics, maths
+matrix, rectangular array
+matter, substance
+maximum, upper limit
+mayor, city manager
+maze, labyrinth
+meadow, hayfield
+meal, repast
+meaning, significance
+meaning, signification
+means, instrumentality for accomplishing some end
+measure, measuring stick
+measure, measuring rod
+meat, flesh of animals
+mechanism, piece of machinery
+medal, decoration
+medal, laurel wreath
+medal, medallion
+medal, ribbon
+medicine, medical profession
+medicine, medication
+medicine, medicament
+medicine, medicinal drug
+medium, mass medium
+medium, mass media
+medium, spiritualist
+medium, intermediate state
+meeting, planned coming together
+meeting, encounter
+meeting, casual or unexpected convergence
+member, part of a social group
+memorandum, memo
+memorial, monument
+memorial, commemoration
+memorial, remembrance
+memory, computer memory
+memory, storage
+memory, capacity to remember
+memory, something that is remembered
+menu, computer menu
+menu, dishes planned for a meal
+merchant, merchandiser
+merchant, businessperson
+mercy, clemency
+mercy, mercifulness
+mercy, leniency
+merit, deservingness
+merit, meritoriousness
+message, written
+message, spoken
+message, or signaled communication
+metal, metallic element
+method, way of doing something
+microphone, mike
+middle, intermediate part or section
+midnight, 12 o'clock
+migration, movement from one country to another
+mile, distance
+mill, grinder
+mind, head
+mind, brain
+mind, what is responsible for one's thoughts and feelings
+mind, intellect
+mind, knowledge and intellectual ability
+mine, explosive device
+mine, excavation of ores and minerals
+miner, mineworker
+minimum, lower limit
+minister, pastor
+minister, rector
+minister, government minister
+ministry, government department
+minority, smaller in number
+minute, min
+minute, unit of time equal to 60 seconds
+miracle, supernatural event
+mirror, reflector
+miscarriage, stillbirth
+misery, wretchedness
+misery, miserableness
+missile, projectile
+missile, weapon
+mist, thin fog
+mixture, mix
+model, simulation
+model, framework
+model, poser for a photographer or painter or sculptor
+model, role model
+model, fashion model
+module, component
+mole, small velvety-furred burrowing mammal
+mole, pigmented spot on the skin
+mole, counterspy
+moment, here and now
+moment, present moment
+monarch, sovereign
+monarch, crowned head
+money, currency
+money, wealth
+monk, inhabitant of a monastery
+monkey, long-tailed primate
+monopoly, exclusive control
+monster, freak
+month, calendar month
+mood, temper
+mood, humor
+moon, satellite of the Earth
+morale, team spirit
+morale, individual psychological well-being
+morning, morn
+morning, morning time
+morning, forenoon
+dawn, dawning
+dawn, aurora
+dawn, first light
+dawn, daybreak
+morsel, bit
+morsel, bit
+mosaic, colored stone or glass art
+mosque, place of worship
+mosquito, blood-sucking insect
+mother, female parent
+motif, design
+motivation, motive
+motivation, need
+motorist, automobilist
+highway, expressway
+highway, freeway
+highway, state highway
+mold, fungus
+mold, mould
+mountain, mount
+mountain, land mass projecting above its surroundings
+mourning, bereavement
+mouse, rodent
+mouse, computer mouse
+mouth, oral cavity
+move, relocation
+move, changing your residence or business
+move, player's turn to move a piece or act
+movement, motion
+movement, move
+movement, change of position
+crusade, campaign
+crusade, cause
+movement, social movement
+movement, front
+movement, people with a common ideology
+mud, clay
+mud, soft wet earth
+mug, cup
+multimedia, multimedia system
+murder, slaying
+murder, execution
+muscle, bodily tissue
+museum, exhibition hall
+mushroom, fungus
+mutation, genetic mutation
+myth, traditional story
+nail, thin pointed piece of metal
+nail, body part
+name, language unit by which a person or thing is known
+name, person's reputation
+nationalism, patriotism
+nationalism, love of country
+nationalist, patriot
+nature, essential qualities or characteristics
+nature, natural physical world including plants and animals
+nature, causal agent creating and controlling the universe
+navy, dark blue
+navy, navy blue
+navy, naval forces
+neck, cervix
+neck, connection from head to the rest of the body
+need, demand
+need, indigence
+need, penury
+need, extreme poverty
+needle, sharp pointed implement
+needle, indicator for readings
+neglect, disregard
+negligence, neglect
+negotiation, dialogue
+negotiation, talks
+neighbour, neighbor
+neighbour, person living nearby
+neighborhood, vicinity
+neighborhood, neck of the woods
+nerve, bundle of nerve fibers
+nest, structure in which animals lay eggs
+net, Internet
+net, Net
+net, cyberspace
+net, game equipment
+network, communication system with a group of broadcasting stations
+network, web
+network, interconnected system
+news, intelligence
+news, tidings
+news, word
+news, news program
+news, news show
+news, new information
+night, nighttime
+night, dark
+nightmare, upsetting dream
+node, connecting point
+noise, randomness
+noise, haphazardness
+noise, sound
+nomination, naming a candidate
+nonsense, bunk
+nonsense, hokum
+norm, standard
+north, due north
+north, N
+north, direction
+nose, olfactory organ
+note, annotation
+note, short letter
+note, line
+note, billet
+note, musical note
+note, tone
+note, bill
+note, banknote
+notebook, notebook computer
+notebook, book with blank pages
+notice, announcement
+notice, advance notification
+notion, concept
+novel, fictional work
+number, quantity
+number, numeral
+number, phone number
+number, telephone number
+nun, sister
+nun, religious woman
+nursery, plant nursery
+nursery, greenhouse
+nursery, glasshouse
+nursery, baby's room
+crackpot, crank
+crackpot, nut
+crackpot, nutcase
+crackpot, fruitcake
+nut, hard-shelled seed
+oak, oak tree
+object, physical object
+object, tangible and visible entity
+object, aim
+object, objective
+object, target
+obligation, duty
+obligation, responsibility
+observation, facts learned by observing
+observer, perceiver
+observer, beholder
+obstacle, block
+occasion, time of a particular event
+occupation, military control
+offense, offensive
+offense, attack
+offense, misdemeanor
+offense, infraction
+offense, violation
+offense, discourtesy
+offense, offence
+offender, wrongdoer
+offer, offering
+offer, verbal act of offering
+office, business office
+office, workplace
+officer, policeman
+officer, police officer
+official, functionary
+offspring, young
+oil, cooking oil
+oil, vegetable oil
+oil, viscous liquid
+omission, skip
+omission, mistake resulting from neglect
+onion, edible bulb
+opera, drama set to music
+operation, surgery
+operation, military operation
+operation, business especially one run on a large scale
+operation, functioning
+operation, performance
+opinion, public opinion
+opinion, popular opinion
+opinion, legal opinion
+opinion, judgment
+opinion, judgement
+opponent, adversary
+opponent, antagonist
+opposite, reverse
+opposite, contrary
+opposition, resistance
+opposition, political party opposed
+opposition, enemy
+opposition, foe
+option, right to buy or sell property
+orange, orangeness
+orange, color between red and yellow
+orange, citrus fruit
+orbit, celestial orbit
+orchestra, musical group
+order, decree
+order, edict
+order, request for food or refreshment
+order, orderliness
+organ, pipe organ
+organ, body part
+organisation, group of people who work together
+orientation, position
+orientation, alignment
+origin, descent
+origin, extraction
+origin, background
+origin, provenance
+outfit, getup
+outfit, clothing
+outlet, retail store
+outlet, sales outlet
+outlet, wall socket
+outlet, electric outlet
+outlet, wall socket
+outlet, wall plug
+outlet, electric outlet
+outline, abstract
+outline, precis
+outline, lineation
+outline, linear boundary
+outlook, mentality
+outlook, mindset
+output, end product
+outside, exterior
+outside, outer side or surface
+oven, kitchen appliance
+overall, clothing
+overview, summary
+owl, nocturnal bird
+owner, proprietor someone who owns a business
+pace, tempo
+pace, rate
+pack, bundle carried on the back
+pack, group of hunting animals
+package, bundle
+package, packet
+package, parcel
+packet, small package
+packet, bundle
+page, one side of one leaf
+pain, physical pain
+pain, emotional distress
+pain, painfulness
+pain, pain in the neck
+pain, nuisance
+paint, substance used to protect or decorate
+painter, artist
+pair, two people considered as a unit
+palace, residence of a sovereign
+palm, palm tree
+chimpanzee, primate
+pan, cooking pan
+panel, plate or sheet that is a component of something
+panel, team of experts
+panic, terror
+panic, overwhelming fear
+paper, composition
+paper, report
+paper, scholarly article
+paper, newspaper
+paper, cellulose
+paper, material for writing or printing on
+paper, material made of cellulose pulp
+parade, ceremonial procession
+paradox, self-contradiction
+paragraph, subdivisions of a text
+parallel, analogue
+parallel, analog
+parameter, factor
+pardon, amnesty
+park, commons
+park, common
+park, green
+parking, parking space
+part, portion
+part, component part
+part, component
+particle, small body of mass
+partner, spouse
+partner, married person
+partner, mate
+partner, better half
+partner, member of a partnership
+partnership, cooperation among people
+party, festivity
+party, political party
+pass, passing
+pass, qualifying grade
+pass, permission to enter or do something
+passage, passageway
+passage, section of text
+passenger, rider
+passion, passionateness
+passion, strong emotion
+password, watchword
+password, word
+past, past times
+past, yesteryear
+pastel, light pale color
+pasture, pastureland
+pasture, grazing land
+patch, piece of cloth
+patch, bandage
+patch, cover for injury
+patch, plot
+patch, small area
+patent, patent of invention
+path, route
+path, itinerary
+patience, forbearance
+patient, person who requires medical care
+patrol, security detachment
+pattern, model
+pattern, design
+pause, temporary inactivity
+pavement, sidewalk
+payment, defrayal
+peace, peacefulness
+peace, peace of mind
+peace, repose
+peace, serenity
+peace, state prevailing during the absence of war
+peak, vertex
+peak, apex
+peak, acme
+peak, highest point
+peanut, goober
+peasant, agricultural laborer
+pedestrian, walker
+pen, writing implement
+pen, playpen
+penalty, punishment
+pencil, writing implement
+penny, cent
+pension, payment during retirement
+retiree, pensioner
+pepper, spice
+percent, percentage
+perception, process of perceiving
+performance, execution
+performance, carrying out
+performance, act of presenting a play or a piece
+performer, performing artist
+period, point
+period, full stop
+period, stop
+period, full point
+period, time period
+period, interval taken to complete one cycle
+period, historic period
+permission, approval to do something
+person, individual
+personality, personal attributes
+pest, blighter
+pest, cuss
+pest, pesterer
+pest, gadfly
+pest, persistently annoying person
+pet, animal
+philosophy, investigation of existence
+philosophy, knowledge
+philosophy, ethics
+philosophy, doctrine
+philosophy, school of thought
+philosophy, set of beliefs
+photograph, photo
+photography, picture taking
+physics, physical science
+piano, keyboard instrument
+picture, image
+picture, icon
+picture, visual representation
+picture, painting
+picture, graphic art
+movie, film
+pie, dish
+piece, separate part of a whole
+piece, musical composition
+piece, opus
+piece, composition
+piece, piece of music
+pier, support for two adjacent bridge spans
+pig, hog
+pig, swine
+pig, hog
+pig, greedy person
+policeman, cop
+pig, slob
+pig, sloven
+pig, slovenly person
+pigeon, wild and domesticated bird
+pile, heap
+pile, mound
+pill, birth control pill
+pillow, cushion
+pilot, airplane pilot
+pin, personal identification number
+pin, PIN
+pin, PIN number
+pioneer, innovator
+pioneer, trailblazer
+pioneer, groundbreaker
+pipe, tube
+pit, pitfall
+pit, trap
+pit, cavity
+pit, hole in the ground
+pitch, property of sound
+slant, pitch
+slant, deviation from the horizontal
+pitch, sales pitch
+pity, compassion
+place, topographic point
+place, spot
+place, seat
+plaintiff, complainant
+plan, design
+plan, arrangement
+plan, scheme
+plane, airplane
+plane, aeroplane
+planet, celestial body
+plant, flora
+plant, plant life
+plant, industrial plant
+plant, factory
+plaster, adhesive plaster
+plastic, materials
+plate, dish
+platform, horizontal surface
+play, child's play
+play, drama
+play, dramatic play
+player, actor
+player, role player
+player, participant
+pleasure, delight
+plot, secret plan
+plot, game
+plot, secret scheme
+plot, story
+plot, chart
+pneumonia, respiratory disease
+pocket, pouch inside a garment
+poem, verse form
+poetry, poesy
+poetry, verse
+point, detail
+point, item
+point, tip
+point, peak
+point, V-shape
+point, dot
+poison, poisonous substance
+pole, long rod
+pole, Earth's antipodal point
+policy, insurance policy
+poll, counting of votes
+poll, opinion poll
+pollution, contamination
+pony, small horse
+pool, puddle
+pop, pop music
+pop, soda
+pop, soda pop
+pop, dad
+pop, dada
+pop, daddy
+pop, pa
+pop, papa
+population, people who inhabit a territory
+porter, person employed to carry luggage and supplies
+portion, helping
+portion, serving
+portrait, portrayal
+portrait, likeness
+position, placement
+position, location
+position, stance
+position, posture
+position, status
+possession, ownership
+possibility, possible action
+post, mail
+post, mail service
+post, postal service
+post, stake
+pot, cooking vessel
+pot, flowerpot
+potential, potentiality
+pottery, clayware
+pound, dog pound
+pound, lb
+pound, 16 ounces
+powder, fine-grained substance
+power, world power
+power, major power
+power, great power
+power, superpower
+power, force
+power, might
+practice, pattern
+practice, customary way of operation or behavior
+practice, exercise
+practice, drill
+practice, practice session
+practice, recitation
+praise, congratulations
+praise, kudos
+prayer, supplication
+precedent, case in point
+precision, preciseness
+predator, predatory animal
+preference, predilection
+preference, predisposition
+prejudice, bias
+prejudice, preconception
+premium, insurance premium
+preoccupation, idea that preoccupies the mind
+preparation, readiness
+preparation, preparedness
+prescription, prescription drug
+prescription, physician's instructions
+presence, bearing
+presence, comportment
+presence, state of being present
+present, gift
+present, nowadays
+presentation, making publicly available or known
+presidency, presidentship
+president, chief executive of a republic
+president, chairman
+president, chairwoman
+president, chair
+press, printing press
+press, newspaper writers
+pressure, pressure sensation
+pressure, pressure level
+pressure, force per unit area
+pressure, imperativeness
+pressure, insistence
+pressure, insistency
+prestige, prestigiousness
+prevalence, preponderance
+prevalence, superiority in number
+prey, quarry hunted animal
+price, monetary value
+price, cost
+price, cost
+price, toll
+pride, proud feeling
+primary, primary election
+prince, son of a sovereign
+principle, basic truth or law or assumption
+print, picture
+print, design
+printer, output device that prints data
+priority, precedence
+prison, prison house
+prison, correctional institution
+prisoner, captive
+privacy, privateness
+privacy, seclusion
+privilege, special advantage
+prize, trophy
+loot, booty
+loot, pillage
+loot, plunder
+loot, dirty money
+loot, prize
+problem, trouble
+problem, question
+process, procedure
+produce, green goods
+produce, green groceries
+producer, film or play producer
+product, merchandise
+product, ware
+product, mathematical product obtained by multiplication
+product, consequence of someone's efforts
+production, act or process of producing something
+production, presentation for the stage or screen or radio or TV
+production, output
+production, yield
+profession, occupation
+professional, professional person
+professor, prof
+profile, side view
+profit, gain
+program, plan
+program, series of steps to be carried
+program, announcement of a theatrical event
+program, broadcast
+program, computer program
+progress, advancement
+progress, gain
+project, undertaking
+project, task
+project, enterprise
+prediction, projection
+projection, image projection
+promise, verbal commitment
+promotion, rising in rank
+promotion, publicity
+proof, cogent evidence
+proof, mathematical proofs
+property, attribute
+property, dimension
+property, belongings
+property, holding
+property, material possession
+proportion, dimension
+proportion, quotient of magnitude of a part and magnitude of the whole
+proposal, proposition
+proposal, marriage proposal
+proposition, statement
+prosecution, criminal prosecution
+prospect, expectation
+prospect, outlook
+prosperity, economic prosperity
+protection, protecting someone or something
+shelter, physical protection
+protest, objection
+protest, dissent
+provision, supply
+provision, supplying
+psychology, psychological science
+bar, tavern
+bar, pub
+publication, issue
+publication, printed work
+publicity, public scrutiny
+publisher, publishing house
+publisher, publishing firm
+pudding, soft sweet dessert
+pump, mechanical device
+pumpkin, large yellow fruit
+punch, blow
+punch, lick
+punch, biff
+punch, mixed drink
+pupil, contractile aperture in the iris of the eye
+pupil, schoolchild
+pupil, school-age child
+purpose, intent
+purpose, intention
+purpose, aim
+purpose, design
+hobby, pursuit
+hobby, by-line
+hobby, hobby
+hobby, sideline
+hobby, spare-time activity
+pursuit, quest
+pursuit, search
+puzzle, toy
+pyramid, polyhedron
+qualification, reservation
+qualification, limitation
+quality, degree or grade of excellence
+quantity, amount
+quarter, district of a city
+quarter, United States coin worth 25 cents
+quarter, one-fourth
+quarter, fourth part of a year
+quarter, three months
+queen, female monarch
+quest, seeking
+question, inquiry
+question, query
+question, interrogation
+queue, waiting line
+quota, proportional share
+quotation, quote
+quotation, citation
+quotation, words
+quotation, price quotation
+rabbit, burrowing animal
+race, contest of speed
+race, people belonging to the same genetic stock
+racism, prejudice
+rack, framework for holding objects
+radiation, radioactivity
+radiation sickness, radiation syndrome
+radical, person with radical ideas
+radio, radiocommunication
+radio, wireless
+radio, medium
+radio, radio receiver
+radio, receiving set
+radio, radio set
+rage, fury
+rage, madness
+rage, intense anger
+raid, foray
+raid, sudden attack
+railcar, railroad car
+railcar, wagon
+railroad, railroad line
+railroad, railway system
+track, railroad track
+track, line of track
+rain, rainfall
+rainbow, colored light in the sky
+rally, mass meeting
+range, stove
+range, kitchen stove
+range, scope
+range, reach
+range, orbit
+range, compass
+range, large tract of grassy open land where livestock graze
+range, mountain range
+range, range of mountains
+rank, status
+rat, rodent
+strikebreaker, scab
+rate, pace
+ratio, relative magnitude
+reaction, equal and opposite force
+reaction, response revealing a person's feelings or attitude
+reaction, chemical reaction
+reactor, nuclear reactor
+reader, subscriber
+reader, reviewer
+reader, referee
+realism, pragmatism
+reality, realness
+reason, explanation of the cause
+reason, rationality
+rebel, insurgent
+rebel, insurrectionist
+rebel, freedom fighter
+rebellion, insurrection
+rebellion, revolt
+rebellion, rising
+rebellion, uprising
+receipt, acknowledgment of payment
+reception, broadcast reception
+reception, formal party
+recession, declining economy
+recognition, acknowledgment
+recommendation, testimonial
+recommendation, good word
+record, extreme attainment
+record, the best/worst performance ever
+record, criminal record
+record, document serving as legal evidence of a transaction
+record, number of wins versus losses and ties
+recording, information storage device
+recovery, retrieval
+recovery, regaining
+recovery, convalescence
+recovery, recuperation
+red, redness
+reduction, decrease
+reduction, diminution
+redundancy, redundance
+redundancy, superfluousness
+referee, sports referee
+reference, citation
+reference, acknowledgment
+reference, credit
+reference, mention
+reference, quotation
+reference, reference point
+reference, point of reference
+referral, recommendation to consult someone
+reflection, reflexion
+reflection, mirror image
+reform, change for the better
+regard, gaze
+regard, long fixed look
+register, cash register
+register, registry
+register, official written record
+registration, enrollment
+registration, enrolment
+regret, sorrow
+regret, rue
+regret, ruefulness
+regulation, authoritative rule
+rehabilitation, treatment of physical disabilities
+rehabilitation, vindication of character
+rehabilitation, exoneration
+rehearsal, dry run
+reign, time of rule
+relation, relative
+relation, person related by blood or marriage
+relationship, state of connectedness between people
+relaxation, easiness
+relaxation, absence of tension
+release, waiver
+release, discharge
+relevance, relevancy
+reliance, state of relying on something
+relief, ease
+relief, alleviation
+reluctance, hesitancy
+reluctance, hesitation
+reluctance, disinclination
+remark, explicit notice
+remedy, curative
+remedy, cure
+remedy, medicine
+rent, payment to a landlord
+repetition, repeat
+replacement, surrogate
+replacement, alternate
+replacement, substitute
+report, news report
+report, story
+report, account
+report, study
+report, written report
+report, evaluation
+reporter, journalist
+reporter, newsperson
+representative, person who represents others
+representative, congressman
+reproduction, replica
+reproduction, replication
+reproduction, copy
+reptile, reptilian
+reputation, notoriety for some characteristic
+request, petition
+requirement, necessity
+requirement, essential
+requirement, requisite
+research, systematic investigation to establish facts
+researcher, research worker
+researcher, investigator
+reserve, reticence
+reserve, quietness
+supply, backlog
+supply, stockpile
+supply, reserve
+supply, reservoir
+reservoir, artificial lake
+residence, abode
+resident, occupant
+resignation, giving notice
+resignation, surrender
+resolution, decision to do something
+resort, holiday resort
+resource, source of aid or support
+response, answer
+response, reply
+response, reaction
+responsibility, duty
+responsibility, obligation
+rest, support on which things can be put
+rest, remainder
+rest, balance
+rest, residual
+rest, residue
+rest, respite
+rest, relief
+rest, rest period
+restaurant, eating place
+restoration, renovation
+restoration, refurbishment
+restraint, limitation
+restriction, limitation
+result, resultant
+result, final result
+result, outcome
+result, consequence
+retailer, retail merchant
+retirement, withdrawal from a position
+retreat, hideaway
+return, act of returning to a prior location
+return, homecoming
+return, restitution
+return, restoration
+return, regaining
+return, tax return
+return, income tax return
+revenge, retaliation
+reverse, reversion
+reverse, reversal
+reverse, turnabout
+reverse, turnaround
+review, brushup
+review, recapitulation
+review, recap
+review, summary
+review, critique
+review, critical review
+review, review article
+review, periodical
+revival, resurgence
+revival, revitalization
+revolution, overthrow of government
+revolution, rotation
+revolution, gyration
+reward, bounty
+reward, money for helping to find criminals
+rhetoric, technique for speaking
+rhythm, beat
+rhythm, musical rhythm
+rib, bone
+ribbon, strip of material
+rice, grains used as food
+rider, person riding an animal
+ridge, long narrow range of hills
+rifle, firearm
+right, rightfulness
+right, right hand side
+right wing, right
+ring, hoop
+ring, boxing ring
+ring, characteristic sound
+riot, public violence
+orgy, orgy
+orgy, debauchery
+orgy, saturnalia
+orgy, bacchanal
+orgy, riot
+rise, upgrade
+rise, rising slope
+rise, raise
+rise, wage hike
+rise, hike
+rise, wage increase
+risk, peril
+ritual, rite
+river, large natural stream of water
+road, route
+road, open way for travel or transportation
+looting, plundering
+robot, automaton
+rock, rock 'n' roll
+rocket, vehicle propelled by a rocket engine
+role, normal or customary activity of a person
+role, character
+role, theatrical role
+role, part
+roll, cylindrical form
+roll, roster
+roll, list of names
+roll, drum roll
+roll, sound of a drum
+roll, bun
+roll, bread
+roof, top of a building
+room, area within a building
+ancestor, ancestor
+root, part of plant
+rose, flower
+rotation, rotary motion
+rung, stave
+rung, round
+rung, crosspiece between chair legs
+route, path
+route, itinerary
+routine, modus operandi
+quarrel, row
+quarrel, wrangle
+quarrel, words
+quarrel, run-in
+quarrel, dustup
+row, arrangement of objects or people side by side in a line
+royalty, royal family
+royalty, royal line
+royalty, royal house
+royalty, payment for a patent or copyright
+rubbish, trash
+rubbish, scrap
+rubbish, worthless material
+rugby, rugby football
+ruin, ruined building
+ruin, downfall
+ruin, ruination
+rule, ruler
+rule, measuring stick
+rule, regulation
+rule, convention
+rule, norm of behavior
+rule, pattern
+rule, principle
+rule, law concerning a natural phenomenon
+rule, formula standard procedure for solving a mathematical problem
+rule, directions defining a game or sport
+rule, dominion
+rule, dominance or power through legal authority
+rule, duration of a monarch's or government's power
+rumor, hearsay
+runner, athlete
+rush, haste
+rush, hurry
+rush, rushing
+sacrifice, ritual killing
+sacrifice, loss
+safety, state of being certain that adverse effects will not be caused
+sailor, crewman
+salad, food mixture
+sale, cut-rate sale
+sale, sales event
+sale, general activity of selling
+salmon, fish
+salon, beauty salon
+salon, beauty parlor
+salt, table salt
+salt, common salt
+salvation, being saved from harm
+sample, small part representative of the whole
+sanctuary, consecrated place
+sand, finely ground particles
+sandal, footwear
+satellite, orbiter
+satisfaction, contentment
+sausage, wurst
+sausage, meat
+scale, body covering of many animals
+scale, weighing machine
+scale, scale of measurement
+scale, graduated table
+scandal, outrage
+scenario, sequence of possible events
+scene, subdivision of an act of a play
+scene, shot
+scene, unit of action in a film
+scene, setting
+scene, fit
+scene, tantrum
+scene, conniption
+scheme, schema organization of concepts
+scholar, scholarly person
+scholar, student
+scholar, learned person
+school, schoolhouse
+school, educational institution
+science, scientific discipline
+grudge, grievance
+score, game score
+scrap, small piece
+screen, protective covering
+screen, movie screen
+screen, projection screen
+screw, fastener with a tapered threaded shank
+script, writing system
+sculpture, plastic art
+sea, ocean
+seal, marine mammal
+seal, stamp on a document
+season, time of year
+seat, furniture designed for sitting on
+buttocks, butt
+buttocks, bum
+buttocks, tush
+second, following the first
+second, sec
+second, 1/60 of a minute
+mystery, secret
+mystery, enigma
+mystery, closed book
+secretary, secretarial assistant
+secretion, glandular substance
+section, segment
+section, one of several parts
+sector, sphere
+sector, particular aspect of life or activity
+security, security system
+security, security measure
+seed, seeded player
+seed, small hard fruit
+selection, excerpt
+selection, excerption
+selection, extract
+selection, assortment of things from which to choose
+selection, survival
+selection, survival of the fittest
+selection, natural selection
+self, ego
+seller, marketer
+seller, vender
+seller, vendor
+seminar, course
+senior, student
+sensation, public excitement
+sense, sensation
+sense, sentience
+sense, sentiency
+sense, sensory faculty
+sense, common sense
+sense, good sense
+sense, signified
+sense, the meaning of a word or expression
+sensitivity, sensitiveness
+sentence, conviction
+sentence, string of words
+sentiment, emotion
+separation, disassociation
+separation, division
+sequence, serial arrangement
+series, serial
+series, serial publication
+series, serial
+series, serialized set of programs
+waiter, server
+service, help
+service, assistance
+service, religious service
+service, divine service
+service, overhaul
+service, inspection and repair
+service, military service
+service, armed service
+session, meeting
+session, school term
+session, academic term
+set, stage set
+set, group of things of the same kind that belong together
+settlement, resolution
+settlement, outcome
+settlement, colony
+sex, gender
+sex, sexuality
+nuance, shade
+nuance, nicety
+nuance, subtlety
+nuance, refinement
+shadow, shade
+shaft, long rod or pole
+shaft, vertical passage into a mine
+shame, pity
+shame, unfortunate event
+shame, painful emotion
+disgrace, shame
+disgrace, ignominy
+disgrace, dishonor
+share, parcel
+share, portion
+share, result of parcelling out or sharing
+share, any of the equal portions into which the capital stock of a corporation is divided
+shareholder, stockholder
+shark, carnivorous fish
+sheep, woolly mammal
+sheet, bed sheet
+sail, canvas
+sheet, piece of paper
+shelf, support for holding objects
+shell, covering of a mollusc
+shell, ammunition
+shell, eggshell
+shell, outer layer of nuts or fruits
+shelter, temporary housing for homeless
+shield, protective covering
+shift, switch
+shift, work shift
+shirt, garment
+shock, electric shock
+shock, daze
+shock, stupor
+shock, feeling of distress and disbelief
+shoe, footwear
+horseshoe, shoe for horses
+shop, store
+shop, workshop
+short circuit, short
+shortage, dearth
+shortage, famine
+shorts, short pants
+shot, shooting
+shot, act of firing a projectile
+shot, injection
+shoulder, berm
+shoulder, edge of a road
+shoulder, part of the body
+show, public exhibition or entertainment
+shower, plumbing fixture
+shower, rain shower
+sickness, nausea
+side, position
+side, face
+side, slope
+side, incline
+siege, besieging
+siege, beleaguering
+siege, military blockade
+sight, vision
+sight, visual sense
+sign, signboard
+sign, gesture that is part of a sign language
+sign, signal
+sign, mark
+sign, augury
+sign, foretoken
+sign, preindication
+sign, sign of the zodiac
+sign, house
+silence, quiet
+silence, secrecy
+silence, secretiveness
+silk, fabric
+flatware, silverware
+silver, ash gray
+silver, ash grey
+silver, silver gray
+silver, metal
+simplicity, simpleness
+simplicity, uncomplicatedness
+sin, sinning
+sin, transgression
+singer, vocalist
+sink, plumbing fixture
+sister, sis
+sister, female sibling
+site, web site
+site, website
+site, internet site
+site, land site
+situation, state of affairs
+size, physical magnitude
+sketch, cartoon
+sketch, humorous drawing
+skin, hide
+skin, pelt
+skin, body covering of a living animal
+skin, cutis
+skin, person's body covering
+peel, skin
+peel, rind of a fruit or vegetable
+skirt, garment
+slab, block
+slab, thick piece
+slave, person who is owned
+sleep, slumber
+sleeve, arm
+sleeve, part of a garment that is attached at armhole
+slice, thin flat piece
+slide, chute
+slide, sloping trough
+slide, plaything
+slime, sludge
+slime, goo
+slime, gunk
+slime, muck
+gaffe, slip
+gaffe, faux pas
+slogan, motto
+slogan, catchword
+slot, small slit
+slot, time slot
+smell, aroma
+smell, odor
+smell, odour
+smell, scent
+smell, sense of smell
+smell, olfaction
+smile, smiling
+smile, grin
+smile, grinning
+smile, facial expression
+smoke, fumes
+snail, slug
+snake, serpent
+snow, snowfall
+soap, cleansing agent
+society, extended social group
+sock, stocking
+sock, hosiery
+sodium, Na
+software, computer software
+soil, territory
+soil, dirt
+soil, earth's surface
+soldier, enlisted man or woman
+solo, activity performed alone
+solution, successful action of solving a problem
+solution, mixture of two or more substances
+soprano, voice range
+soul, psyche
+sound, auditory event
+soup, liquid food
+source, documentary reference
+source, beginning
+source, origin
+source, root
+source, informant
+source, person who supplies information
+south, Confederacy
+south, Confederate States
+south, due south
+south, S
+space, blank
+space, empty area
+speaker, loudspeaker
+speaker, speaker unit
+speaker, talker
+speaker, utterer
+species, taxonomic group
+specimen, medical specimen
+spectrum, broad range of related values
+speech, address
+speech, exchange of spoken words
+speech, verbal discourse
+speech, manner of speaking
+speed, amphetamine
+speed, pep pill
+speed, upper
+speed, velocity
+spell, magic spell
+spell, charm
+trance, spell
+sphere, sphere of influence
+sphere, ball
+spider, arachnid
+spinach, vegetable
+spine, thorn
+spine, prickle
+spirit, intent
+spirit, purport
+spirit, intended meaning
+spirit, disembodied spirit
+spirit, emotional state
+spite, malice
+spite, maliciousness
+spite, spitefulness
+spite, venom
+split, schism
+split, division into opposing factions
+split, lengthwise crack
+spoon, cutlery
+sport, athletics
+spot, smudge
+spot, blot
+spot, daub
+spot, smear
+spray, water in small drops
+ranch, cattle ranch
+ranch, cattle farm
+spread, paste
+spread, food mixture
+banquet, feast
+spring, metal elastic device
+spring, fountain
+spring, springtime
+spy, undercover agent
+squad, army unit
+square, public square
+square, plaza
+square, place
+square, rectangle with four equal sides
+stable, stalls
+stable, horse barn
+staff, rod
+staff, personnel
+stage, large platform on which people are seen by an audience
+stage, phase
+stage, distinct time period in a sequence of events
+staircase, stairway
+stake, stakes
+stake, bet
+stake, wager
+stall, booth
+stall, cubicle
+stamp, postage stamp
+stand, stall
+stand, sales booth
+stand, viewpoint
+stand, standpoint
+standard, criterion
+standard, measure
+standard, touchstone
+star, asterisk
+star, celestial body
+star, ace
+star, champion
+star, virtuoso
+star, hotshot
+star, superstar
+star, plane figure with 5 or more points
+start, beginning
+start, commencement
+start, first
+start, outset
+start, get-go
+state, province
+state, state of matter
+statement, financial statement
+statement, affirmation
+statement, assertion
+station, post
+steak, slice of meat
+steam, boiling water
+steel, metal alloy
+stem, stalk
+stem, part of a plant
+step, measure
+step, maneuver made as part of progress toward a goal
+step, stair
+step, footstep
+step, pace
+step, stride
+step, gradation
+steward, flight attendant
+stick, piece of wood
+joystick, control stick
+stimulation, act of arousing an organism to action
+stitch, sewing
+stock, livestock
+stock, farm animal
+stock, inventory
+stock, shares
+stomach, tummy
+stomach, tum
+stone, rock
+pit, stone
+pit, hard inner core of some fruits
+gem, gemstone
+gem, stone
+stool, simple seat
+stop, stopover
+stop, layover
+storage, repositing
+storage, warehousing
+storm, weather condition
+story, fib
+story, trivial lie
+story, narrative
+story, narration
+strap, shoulder strap
+straw, drinking straw
+straw, chaff
+straw, husk
+straw, shuck
+straw, stalk
+strawberry, fruit
+stream, watercourse
+strength, property of being physically or mentally strong
+strength, forte
+strength, strong suit
+strength, specialty
+strength, strong point
+stress, tension
+stress, tenseness
+strike, work stoppage
+strike, attack
+strike, rap
+strike, tap
+strike, gentle blow
+string, twine
+string, lightweight cord
+strip, long narrow piece
+stroke, apoplexy
+stroke, cerebrovascular accident
+structure, construction
+struggle, strenuous effort
+student, pupil
+student, learner
+studio, workplace for teaching or practice of an art
+study, room used for reading and writing and studying
+study, discipline
+study, subject
+study, subject area
+study, report
+study, written report
+style, dash
+style, elan
+style, flair
+style, panache
+style, editorial directions
+subject, depicted object
+subject, topic
+subject, theme
+subject, guinea pig
+substance, stuff
+suburb, suburbia
+suburb, suburban area
+suffering, hurt
+suffering, mental or physical pain
+sugar, refined sugar
+suggestion, proposition
+suit, suit of clothes
+courtship, wooing
+courtship, courting
+courtship, suit
+suite, rooms
+sulphur, sulfur
+sulphur, S
+sum, sum total
+summary, brief statement
+summer, summertime
+summit, summit meeting
+sun, star that is the source of light and heat
+sun, sunlight
+sun, sunshine
+Sunday, Lord's Day
+sunrise, daily morning event
+sunshine, fair weather
+superintendent, super
+supply, amount of something available for use
+support, aiding the cause or policy or interests of
+support, documentation
+support, documentary validation
+support, device that bears the weight of another thing
+support, keep
+support, livelihood
+support, living
+support, bread and butter
+support, sustenance
+surface, extended two-dimensional outer boundary
+surgeon, operating surgeon
+surprise, unexpected event
+survey, sketch
+survey, resume
+survival, endurance
+survivor, one who outlives another
+survivor, survivor of a disaster
+suspect, someone under suspicion
+suspicion, misgiving
+suspicion, mistrust
+suspicion, distrust
+suspicion, intuition
+suspicion, hunch
+sweat, perspiration
+sweater, knitted garment
+sweet, dessert
+swing, rapid fluctuation
+swing, vacillation
+swing, plaything
+switch, electric switch
+sword, blade
+sword, weapon
+symbol, sign
+symptom, medical symptom
+syndrome, pattern of symptoms
+system, scheme
+table, piece of furniture
+table, tabular array
+table, data arranged in rows and columns
+tablet, pill
+tablet, lozenge
+tablet, medicine
+tactic, tactics
+tactic, maneuver
+tail, posterior part of the body of a vertebrate
+tail, side of a coin
+talk, talking
+talk, lecture
+talk, public lecture
+tank, army tank
+tank, armored combat vehicle
+tap, wiretap
+tap, telephone tap
+tap, water faucet
+tap, spigot
+tape, adhesive tape
+tape, tape recording
+tape, tape measure
+target, mark
+taste, gustation
+taste, sense of taste
+taste, preference
+taste, penchant
+taste, predilection
+tax, taxation
+tax, revenue enhancement
+taxi, cab
+taxi, hack
+taxi, taxicab
+tea, beverage
+teacher, instructor
+team, squad
+team, cooperative unit
+tear, teardrop
+technique, proficiency
+technology, engineering
+teenager, adolescent
+telephone, phone
+telephone, telephone set
+television, television system
+television, telecommunication system
+television, television receiver
+television, T.V. set
+temperature, degree of hotness or coldness
+temple, place of worship
+temple, side of the forehead
+temptation, enticement
+tenant, renter
+tendency, inclination
+tendency, disposition
+tension, latent hostility
+tension, tautness
+tent, collapsible shelter
+term, word or expression
+terminal, keyboard and monitor
+terrace, patio
+test, trial
+test, trial run
+test, tryout
+test, examination
+test, exam
+text, textual matter
+text, textbook
+text, text edition
+text, schoolbook
+texture, appearance of a surface or fabric
+thanks, acknowledgment of appreciation
+theater, dramaturgy
+theater, dramatic art
+theater, dramatics
+theater, theatre
+theft, larceny
+theft, thievery
+theft, stealing
+theme, motif
+theme, melodic theme
+theme, musical theme
+theorist, theoretician
+theorist, theorizer
+theory, hypothesis
+therapist, healer
+thesis, dissertation
+thigh, part of the leg
+thinker, creative thinker
+thinker, mind
+thinker, important intellectual
+thought, thinking
+thought, cerebration
+thread, thin yarn
+thread, fine cord of twisted fibers
+threat, menace
+threat, source of danger
+threshold, doorsill
+threshold, doorstep
+brink, threshold
+brink, verge
+throat, pharynx
+throat, passage to the stomach and lungs
+throne, chair of a monarch
+thumb, finger
+ticket, traffic ticket
+ticket, summons
+ticket, entry or access ticket
+tie, necktie
+tie, draw
+tie, standoff
+tiger, large feline
+tile, flat thin slab
+timber, lumber
+time, clock time
+timetable, arrival and departure schedule
+can, tin can
+tin, atomic number 50
+tin, silvery metal
+tip, lead
+tip, confidential information
+tip, point
+tip, extreme end
+tip, gratuity
+tissue, aggregate of cells
+tissue, tissue paper
+title, claim
+title, heading
+title, title of respect
+title, deed
+title, deed of conveyance
+title, legal document
+title, championship
+toast, bread
+toll, fee for the use of roads or bridges
+ton, unit of weight
+tone, tone of voice
+tongue, body part
+tongue, natural language
+tool, implement
+tooth, projection on a gear
+tooth, bonelike structure in the jaws
+top, garment that extends from the shoulders to the waist or hips
+top, spinning top
+top, top side
+top, upper side
+top, upside
+top, peak
+top, crown
+top, crest
+top, tip
+top, summit
+torch, lit stick carried in one's hand
+torture, torturing
+touch, sense of touch
+tourist, visitor on holiday
+tournament, tourney
+tournament, sporting competition
+tower, structure
+toy, plaything
+trace, footprint
+track, data track
+track, circular magnetic path on a disk
+track, racetrack
+track, racecourse
+track, raceway
+track, lead
+track, trail
+track, evidence
+tract, pamphlet
+trade, craft
+trade, skilled practice of a practical occupation
+trade, deal
+trade, business deal
+trade, instance of buying or selling
+trade, barter
+trade, swap
+trade, swop
+tradition, custom
+tradition, practice of long standing
+traffic, buying and selling
+traffic, pedestrians or vehicles
+tragedy, theatrical drama
+train, railroad train
+trainer, one who trains persons or animals
+training, preparation
+training, grooming
+trait, distinguishing feature of your personal nature
+transaction, commercial dealing
+transfer, transportation
+transfer, transferral
+transfer, conveyance
+transition, conversion
+transition, changeover
+transmission, automobile transmission
+transport, transportation
+transport, shipping
+ecstasy, rapture
+trap, snare
+trap, device for catching
+tray, open receptacle
+treasurer, financial officer
+treat, special pleasurable occurrence
+treatment, handling
+treatment, discussion
+treatment, discourse
+treaty, pact
+treaty, accord
+tree, tall perennial woody plant
+trench, ditch
+trend, tendency
+trial, legal proceedings
+trial, tribulation
+triangle, trilateral
+tribe, clan
+tribute, testimonial
+tribute, expression of esteem
+trick, magic trick
+trick, fast one
+trolley, streetcar
+trolley, tram
+troop, group of soldiers
+trouble, event causing distress or pain
+trouble, worry
+trouser, pants
+truck, motortruck
+truck, lorry
+trunk, luggage compartment
+trunk, automobile trunk
+trust, corporate trust
+trust, combine
+trust, cartel
+trust, confidence
+trust, trustful relationship
+trustee, legal guardian
+truth, true statement
+truth, verity
+truth, trueness
+truth, conformity to reality
+subway, metro
+subway, underground
+subway, tube
+tube, hollow cylinder
+tumour, tumor
+tumour, neoplasm
+tune, melody
+tune, air
+tune, strain
+tune, melodic line
+tunnel, passageway
+turkey, bird domesticated for food
+turn, bend
+turn, crook
+turn, circular segment of a curve
+twin, offspring born at the same time
+braid, plait
+braid, tress
+braid, hairdo
+twist, wrench
+twist, jerky pulling movement
+tycoon, baron
+tycoon, big businessman
+tycoon, business leader
+tycoon, king
+tycoon, magnate
+tycoon, mogul
+tire, hoop covering a wheel
+umbrella, handheld collapsible canopy
+uncertainty, uncertainness
+uncertainty, precariousness
+uncle, parent's brother
+understanding, sympathy
+understanding, compassion
+uniform, professional clothing
+union, labor union
+union, trade union
+marriage, union
+marriage, matrimony
+marriage, spousal relationship
+marriage, wedlock
+unit, single undivided whole
+unity, integrity
+unity, wholeness
+unrest, feeling of agitation
+urge, strong restless desire
+urgency, urgent situation calling for prompt action
+urine, piss
+urine, pee
+urine, piddle
+urine, weewee
+urine, water
+use, habit
+use, usage
+use, function
+use, purpose
+use, role
+use, consumption
+user, drug user
+user, substance abuser
+vacuum, vacuum cleaner
+vacuum, void
+vacuum, vacancy
+vacuum, emptiness
+valley, vale
+value, numerical quantity measured or assigned or computed
+value, ideal accepted by some individual or group
+value, economic value
+value, amount of money or goods or services
+van, vehicle
+avant-garde, vanguard
+avant-garde, new wave
+variable, variable quantity
+variant, variation
+variant, something a little different
+variation, fluctuation
+variety, diverseness
+variety, diversity
+vat, tub
+vegetable, veggie
+vegetable, greens
+vegetarian, person who eats no meat
+vegetation, flora
+vegetation, botany
+vehicle, conveyance
+veil, head covering
+vein, blood vessel
+velvet, silky densely piled fabric
+venture, risky commercial undertaking
+Venus, planet evening star morning star
+verdict, legal verdict
+version, interpretation from a certain viewpoint
+version, adaptation
+vessel, watercraft
+vessel, container
+veteran, veteran soldier
+victory, triumph
+video, video recording
+view, aspect
+view, prospect
+view, scene
+view, vista
+view, panorama
+view, position
+view, perspective
+view, opinion
+village, small town
+village, settlement
+violation, infringement
+virgin, person who has never had sex
+virtue, moral excellence
+virus, infectious agent
+computer virus, virus
+vision, vivid mental image
+voice, ability to speak
+spokesperson, interpreter
+spokesperson, representative
+volcano, mountain
+volume, loudness
+volume, intensity
+volume, publication
+volume, 3-dimensional space
+volunteer, unpaid worker
+vote, ballot
+vote, voting
+vote, balloting
+vote, right to vote
+vote, suffrage
+voter, elector
+voucher, coupon
+voyage, journey to some distant place
+wage, pay
+wage, earnings
+wage, remuneration
+wage, salary
+wagon, wheeled vehicle
+waist, waistline
+wake, viewing
+wake, vigil over a corpse
+wall, architectural partition
+war, warfare
+war, armed conflict
+ward, hospital ward
+ward, town district
+ward, person under protection or custody
+wardrobe, collection of clothing
+warning, admonition
+warning, cautionary advice
+warrant, court warrant
+waste, thriftlessness
+waste, wastefulness
+waste, waste material
+waste, waste matter
+waste, waste product
+watch, chronograph
+watch, timepiece
+watch, lookout
+watch, sentinel
+watch, sentry
+water, H2O
+waterfall, cascade
+wave, ridge moving across the surface of a liquid
+way, path
+way, way of life
+way, course of conduct
+way, means
+way, agency
+weakness, lack of strength
+weakness, failing
+weakness, flaw
+weakness, weak point
+wealth, riches
+weapon, arm
+weather, weather condition
+wedding, wedding ceremony
+wedding, nuptials
+weed, plant that crowds out cultivated plants
+week, calendar week
+weight, free weight
+weight, exercising weight
+weight, barbell
+weight, vertical force exerted by a mass
+weight, weight unit
+weight, unit used to measure weight
+welcome, greeting
+welcome, reception
+welfare, social welfare
+welfare, government-sponsored program
+welfare, wellbeing
+well, deep hole with water
+well, oil
+well, or gas
+west, West
+west, Occident
+west, due west
+west, W
+whale, marine mammal
+wheat, cereal
+wheel, frame with spokes
+bike, bicycle
+bike, bike
+bike, cycle
+bike, wheel
+whip, lash used for whipping
+egg white, albumen
+width, breadth
+wife, married woman
+wife, spouse
+wilderness, wild
+wilderness, uninhabited area
+will, volition
+will, testament
+willpower, self-control
+win, winnings
+win, profits
+wind, air current
+wind, current of air
+window, opening in the wall of a building
+wine, beverage made from fermented grapes
+wing, biological organ for flying
+wing, airplane wing
+winner, victor
+winter, wintertime
+wire, metal ligament
+witch, enchantress
+witch, sorceress
+withdrawal, backdown
+withdrawal, retraction
+withdrawal, detachment
+withdrawal, avoidance of emotional involvement
+witness, spectator
+witness, viewer
+witness, watcher
+witness, looker
+witness, person who testifies in court
+wolf, canine mammal
+woman, adult female
+wonder, marvel
+wood, hard substance under the bark of trees
+wool, fabric
+word, unit of language
+word, parole
+word, word of honor
+wording, phrasing
+wording, choice of words
+work, employment
+work, workplace
+work, oeuvre
+work, body of work
+worker, person who works at a specific occupation
+workshop, brief intensive course
+world, reality
+world, populace
+world, public
+world, Earth
+world, globe
+world, universe
+world, existence
+world, cosmos
+world, macrocosm
+worm, animal
+worm, software program
+worth, value
+wound, lesion
+wreck, something dilapidated
+wrist, carpus
+wrist, wrist joint
+writer, author
+X-ray, radiogram
+X-ray, X-ray picture
+yard, grounds
+yard, 3 feet
+year, twelvemonth
+year, yr
+youth, young people
+youth, time of life between childhood and maturity
+zero, 0
+zero, naught
+zone, geographical region
+abandon, forsake
+abandon, desert
+abolish, get rid of
+abridge, shorten
+abridge, cut
+absorb, take in
+absorb, suck up
+accept, live with
+accept, put up with
+accompany, go or come with
+activate, make active
+add, total
+adjust, conform
+adjust, adapt
+admire, look up to
+admit, acknowledge
+admit, allow in
+admit, let in
+admit, allow to enter
+adopt, take in as a child
+adopt, borrow
+adopt, take over
+adopt, take up
+advance, progress
+advance, pass on
+advance, move on
+advance, march on
+advance, go on
+affect, impact
+affect, bear upon
+feign, sham
+feign, pretend
+feign, dissemble
+feign, simulate
+afford, have the financial means
+age, get older
+agree, consent
+agree, assent
+match, fit
+match, correspond
+match, check
+match, agree
+allow, permit
+allow, let
+amputate, cut off
+amputate, remove surgically
+amuse, make laugh
+answer, reply
+answer, respond
+appeal, challenge a decision
+appear, come into view
+applaud, clap one's hands
+appoint, name
+appoint, nominate
+appreciate, recognize with gratitude
+approach, near
+approach, draw near
+approach, draw close
+approach, come near
+approve, O.K.
+approve, okay
+approve, sanction
+arrange, set up
+arrange, order
+arrange, set up
+arrange, put in systematic order
+arrest, apprehend
+arrest, pick up
+arrest, take into custody
+articulate, enunciate
+ask, inquire
+expect, require
+expect, ask
+assume, presume
+assume, take for granted
+assume, take to be the case
+impound, confiscate
+impound, seize
+attack, assail
+attack, assault
+attack, attack physically or emotionally
+attract, appeal
+attract, be attractive to
+authorise, empower
+endorse, second
+endorse, back
+endorse, support
+bake, prepare with dry heat
+balance, equilibrate
+balance, bring into balance or equilibrium
+ostracize, shun
+ostracize, blackball
+ostracize, expel from a community
+banish, bar
+banish, relegate
+banish, expel
+bargain, negotiate
+bargain, dicker
+bark, make barking sounds
+carry, bear
+beat, vanquish
+beat, come out better in a competition or race
+beat, hit repeatedly
+scramble, beat
+scramble, stir vigorously
+beat, pound
+beat, thump
+beat, move rhythmically
+beat, be superior to
+beg, ask for money or goods
+begin, start
+begin, commence
+begin, cause to start
+behave, comport
+behave, act in a certain manner
+behead, decapitate
+behead, cut the head off
+belong, be owned by
+flex, bend
+bend, crouch
+bend, stoop
+bend, bow
+bet, wager
+betray, deceive
+bind, tie or secure with a rope or cable
+bond, create social or emotional ties
+bite, seize with teeth
+blame, fault put the blame on
+blame, find fault
+blame, pick on
+blast, blare
+bleed, shed blood
+bless, give a benediction to
+block, obstruct
+block, hinder
+block, stymie
+waste, squander
+waste, blow
+waste, throw away
+waste, spend thoughtlessly
+board, get on
+bomb, bombard
+borrow, obtain temporarily
+bother, annoy
+bother, irritate
+bounce, move up and down repeatedly
+bow, bend the head or the upper body in respect or greeting
+brag, show off
+brag, boast
+break, destroy
+disclose, bring out
+disclose, reveal
+disclose, expose
+disclose, divulge
+pause, pause
+pause, take a break
+wear out, bust
+wear out, fall apart
+wear out, break
+break in, enter illegally
+breathe, take a breath
+breathe, respire
+breed, raise
+breed, cause to reproduce
+bring, bring along
+bring, fetch
+bring, bring in
+bring, be sold for a certain price
+brush, rub with a brush
+displace, bump
+burn, bite
+burn, sting
+burn, cause a sharp or stinging pain
+burn, combust
+burn, cause to burn
+burst, bust
+burst, break open
+bury, place in the ground as for hiding
+buy, purchase
+buy, acquire
+call, telephone
+call, call up
+call, phone
+call, ring
+call, name
+call, send for
+call, shout
+call, shout out
+call, cry
+call, yell
+call, holler
+predict, call
+predict, foretell
+predict, prognosticate
+predict, forebode
+calm, calm down
+calm, quiet
+calm, tranquilize
+calm, quieten
+cancel, call off
+captivate, beguile
+captivate, charm
+captivate, bewitch
+captivate, entrance
+captivate, enchant
+capture, take possession of by force
+capture, seize
+capture, conquer
+care, feel concern or interest
+carry, transport
+carve, cut up
+carve, cut to pieces
+hurl, cast
+hurl, hurtle
+hurl, throw forcefully
+cast, select for a play or movie
+catch, grab
+catch, take hold of
+capture, catch
+cater, supply food ready to eat
+challenge, dispute
+challenge, call into question
+change, alter
+change, make or become different
+switch, change
+switch, shift
+switch, change one thing for another
+charge, energize a battery
+charge, accuse
+charge, pay with a credit card
+charge, demand payment
+chase, chase after
+chase, give chase
+check, check off
+check, mark
+check, mark off
+check, tick off
+check, tick
+check, check out
+check, verify
+chew, masticate
+choke, gag
+choke, suffocate
+choke, strangle
+chop, chop up
+claim, assert
+claim, affirm
+clarify, clear up
+clarify, elucidate
+clarify, make comprehensible
+classify, declare unavailable
+clear, empty
+clear, remove the occupants of
+acquit, clear
+acquit, pronounce not guilty
+climb, climb up
+climb, mount
+climb, go up
+close, shut
+close, finish
+close, terminate
+close, conclude
+close, end
+coincide, concur
+coincide, happen simultaneously
+collapse, crumble
+collapse, crumple
+collapse, tumble
+collect, pick up
+combine, blend
+combine, mix
+combine, conflate
+combine, commingle
+combine, fuse
+combine, merge
+comfort, soothe
+comfort, console
+remunerate, compensate
+compete, vie
+compete, contend
+complain, express discontent
+compromise, make a compromise
+concede, acknowledge defeat
+conceive, become pregnant
+concentrate, focus
+concentrate, focus one's attention
+confine, detain
+confront, come face to face with
+consider, debate
+consider, think about
+consolidate, unite into one
+construct, manufacture
+construct, fabricate
+contain, incorporate
+contain, comprise
+control, operate
+control, handle
+command, control
+convert, change religious beliefs
+convict, find guilty
+convince, convert
+convince, win over
+falsify, manipulate
+falsify, fake
+falsify, fudge
+falsify, cook
+falsify, misrepresent
+cooperate, collaborate
+cooperate, join forces
+cope, get by
+cope, make do
+cope, manage
+copy, imitate
+copy, simulate
+copy, re-create
+copy, replicate
+correspond, exchange messages
+count, number
+count, enumerate
+treat, handle
+treat, deal with
+treat, address
+treat, cover
+cover, provide with a covering
+crash, cease operating abruptly
+smash, break apart
+dash, smash
+dash, hurl or thrust violently
+crash, fall or come down violently
+create, bring into existence
+creep, crawl
+cower, fawn
+cower, cringe
+cower, grovel
+cower, show submission or fear
+crop, cut short
+graze, pasture
+cross, traverse
+crouch, squat
+cry, weep
+cultivate, domesticate
+cultivate, naturalize
+cultivate, naturalise
+cultivate, tame
+curl, coil
+curl, loop
+reduce, cut down
+reduce, cut back
+reduce, trim
+cut, cleave
+damn, curse
+dance, move in a pattern to music
+dare, be courageous enough to try or do something
+debate, deliberate
+debut, appear in public for the first time
+decide, make up one's mind
+determine, influence
+decline, worsen
+decrease, lessen
+decrease, make smaller or less
+dedicate, inscribe or address by way of compliment
+defend, represent in a court of law
+define, give a definition for
+delay, detain
+delay, hold up
+delay, act later than planned
+delete, erase
+delete, wipe out information
+deliver, make a delivery
+deliver, bring
+deport, extradite
+deport, hand over to the authorities of another country
+rescue, deliver
+rescue, free from harm
+demand, request urgently and forcefully
+demolish, destroy
+demonstrate, march
+demonstrate, march in protest
+deny, contradict
+deny, declare untrue
+deny, refuse to grant
+digress, sidetrack
+depend, be contingent upon
+deprive, keep from having or obtaining
+describe, depict
+desert, defect
+deserve, merit
+deserve, be worthy or deserving
+despise, scorn
+despise, disdain
+deter, dissuade
+deteriorate, become worse
+deteriorate, disintegrate
+modernize, develop
+train, prepare
+train, educate
+develop, make something new
+develop, invent
+arise, originate
+arise, develop
+arise, come into existence
+devote, dedicate
+devote, commit to a specific cause or function
+dictate, say out loud for the purpose of recording
+break down, die
+break down, conk out
+die, suffer death
+disagree, differ
+disagree, take issue
+differ, be different
+excavate, hollow
+excavate, hollow out
+dilute, thin
+dilute, reduce
+dilute, cut
+dine, have supper
+dip, slope downwards
+direct, point somebody into a certain direction
+direct, guide actors
+disappear, vanish
+disappoint, let down
+discourage, deter
+discover, come upon
+discover, chance upon
+discover, come across
+discuss, talk over
+dismiss, fire
+dismiss, give notice
+dismiss, give the axe
+dismiss, sack
+display, expose
+display, exhibit
+quarrel, dispute
+quarrel, argue
+thaw, unfreeze
+thaw, unthaw
+thaw, dethaw
+thaw, melt
+distort, falsify
+distribute, give out
+distribute, hand out
+dive, plunge into water
+divide, split
+divide, split up
+divide, separate
+divorce, split up
+document, record in detail
+dominate, be in control
+double, increase twofold
+double, duplicate
+doubt, consider unlikely
+drag, pull against a resistance
+trail, be behind
+trail, hang back
+trail, drop behind
+drain, empty of liquid
+tie, tie
+tie, finish a game with an equal number of points
+pull, draw
+draw, attract
+draw, pull
+draw, pull in
+draw, draw in
+draw, represent by making a drawing of
+withdraw, take out
+withdraw, draw off
+dress, clothe
+drink, imbibe
+drink, take in liquids
+drive, travel by vehicle
+deteriorate, degenerate
+deteriorate, grow worse
+dribble, drip
+drop, let fall
+drown, die in water
+drug, dose
+drug, medicate
+dump, discard
+dump, dispose
+dump, toss out
+ditch, dump
+ditch, unceremoniously sever all ties with
+eat, take in solid food
+eavesdrop, listen in
+choose, elect to do
+elect, select by in an election
+eliminate, get rid of
+eliminate, do away with
+embark, venture
+employ, hire
+employ, engage
+encourage, spur on
+endure, weather
+endure, brave
+enhance, make better or more attractive
+enlarge, magnify
+enlarge, blow up
+ensure, guarantee
+ensure, insure
+ensure, assure
+ensure, secure
+enter, come in
+enter, get into
+enter, get in
+enter, go into
+enter, go in
+enter, enroll
+enter, inscribe
+entertain, provide entertainment
+escape, get away
+escape, break loose
+escape, run away from confinement
+establish, install
+establish, set up
+exaggerate, overstate
+exceed, surpass
+exceed, outstrip
+exceed, outmatch
+exceed, outdo
+exclude, except
+exclude, leave out
+exclude, leave off
+exclude, omit
+eject, expel
+eject, throw out
+eject, kick out
+excuse, forgive
+excuse, pardon
+execute, put to death
+prosper, boom
+prosper, thrive
+prosper, flourish
+elaborate, expand
+elaborate, expatiate
+elaborate, enlarge
+elaborate, flesh out
+expand, spread out
+expand, extend in one or more directions
+expand, spread
+expect, anticipate
+experiment, conduct a test or investigation
+explain, explicate
+explode, detonate
+explode, blow up
+explode, show a violent emotional reaction
+exploit, manipulate to one's advantage
+export, sell abroad
+expose, debunk
+extend, widen
+extend, broaden in scope or range or area
+confront, face
+confront, face up to
+fade, wither
+fail, go wrong
+faint, pass out
+decrease, diminish
+decrease, fall
+fall, descend in free fall
+fan, agitate the air
+fascinate, intrigue
+fast, abstain from food
+fear, dread
+fear, be afraid of
+feel, experience
+feel, undergo an emotional sensation
+fight, struggle
+fill, fill up
+fill, make full
+film, record on film
+find, discover
+find, recover
+find, retrieve
+find, regain
+finish, complete
+fire, discharge a weapon
+equip, fit out
+equip, outfit
+fit, conform to shape or size
+fix, repair
+fix, mend
+flash, blink
+flash, wink
+flash, twinkle
+fling, throw with force or recklessness
+splurge, indulge oneself
+flood, inundate
+flood, fill quickly beyond capacity
+flourish, thrive
+flourish, prosper
+flush, blush
+flush, redden
+flush, cause to flow or flood
+fly, travel through the air
+fly, be airborne
+fold, fold up
+fold, bend or lay so that one part covers the other
+follow, go behind
+follow, comply
+follow, succeed
+follow, come after
+fool around, horse around
+fool around, fool
+forbid, prohibit
+forbid, interdict
+force, move something forcibly
+coerce, pressure
+coerce, force
+coerce, compel
+forge, fake
+forge, counterfeit
+forget, block
+forget, blank out
+forget, draw a blank
+forget, fail to remember
+form, shape
+form, give shape to
+organize, form
+formulate, word
+formulate, phrase
+formulate, articulate
+foster, nurture
+frame, ensnare
+frame, entrap
+frame, set up
+frame, enclose in a frame
+exempt, free
+exempt, grant an exemption
+freeze, feel or be cold
+freeze, change to ice
+frighten, scare
+frighten, cause fear in
+fund, finance
+fund, underwrite
+gain, profit
+gain, benefit
+gasp, pant
+gasp, puff
+gasp, heave
+generate, bring forth
+generate, produce
+get, acquire
+feed, provide with food
+give, yield
+give, be flexible
+give, render
+give, yield
+give, return
+give, generate
+give, collapse
+give, fall in
+give, cave in
+give, give way
+give, present
+give, give as a gift
+give, pass
+give, hand
+give, reach
+glance, peek
+glare, glower
+glide, move smoothly and effortlessly
+glow, emit light
+die, perish
+go, move
+graduate, receive an academic degree
+greet, send greetings
+grind, mash
+grind, crunch
+groan, moan
+grow, mature
+grow, maturate
+guard, ward
+guard, watch over
+guard, shield from danger or harm
+guess, make a guess
+handicap, hinder
+handicap, hamper
+hang, hang up
+hang, suspend
+happen, go on
+happen, occur
+harm, do harm to
+hate, detest
+hate, loathe
+haul, transport
+haunt, stalk
+have, have got
+heal, cure
+hear, perceive sound
+help, assist
+help, aid
+hesitate, pause or hold back in uncertainty or unwillingness
+hiccup, breathe spasmodically
+hide, conceal
+hide, hide out
+hide, be or go into hiding
+hike, walk for pleasure
+hike, take a hike
+hit, strike
+hit, strike
+hit, run into
+hit, collide with
+defend, guard
+defend, protect
+support, hold
+support, sustain
+support, hold up
+hold, reserve
+hold, book
+hold, bear
+hold, carry
+hold, contain
+hook, fasten with a hook
+host, be the host
+hover, levitate
+offend, wound
+offend, hurt
+hurt, ache
+hurt, be the source of pain
+hypnothize, mesmerize
+identify, name
+ignore, neglect
+ignore, disregard
+dismiss, disregard
+dismiss, brush aside
+dismiss, brush off
+dismiss, discount
+illustrate, exemplify
+imagine, conceive of
+imagine, ideate
+imagine, envisage
+import, bring in from abroad
+impress, make a good impression
+improve, better
+improve, amend
+improve, ameliorate
+include, admit
+include, let in
+include, have as a part
+increase, become bigger or greater
+indulge, enjoy to excess
+infect, communicate a disease
+inflate, blow up
+inflate, fill with air
+inject, take by injection
+injure, wound
+injure, hurt
+insert, place inside
+insist, take a firm stand
+inspire, supply the inspiration for
+instal, put in
+instal, set up for use
+install, put into an office or a position
+insure, take out insurance
+intensify, escalate
+intensify, step up
+translate, interpret in another language
+interrupt, disrupt
+introduce, inaugurate
+introduce, usher in
+introduce, present
+introduce, acquaint
+introduce, bring in
+invite, ask over
+invite, invite to one's house
+jail, imprison
+jail, incarcerate
+twitch, jerk
+jest, act or speak playfully
+skip, pass over
+skip, skip over
+jump, leap
+jump, bound
+parachute, jump from an airplane
+justify, excuse
+justify, rationalize
+keep, preserve
+keep, maintain
+keep, hold on
+keep, retain possession of
+keep, observe
+keep, celebrate holidays or rites
+kick, strike with the foot
+kill, cause to die
+kill, put to death
+kneel, rest one's weight on one's knees
+knit, make textiles by knitting
+knock, rap
+knock, strike with the knuckles
+know, be familiar or acquainted with a person or an object
+know, be aware of the truth of something
+know, know how to do or perform something
+land, come down on the ground
+endure, last
+endure, persist
+launch, propel with force
+launch, set in motion
+lay, put down
+lay, lay down
+lead, head
+lead, travel in front of
+lead, be in charge
+leak, escape through an opening
+lean, tilt
+lean, tip
+lean, slant
+lean, angle
+lean, incline
+lean, bend
+learn, memorize
+teach, instruct
+leave, leave behind
+leave, exit
+leave, go out
+leave, get out
+leave, bequeath
+leave, will
+leave, pass on
+lend, loan
+lease, rent
+lease, let
+level, raze
+level, rase
+level, dismantle
+level, tear down
+license, certify
+lick, lap
+lick, pass the tongue over
+lie, tell an untruth
+lie, lie down
+revoke, lift
+revoke, annul
+revoke, reverse
+revoke, repeal
+revoke, overturn
+revoke, rescind
+plagiarize, steal intellectual property
+light, light up
+light, illuminate
+light, make light
+ignite, light
+ignite, light up
+like, be fond of
+restrict, limit
+restrict, restrain
+linger, loiter
+link, connect
+link, tie
+link, fasten together
+list, include in a list
+listen, hear
+load, place on a surface or a conveyance
+locate, situate
+locate, determine the location
+lock, fasten with a lock
+lodge, stay temporarily
+yearn, hanker
+yearn, long
+look, appear
+look, seem
+look, search
+lose, fail to win
+misplace, lose
+love, be in love with
+enjoy, enjoy doing
+enjoy, love to do
+frown, glower
+frown, look angry or sullen
+make, produce
+make, create
+cook, fix
+cook, ready
+cook, prepare
+make, gain
+make, take in
+make, clear
+make, earn
+manage, oversee
+manage, supervise
+manage, pull off
+manage, bring off
+manage, carry off
+fabricate, cook up
+fabricate, make up
+fabricate, invent
+march, walk
+market, commercialize
+master, get the hang of
+match, be equal or harmonize
+matter, count
+matter, weigh
+matter, carry weight
+mean, intend
+mean, signify
+mean, stand for
+measure, quantify
+measure, express as a number or quantity
+evaluate, valuate
+evaluate, assess
+evaluate, appraise
+evaluate, value
+meet, gather
+meet, assemble
+meet, get to know
+mention, note
+mention, observe
+mention, remark
+mind, be offended or bothered by
+minimize, understate
+minimize, downplay
+mislead, misinform
+mislead, give false information
+miss, feel or suffer from the lack of
+miss, fail to reach or get to
+lack, be without
+miss, fail to attend an event or activity
+mix, shuffle
+mix, randomize
+model, simulate
+move, be active
+move, arouse sympathy or compassion
+move, change position
+move, change residence
+move, affiliation
+move, or employment
+multiply, calculate
+mutter, mumble
+mutter, murmur
+nap, catnap
+nap, take a nap
+need, require
+nominate, put up
+nominate, put forward
+nominate, propose
+notice, note
+notice, perceive
+object, raise an objection
+obscure, make less visible
+occupy, fill
+occupy, occupy the whole space of
+offend, cause to feel resentment
+offer, bid
+offer, propose to pay
+offer, volunteer to do
+offset, countervail
+offset, compensate
+offset, counterbalance
+offset, make up for
+open, open up
+oppose, be against
+organize, bring order and organization to
+mastermind, engineer
+mastermind, direct
+mastermind, orchestrate
+mastermind, organize
+overlook, fail to notice
+overwhelm, overpower
+owe, be obliged to pay
+pack, arrange in a container
+paint, apply paint to
+paint, coat with paint
+paint, make a painting
+park, maneuver a vehicle into a parking space
+participate, take part
+pass, go through
+pass, go across
+pass, overtake
+pass, travel past
+elapse, pass by
+elapse, go by
+pass, make it
+pass, be successful
+exceed, pass
+exceed, go past
+exceed, top
+pat, dab
+pat, hit lightly
+pay, give money in exchange for goods or services
+penetrate, enter into
+perceive, sense
+perforate, pass in or through
+perform, give a performance
+persist, persevere
+photocopy, xerox
+photocopy, run off
+pick, select carefully
+pluck, pick
+pluck, cull
+pile, stack
+pile, heap
+rank, rate
+rank, place
+rank, range
+rank, order
+rank, grade
+plan, make plans
+design, conceive
+play, participate in games or sport
+bet, wager
+bet, stake
+play, act
+play, roleplay
+play, playact
+play, play on an instrument
+play, engage in playful activity
+plead, enter a plea in courts of law
+please, delight
+please, give pleasure
+pledge, promise solemnly
+plot, plan secretly
+plot, diagram
+plug, stop up
+poison, administer poison to
+polish, refine
+pop, burst open with a sharp
+pop, explosive sound
+post, publicize with
+post, or as if with
+post, a poster
+swarm, pour
+swarm, teem
+swarm, move in large numbers
+pour, cause to flow
+pray, say a prayer
+beg, implore
+beg, entreat
+preach, deliver a sermon
+precede, predate
+precede, antecede
+precede, antedate
+prefer, favor
+present, submit
+present, hand over formally
+urge, urge on
+press, exert pressure or force on
+squeeze, compress
+squeeze, constrict
+squeeze, press
+squeeze, compact
+prevent, forestall
+prevent, keep from happening
+print, reproduce by printing
+proclaim, exclaim
+proclaim, promulgate
+proclaim, state
+proclaim, announce
+produce, grow
+produce, raise
+produce, farm
+produce, cultivate
+profit, turn a profit
+prosecute, bring a criminal action against
+protect, shield from danger
+prove, show
+prove, demonstrate
+prove, establish
+provide, supply
+provide, render
+provide, furnish
+provoke, arouse
+provoke, evoke an emotion or response
+harass, hassle
+harass, plague
+harass, molest
+publish, bring out
+publish, put out
+publish, issue
+publish, release
+extract, pull
+extract, pull out
+extract, pull up
+extract, take out
+pump, raise fluid with a pump
+punch, hit with the fist
+punch, make a hole in
+punish, penalize
+advertise, push
+advertise, promote
+push, press
+put, place
+put, set
+put, pose
+put, lay
+put, position
+qualify, modify
+qualify, measure up
+qualify, prove capable
+qualify, meet requirements
+question, interrogate
+quit, drop out
+quit, give up
+quit, throw in the towel
+quote, cite
+race, rush
+race, hasten
+race, speed
+race, hurry
+build, raise
+build, put up
+build, construct
+build, raise
+lift, raise
+lift, elevate
+lift, move up
+raise, collect funds
+raise, rear
+raise, bring up
+raise, nurture
+raise, parent
+promote, upgrade
+promote, advance
+promote, kick upstairs
+rape, ravish
+rape, violate
+rape, assault
+achieve, accomplish
+achieve, attain
+achieve, gain with effort
+reach, extend to
+reach, touch
+read, interpret something that is written or printed
+realize, recognize
+realize, be fully aware of
+rear, rise up
+recognize, perceive to be the same
+recognize, accredit
+recognize, grant credentials
+recommend, commend
+record, tape
+record, register electronically
+recover, recuperate
+recover, convalesce
+recruit, seek to employ
+recycle, reprocess
+recycle, reuse
+redeem, exchange for ransom under threat
+refer, mention
+refer, advert
+refer, bring up
+refer, cite
+refer, name
+reflect, think over
+reflect, meditate
+reflect, ponder
+reflect, contemplate
+reflect, shine
+reform, improve by alteration or correction
+refuse, decline to do
+reject, pass up
+reject, turn down
+reject, refuse
+reject, decline
+deny, refuse to let have
+register, enroll to vote
+regret, repent
+regret, rue
+regret, feel remorse
+reinforce, reward
+reinforce, support with rewards
+reject, rule out
+reject, eliminate
+relate, tie in
+relate, link
+relate, connect logically or causally
+relax, loosen up
+relax, unwind
+release, free
+release, liberate
+relieve, free from a burden or distress
+relinquish, renounce
+relinquish, give up
+relinquish, foreswear
+trust, rely on
+trust, have confidence in
+remain, persist
+remain, stay behind
+commemorate, remember
+remind, prompt
+remind, cue
+repeat, duplicate
+repeat, reduplicate
+repeat, double
+repeat, replicate
+replace, substitute for a defective or inadequate one
+represent, be a delegate or spokesperson
+represent, stand for
+represent, correspond to
+reproduce, make a copy
+request, call for
+command, compel
+rescue, free from harm or evil
+reserve, obtain or arrange in advance
+resign, leave office
+resign, quit
+resign, step down
+resist, withstand
+resist, hold up against
+resist, baulk
+resist, refuse to comply
+respect, esteem
+respect, value
+rest, breathe
+rest, catch one's breath
+rest, take a breather
+restrain, encumber
+restrain, constrain
+restrain, hold back
+retain, remember
+retain, keep in one's mind
+retire, go to bed
+retire, turn in
+retire, go into retirement
+retreat, move away
+return, go back
+return, bring back
+return, take back
+refund, repay
+refund, pay back
+reveal, uncover
+reveal, bring out
+reveal, make visible
+reverse, invert
+reverse, turn inside out or upside down
+review, look back
+review, retrospect
+revise, make revisions to
+revive, resuscitate
+reward, repay
+reward, pay back
+tease, rag
+tease, taunt
+ride, be carried or travel in or on a vehicle
+ring, peal
+arise, get up
+arise, get out of bed
+rise, increase
+rise, go up
+rise, climb
+rise, increase in value or level
+rise, move upward
+rise, arise
+rise, get up
+rise, stand up
+rise, rise to one's feet
+rise, come up
+rise, ascend in the sky
+risk, gamble
+risk, chance
+risk, hazard
+risk, take chances
+roar, bellow
+roar, make a loud noise
+rob, deprive somebody of something
+rock, sway
+rock, move back and forth
+roll, turn over
+roll, turn over or rotate
+wander, stray
+wander, tramp
+wander, roam
+wander, ramble
+wander, rove
+wander, range
+wander, drift
+row, propel with oars
+rub, apply friction
+scratch, scrape or rub to relieve itching
+rule, govern
+run, campaign for office
+run, be operating or functioning
+run, move fast on one's feet
+flow, run
+escape, run
+escape, run away
+escape, flee
+save, lay aside
+save, save up
+save, spare
+say, state
+say, tell
+scan, skim
+scan, examine hastily
+scatter, sprinkle
+scatter, dot
+scatter, dust
+scatter, disperse
+scramble, jumble
+scrape, grate
+scrape, scratch
+scratch, scrape
+scream, yell
+scream, shriek
+screen, examine methodically
+screen, screen out
+screen, sieve out
+cheat, fool
+cheat, swindle
+screw, tighten
+screw, fasten
+seal, seal off
+seal, make tight
+seal, secure against leakage
+secure, fasten
+secure, fix
+secure, cause to be firmly attached
+see, understand
+see, realize
+see, meet
+see, ran into
+see, encounter
+see, run across
+see, come across
+see, perceive by sight
+seek, search
+seek, look for
+seem, appear
+seize, clutch
+seize, take hold of
+seize, grab
+seize, grasp
+sell, exchange for money
+betray, sell out
+mail, send
+mail, post
+broadcast, air
+broadcast, send
+branch, fork
+branch, divide into branches
+separate, split up
+separate, split
+separate, part company
+discriminate, separate
+discriminate, single out
+discriminate, treat differently
+serve, serve up
+serve, dish out
+serve, attend to
+serve, wait on
+serve, attend
+serve, assist
+set, adjust
+set, correct
+set, regulate
+plant, put or set into the ground
+set, go down
+set, go below the horizon
+settle, establish a residence
+settle, end a legal dispute
+reconcile, make up
+sink, go down
+sink, go under
+shake, agitate
+shake, move back and forth
+rock, sway
+shape, form
+shape, work
+shape, mold
+shape, forge
+share, use jointly or in common
+shatter, break
+shave, remove body hair
+shed, spill
+shed, disgorge
+budge, shift
+budge, stir
+polish, shine
+shine, glitter
+shine, glisten
+shine, glint
+shine, gleam
+shiver, shudder
+stun, floor
+stun, surprise greatly
+shock, offend
+shock, scandalize
+shock, outrage
+shoot, spud
+shoot, germinate
+shoot, sprout
+shoot, fire a shot
+shout, speak loudly
+abuse, shout at
+abuse, abuse verbally
+show, indicate
+show, point
+show, exhibit
+show, present
+show, demonstrate
+show, reveal
+show, display
+shrink, shrivel
+sigh, utter a sigh
+sign, mark with one's signature
+sip, drink
+sit, sit down
+sit, be seated
+skate, move on skates
+slam, bang
+slam, close violently
+slap, hit with a flat surface
+slide, slither
+slide, pass or move unobtrusively or smoothly
+slip, skid
+slip, slide
+slump, slouch
+smash, break into pieces
+smell, emit an odor
+smell, perceive by the olfactory sense
+smoke, inhale a plant derivative
+snap, crack
+snap, break suddenly
+snap, rupture
+snarl, speak sharply
+snarl, snap
+snatch, snatch up
+snatch, snap up
+snap, click
+snap, flick
+snap, make a snapping sound
+kidnap, snatch
+kidnap, abduct
+sniff, whiff
+sniff, inhale
+snuggle, cuddle
+snuggle, nestle
+snuggle, draw close
+soak, submerge in liquid
+overcharge, surcharge
+overcharge, fleece
+overcharge, rip off
+pawn, hock
+soar, fly upwards
+solve, work out
+solve, figure out
+solve, puzzle out
+sow, place seeds into the ground
+spare, give up
+spare, part with
+spare, save from an unpleasant experience
+speculate, invest at a risk
+speed, travel at an excessive or illegal velocity
+spend, expend
+spill, flow out
+spin, twist and turn so as to give an intended interpretation
+spin, form a web
+spin, spin around
+spin, whirl
+spin, reel
+spin, gyrate
+spin, revolve
+spit, spew
+split, burst
+split, break open
+spoil, rot
+spoil, go bad
+spoil, become unfit for consumption
+spoil, impair
+spoil, make imperfect
+spoil, pamper
+spoil, coddle
+spoil, mollycoddle
+spoil, indulge
+spray, scatter
+circulate, distribute
+circulate, disseminate
+circulate, propagate
+circulate, broadcast
+circulate, diffuse
+circulate, disperse
+circulate, spread
+circulate, cause to become widely known
+spread, distribute over a surface
+square, raise to the second power
+squeeze, pinch
+embrace, hug
+squash, crush
+squash, mash
+extort, gouge
+stab, knife
+stain, spot
+stain, produce stains
+stereotype, pigeonhole
+stamp, stomp
+stamp, walk heavily
+stand, bear
+stand, endure
+stand, stomach
+stand, bear
+stand, put up with
+stand, stand up
+depart, leave
+depart, start out
+depart, set forth
+depart, set off
+depart, set out
+depart, take off
+stay, stick around
+stay, stay put
+step, tread
+mistreat, maltreat
+mistreat, abuse
+stick, adhere
+stick, hold fast
+stick, bond
+stick, bind
+stick, stick to
+pierce, stick
+pierce, puncture
+sting, bite
+sting, deliver an animal sting
+stir, move an implement with a circular motion
+stop, halt
+stop, come to a halt
+stop, stop moving
+stop, discontinue
+stop, cease doing
+store, lay in
+store, put in
+store, salt away
+store, stack away
+store, stash away
+storm, rain
+storm, hail
+storm, or snow hard
+straighten, straighten out
+straighten, make straight
+strain, tense
+strain, tense up
+stress, emphasize
+stress, underline
+stretch, stretch out
+stretch, extend one's limbs
+stride, walk with long steps
+strike, scratch
+strike, expunge
+strike, excise
+strike, remove by erasing
+strike, walk out
+strike, walk off a job
+undress, disrobe
+stroke, fondle
+stroke, caress
+stroll, saunter
+study, hit the books
+stuff, fill tightly
+overeat, gorge
+stumble, slip up
+stumble, trip up
+stumble, make an error
+resign, reconcile oneself
+resign, accept as inevitable
+substitute, replace
+substitute, put in the place of another
+suffer, hurt
+suffer, ache
+suggest, propose
+suggest, advise
+evoke, suggest
+suit, be agreeable or acceptable
+support, confirm
+support, corroborate
+support, substantiate
+hypothesize, speculate
+hypothesize, theorize
+hypothesize, conjecture
+suppress, curb
+suppress, inhibit
+surround, encircle
+surround, circle
+surround, round
+sustain, prolong
+sustain, keep up
+swallow, believe or accept without questioning
+swallow, pass through the esophagus
+swear, declare under oath
+swear, curse
+swear, cuss
+swear, blaspheme
+sweep, use a broom
+swell, swell up
+swim, travel through water
+float, be afloat
+float, fail to sink
+swing, move with a swaying motion
+swipe, move something with a swiping motion
+swop, switch
+swop, trade
+swop, swap
+swop, exchange
+take, choose
+take, select
+take, pick out
+take, bring
+take, convey
+talk, speak
+talk, use language
+tap, draw from
+tap, strike lightly
+taste, perceive by the sense of taste
+tease, mock
+tease, make fun of
+tease, arouse hope or desire without satisfying them
+tell, narrate
+tell, recount
+tell, recite
+tempt, entice
+tempt, lure
+terrify, frighten greatly
+testify, bear witness
+thank, give thanks
+think, cogitate
+think, cerebrate
+think, believe
+think, accept as true
+remember, retrieve
+remember, recall
+threaten, utter intentions of injury or punishment
+confuse, throw
+confuse, befuddle
+confuse, confound
+throw, project through the air
+thrust, lunge
+thrust, hurl
+thrust, hurtle
+tick, click
+tie, form a knot or bow in
+time, clock
+time, measure the time or duration of an event
+tiptoe, tippytoe
+topple, tip
+topple, cause to fall over
+tolerate, recognize
+tolerate, respect others' rights
+toss, flip
+toss, pitch
+toss, throw
+total, damage beyond the point of repair
+touch, make physical contact with
+train, coach
+transfer, transmit
+transfer, transport
+transfer, channel
+transform, transmute
+transform, metamorphose
+tread, trample
+treat, care for
+treat, provide treatment for
+treat, treat medically
+treat, handle
+trip, stumble
+trouble, perturb
+trouble, distract
+trouble, make uneasy
+try, sample
+try, try out
+try, taste
+try, seek
+try, attempt
+try, essay
+try, judge
+try, adjudicate
+tumble, topple
+tumble, fall down
+tune, tune up
+tune, adjust for (better) functioning
+bend, flex
+bend, turn
+bend, deform
+bend, twist
+turn, turn around
+turn, change orientation
+rotate, turn
+twist, entwine
+twist, form into a spiral
+wriggle, writhe
+wriggle, worm
+wriggle, squirm
+underline, underscore
+underline, draw a line
+undermine, sabotage
+undermine, countermine
+undermine, counteract
+understand, comprehend
+understand, sympathize
+understand, empathize
+undertake, tackle
+undertake, take on
+update, bring up to date
+upset, disturb
+upset, trouble
+upset, move deeply
+upset, overturn
+upset, tip over
+upset, turn over
+upset, knock over
+urge, cheer
+urge, inspire
+urge, urge on
+use, practice
+use, apply
+utter, emit
+visit, travel to
+vote, cast a vote in an election
+wait, stay in one place and anticipate something
+wake, wake up
+wake, stop sleeping
+walk, use one's feet to advance
+digress, wander
+digress, stray
+want, desire
+warn, notify of danger
+warn, potential harm
+warn, or risk
+wash, bathe
+wash, cleanse one's body
+wash, launder
+waste, squander
+waste, spend extravagantly
+watch, look on
+watch, observe
+wave, beckon
+wave, signal with the hands
+wear, have on clothes
+weave, make cloth
+weigh, determine the weight of
+weigh, have a certain weight
+whip, lash
+whisper, speak softly
+widen, make wider
+win, be victorious
+wind, wind up
+wind, coil the spring of a mechanism
+withdraw, retreat
+withdraw, pull out
+wonder, question
+wonder, want to know
+work, do work
+work out, exercise
+worry, be worried
+wrap, enfold in a tissue
+wrestle, engage in a wrestling match
+write, communicate or express by writing
+write, publish
+spell, write
+compose, write music

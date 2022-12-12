@@ -1,0 +1,4 @@
+# https://de.wikipedia.org/wiki/U-Bahn_N%C3%BCrnberg
+U1: Langwasser Süd , Gemeinschaftshaus , Langwasser Mitte , Scharfreiterring , Langwasser Nord , Messe , Bauernfeindstraße ,Hasenbuck , Frankenstraße ,Maffeiplatz , Aufseßplatz ,Hauptbahnhof , Lorenzkirche , Weißer Turm ,Plärrer , Gostenhof , Bärenschanze , Maximilianstraße ,Eberhardshof , Muggenhof , Stadtgrenze , Jakobinenstraße ,Fürth Hauptbahnhof , Fürth Rathaus , Fürth Stadthalle , Fürth Klinikum , Fürth Hardhöhe
+U2: Röthenbach , Hohe Marter , Schweinau , St. Leonhard , Rothenburger Straße ,Plärrer , Opernhaus , Hauptbahnhof , Wöhrder Wiese , Rathenauplatz , Rennweg , Schoppershof , Nordostbahnhof , Herrnhütte , Ziegelstein , Flughafen
+U3: Gustav-Adolf-Straße ,Sündersbühl , Rothenburger Straße ,Plärrer , Opernhaus , Hauptbahnhof , Wöhrder Wiese , Rathenauplatz , Maxfeld , Kaulbachplatz , Friedrich-Ebert-Platz

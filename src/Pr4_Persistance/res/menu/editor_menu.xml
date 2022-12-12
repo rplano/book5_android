@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_open_file"
+        android:icon="@drawable/ic_file_download_black_24dp"
+        android:showAsAction="ifRoom"
+        android:title="Open"/>
+    <item
+        android:id="@+id/action_save_file"
+        android:icon="@drawable/ic_file_upload_black_24dp"
+        android:showAsAction="ifRoom"
+        android:title="Save"/>
+
+</menu>

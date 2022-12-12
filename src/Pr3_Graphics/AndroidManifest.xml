@@ -1,0 +1,66 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr3"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr3.MainActivity"
+            android:label="Android P3" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.MondrianActivity"
+            android:label="MondrianActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.GameOfLifeActivity"
+            android:label="GameOfLifeActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.PaintActivity"
+            android:label="PaintActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.FingerPaintActivity"
+            android:label="FingerPaintActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.MultiTouchActivity"
+            android:label="MultiTouchActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.FastGRectActivity"
+            android:label="FastGRectActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.MandelbrotSlowActivity"
+            android:label="MandelbrotSlowActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.MandelbrotFastActivity"
+            android:label="MandelbrotFastActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.MandelbrotSuperFastActivity"
+            android:label="MandelbrotSuperFastActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr3.RandomArtActivity"
+            android:label="RandomArtActivity" >
+        </activity>
+    </application>
+
+</manifest>
