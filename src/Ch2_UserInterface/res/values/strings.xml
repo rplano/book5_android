@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Alarm</string>
+    <string name="set_alarm">Set Alarm</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="Names">
+        <item>Bach</item>
+        <item>Einstein</item>
+        <item>Faust</item>
+        <item>Goethe</item>
+    </string-array>
+    <string-array name="Quotes">
+        <item>Alles, was man tun muß, ist, die richtige Taste zum richtigen Zeitpunkt zu treffen.\n\nIch habe fleißig sein müssen. Wer ebenso fleißig ist, der wird es weit bringen können.\n\nIch kann keine Lieder über unglückliche Liebe oder Liebessehnsucht schreiben, da ich Magdalena ja besitze.</item>
+        <item>Das Resultat ist wichtig, nicht die Mathematik, mit Mathematik koennen Sie alles beweisen.\n\nIch habe wenig Geduld mit Wissenschaftlern, die ein Brett dahernehmen, sich die duennste Stelle heraussuchen, und dort einen Haufen Loecher bohren, wo es sich muehelos bohren laesst.\n\nDie Erde gibt es seit mehr als einer Milliarde Jahren. Was die Frage nach ihrem Ende betrifft, so rate ich: abwarten und zusehen.</item>
+        <item>So soll ich denn mit saurem Schweiss \nEuch lehren, was ich selbst nicht weiss.\n\nWar es ein Gott, der diese Zeichen schrieb, \nDie mir das innere Toben stillen, \nDas arme Herz mit Freude fuellen. \n\nDie Botschaft hoer ich wohl, allein mir fehlt der Glaube, \ndas Wunder ist des Glaubens hoechstes Kind. \n\nNach Golde draengt, \nAm Gelde haengt \nDoch alles. (Ach wir Armen.) \n\nGrau, teurer Freund, ist alle Theorie \nUnd Gruen des Lebens goldener Baum. \n\nEs irrt der Mensch solang er strebt.</item>
+        <item>Wer fremde Sprachen nicht kennt, weiss nichts von seiner eigenen.\n\nWas nuetzt mir der Erde Geld? Kein kranker Mensch geniest die Welt.\n\nIn der Beschraenkung zeigt sich erst der Meister, Und das Gesetz nur kann uns Freiheit geben.</item>
+    </string-array>
+
+</resources>

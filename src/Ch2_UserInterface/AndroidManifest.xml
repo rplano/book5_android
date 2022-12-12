@@ -1,0 +1,64 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.ch2"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_ch2.MainActivity"
+            android:label="Android C2" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.ButtonActivity"
+            android:label="ButtonActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.DialogActivity"
+            android:label="DialogActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.AboutActivity"
+            android:label="AboutActivity"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.MenuActivity"
+            android:label="MenuActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.BorderLayoutActivity"
+            android:label="BorderLayoutActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.ScreenDimensionsActivity"
+            android:label="ScreenDimensionsActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.AlarmClockActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.CalculatorActivity"
+            android:label="CalculatorActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.QuotesActivity"
+            android:label="QuotesActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch2.TabsActivity"
+            android:label="TabsActivity" >
+        </activity>
+    </application>
+
+</manifest>

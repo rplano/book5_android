@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Réveil</string>
+    <string name="set_alarm">Régler L\'alarme</string>
+    <string name="action_settings">Paramètres</string>
+</resources>

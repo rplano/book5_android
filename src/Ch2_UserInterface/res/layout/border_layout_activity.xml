@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/north"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#200000ff"
+        android:gravity="center_horizontal"
+        android:text="North"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:id="@+id/south"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#200000ff"
+        android:gravity="center_horizontal"
+        android:text="South"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:id="@+id/west"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@id/south"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/north"
+        android:gravity="center_vertical"
+        android:text="West"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:id="@+id/east"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@id/south"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/north"
+        android:gravity="center_vertical"
+        android:text="East"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/south"
+        android:layout_below="@id/north"
+        android:layout_toLeftOf="@id/east"
+        android:layout_toRightOf="@id/west"
+        android:background="#100000ff"
+        android:gravity="center"
+        android:text="Center"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+</RelativeLayout>
