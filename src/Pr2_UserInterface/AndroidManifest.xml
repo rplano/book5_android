@@ -1,0 +1,81 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr2"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr2.MainActivity"
+            android:label="Android P2" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.LotteryActivity"
+            android:label="LotteryActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.BlackjackActivity"
+            android:label="BlackjackActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.CreditCardActivity"
+            android:label="CreditCardActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.WordGuessActivity"
+            android:label="WordGuessActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.FahrenheitToCelsiusActivity"
+            android:label="FahrenheitToCelsiusActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.QuizActivity"
+            android:label="QuizActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.WildbienenActivity"
+            android:label="WildbienenActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.TerminalActivity"
+            android:label="TerminalActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.TicTacToeActivity"
+            android:label="TicTacToeActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.WidgetsActivity"
+            android:label="WidgetsActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.IconMenuActivity"
+            android:label="IconMenuActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.SettingsActivity"
+            android:label="SettingsActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.FileExplorerActivity"
+            android:label="FileExplorerActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr2.CrosswordPuzzleActivity"
+            android:label="CrosswordPuzzleActivity" >
+        </activity>
+    </application>
+
+</manifest>

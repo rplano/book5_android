@@ -1,0 +1,60 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr1"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr1.MainActivity"
+            android:label="Android P1" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.BarcodeActivity"
+            android:label="BarcodeActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.SMSActivity"
+            android:label="SMSActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.EmailActivity"
+            android:label="EmailActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.CalendarActivity"
+            android:label="CalendarActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.RecordVideoActivity"
+            android:label="RecordVideoActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.NumpadDemoActivity"
+            android:label="NumpadDemoActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.NumpadActivity"
+            android:label="Numpad"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.GeoActivity"
+            android:label="GeoActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr1.YouTubeActivity"
+            android:label="YouTubeActivity" >
+        </activity>
+    </application>
+
+</manifest>

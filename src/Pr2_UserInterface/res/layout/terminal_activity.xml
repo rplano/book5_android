@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <AutoCompleteTextView
+        android:id="@+id/autocomplete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ff000000"
+        android:fontFamily="monospace"
+        android:hint="ls /system/app"
+        android:inputType="text"
+        android:paddingBottom="5dp"
+        android:paddingTop="10dp"
+        android:textColor="#ffffffff"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="Run"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ff000000"
+        android:fontFamily="monospace"
+        android:scrollbars="vertical|horizontal"
+        android:text=""
+        android:textColor="#ffffffff"
+        android:textSize="16sp" />
+
+</LinearLayout>

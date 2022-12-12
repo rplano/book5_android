@@ -1,0 +1,14 @@
+<resources>
+
+    <string-array name="entries_list_preference">
+        <item>The Tragedy of Hamlet, Prince of Denmark</item>
+        <item>King Lear</item>
+        <item>Julius Caesar</item>
+    </string-array>
+    <string-array name="entryvalues_list_preference">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+</resources>

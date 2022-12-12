@@ -1,0 +1,30 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="game_settings"
+        android:title="Game Settings" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="music"
+            android:summary="Play music"
+            android:title="Background Music" />
+
+        <variationenzumthema_pr2.NumberPickerPreference
+            android:defaultValue="5"
+            android:key="difficulty"
+            android:title="Difficulty" />
+
+        <EditTextPreference
+            android:defaultValue="Ralph"
+            android:dialogTitle="Enter players name"
+            android:key="name"
+            android:title="Name" />
+    </PreferenceCategory>
+
+    <Preference android:title="Visit Home Page" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="http://www.variationenzumthema.de" />
+    </Preference>
+
+</PreferenceScreen>

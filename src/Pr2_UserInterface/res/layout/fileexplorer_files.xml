@@ -1,0 +1,13 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff" >
+
+    <TextView
+        android:id="@+id/fileexplorer_files_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select a directory to view!"
+        android:textSize="16sp" />
+
+</ScrollView>
