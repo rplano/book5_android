@@ -1,0 +1,107 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.st3"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_st3.MainActivity"
+            android:label="Android S3" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_st3.SimpleServiceActivity"
+            android:label="SimpleServiceActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_st3.MusicServiceActivity"
+            android:label="MusicServiceActivity" />
+        <activity
+            android:name="variationenzumthema_st3.StepCounterServiceActivity"
+            android:label="StepCounterServiceActivity" />
+        <activity
+            android:name="variationenzumthema_st3.StepCounterBinderServiceActivity"
+            android:label="StepCounterBinderServiceActivity" />
+        <activity
+            android:name="variationenzumthema_st3.TemperatureServiceActivity"
+            android:label="TemperatureServiceActivity" />
+        <activity
+            android:name="variationenzumthema_st3.NotificationActivity"
+            android:label="NotificationActivity" />
+        <activity
+            android:name="variationenzumthema_st3.WhoStoleMyPhoneActivity"
+            android:label="NotificationActivity" />
+
+        <receiver
+            android:name="variationenzumthema_st3.SimpleReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="variationenzumthema_st3.MusicReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="variationenzumthema_st3.NotificationReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="variationenzumthema_st3.PhoneCallReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="variationenzumthema_st3.SimpleService"
+            android:exported="false" />
+        <service
+            android:name="variationenzumthema_st3.MusicService"
+            android:exported="false" />
+        <service
+            android:name="variationenzumthema_st3.StepCounterService"
+            android:exported="false" />
+        <service
+            android:name="variationenzumthema_st3.StepCounterBinderService"
+            android:exported="false" />
+        <service
+            android:name="variationenzumthema_st3.TemperatureService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name="variationenzumthema_st3.NotificationService"
+            android:exported="false" />
+        <service
+            android:name="variationenzumthema_st3.WhoStoleMyPhoneService"
+            android:exported="false" />
+    </application>
+
+</manifest>
