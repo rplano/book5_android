@@ -1,0 +1,44 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.ch1"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_ch1.MainActivity"
+            android:label="Android C1" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch1.SimpleActivity"
+            android:label="SimpleActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch1.ButtonActivity"
+            android:label="ButtonActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch1.BrowserActivity"
+            android:label="BrowserActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch1.StateSwitchingActivity"
+            android:label="StateSwitchingActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch1.RotationActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" 
+            android:label="RotationActivity" >
+        </activity>
+    </application>
+
+</manifest>
