@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_fast_rewind"
+        android:icon="@drawable/ic_fast_rewind_black_24dp"
+        android:showAsAction="always"
+        android:title="Rewind"/>
+    <item
+        android:id="@+id/action_play"
+        android:icon="@drawable/ic_play_arrow_black_24dp"
+        android:showAsAction="always"
+        android:title="Play"/>
+    <item
+        android:id="@+id/action_pause"
+        android:icon="@drawable/ic_pause_black_24dp"
+        android:showAsAction="always"
+        android:title="Pause"/>
+    <item
+        android:id="@+id/action_stop"
+        android:icon="@drawable/ic_stop_black_24dp"
+        android:showAsAction="ifRoom"
+        android:title="Stop"/>
+    <item
+        android:id="@+id/action_fast_forward"
+        android:icon="@drawable/ic_fast_forward_black_24dp"
+        android:showAsAction="always"
+        android:title="Forward"/>
+
+</menu>
