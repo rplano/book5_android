@@ -1,0 +1,39 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.lecture"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_st1.MainActivity"
+            android:label="Android S1" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_st1.FastGRectActivity"
+            android:label="FastGRectActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_st1.MandelbrotSlowActivity"
+            android:label="MandelbrotSlowActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_st1.MandelbrotFastActivity"
+            android:label="MandelbrotFastActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_st1.MandelbrotSuperFastActivity"
+            android:label="MandelbrotSuperFastActivity" >
+        </activity>
+    </application>
+
+</manifest>
