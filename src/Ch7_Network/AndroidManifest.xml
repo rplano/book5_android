@@ -1,0 +1,46 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.ch7"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_ch7.MainActivity"
+            android:label="Android C7" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch7.WebViewActivity"
+            android:label="WebViewActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.InetAddressActivity"
+            android:label="InetAddressActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.URLActivity"
+            android:label="URLActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.SocketActivity"
+            android:label="SocketActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.TimeServerActivity"
+            android:label="TimeServerActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.TimeClientActivity"
+            android:label="TimeClientActivity" />
+        <activity
+            android:name="variationenzumthema_ch7.YoActivity"
+            android:label="YoActivity" />
+    </application>
+
+</manifest>
