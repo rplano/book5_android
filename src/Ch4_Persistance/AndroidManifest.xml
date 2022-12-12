@@ -1,0 +1,66 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.ch4"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_ch4.MainActivity"
+            android:label="Android C4" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.ResourceActivity"
+            android:label="ResourceActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.AssetActivity"
+            android:label="AssetActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.SharedPreferencesActivity"
+            android:label="SharedPreferencesActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.InternalStorageActivity"
+            android:label="InternalStorageActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.ExternalStorageActivity"
+            android:label="ExternalStorageActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.DatabaseActivity"
+            android:label="DatabaseActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch4.ORMActivity"
+            android:label="ORMActivity" >
+        </activity>
+
+        <meta-data
+            android:name="DATABASE"
+            android:value="orm_sugar_example.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="2" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="variationenzumthema_ch4" />
+    </application>
+
+</manifest>
