@@ -1,0 +1,121 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr8"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr8.MainActivity"
+            android:label="Android P8" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr8.ChatBotActivity"
+            android:label="ChatBotActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.SurveillanceServiceActivity"
+            android:label="SurveillanceServiceActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.Camera2PreviewActivity"
+            android:label="Camera2PreviewActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.FaceDetectionActivity"
+            android:label="FaceDetectionActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.DistanceActivity"
+            android:label="DistanceActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.Camera360Activity"
+            android:label="Camera360Activity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.AugmentedRealityActivity"
+            android:label="AugmentedRealityActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.TakePhotoActivity"
+            android:label="TakePhotoActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.IPCamActivity"
+            android:label="IPCamActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.DictationActivity"
+            android:label="DictationActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.AudioFilterActivity"
+            android:label="AudioFilterActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.MorseActivity"
+            android:label="MorseActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.SnoringServiceActivity"
+            android:label="SnoringServiceActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.AudioRecorderActivity"
+            android:label="AudioRecorderActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.SoundWaveActivity"
+            android:label="SoundWaveActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="variationenzumthema_pr8.PianoActivity"
+            android:label="PianoActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.FlappyBallActivity"
+            android:label="FlappyBallActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.LoudnessActivity"
+            android:label="LoudnessActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.SonarActivity"
+            android:label="SonarActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.PianoTuningActivity"
+            android:label="PianoTuningActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.WaveformGeneratorActivity"
+            android:label="WaveformGeneratorActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.TuneGeneratorActivity"
+            android:label="TuneGeneratorActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.EqualizerActivity"
+            android:label="EqualizerActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.EchoActivity"
+            android:label="EchoActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.AudioBookCreatorActivity"
+            android:label="AudioBookCreatorActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.TextReaderActivity"
+            android:label="TextReaderActivity" />
+        <activity
+            android:name="variationenzumthema_pr8.SpectrogramActivity"
+            android:label="SpectrogramActivity" />
+
+        <service
+            android:name="variationenzumthema_pr8.SurveillanceService"
+            android:exported="false" />
+    </application>
+
+</manifest>

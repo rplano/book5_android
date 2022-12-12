@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/btnNoFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No Filter" />
+
+    <Button
+        android:id="@+id/btnHighPassFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="High-Pass Filter" />
+
+    <Button
+        android:id="@+id/btnLowPassFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Low-Pass Filter" />
+
+</LinearLayout>

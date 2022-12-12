@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200000ff"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:text="Frequency:"
+        android:textSize="24sp" />
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="5" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start" />
+
+    <GridLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:orientation="horizontal"
+        android:rowCount="1" >
+
+        <variationenzumthema_pr8.GraphView2
+            android:id="@+id/graphview1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <variationenzumthema_pr8.GraphView2
+            android:id="@+id/graphview2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </GridLayout>
+
+</LinearLayout>
