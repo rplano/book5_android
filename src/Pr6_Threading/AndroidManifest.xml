@@ -1,0 +1,63 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr6"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr6.MainActivity"
+            android:label="Android P6" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.AlarmClockActivity"
+            android:label="AlarmClockActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.SpeedReaderActivity"
+            android:label="SpeedReaderActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.ConfettiActivity"
+            android:label="ConfettiActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.SnowFlakeActivity"
+            android:label="SnowFlakeActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.FireWorksActivity"
+            android:label="FireWorksActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.FireWorksCleanActivity"
+            android:label="FireWorksCleanActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.FireWorksCleanAntiFreezeActivity"
+            android:label="FireWorksCleanAntiFreezeActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.RaceHorseActivity"
+            android:label="RaceHorseActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.MandelbrotSuperFastActivity"
+            android:label="MandelbrotSuperFastActivity" >
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr6.HeatMapActivity"
+            android:label="HeatMapActivity" >
+        </activity>
+    </application>
+
+</manifest>

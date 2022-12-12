@@ -1,0 +1,71 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.pr5"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_pr5.MainActivity"
+            android:label="Android P5" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_pr5.OpenStreetMapActivity"
+            android:label="OpenStreetMapActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.EasterEggHuntActivity"
+            android:label="EasterEggHuntActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.BatteryActivity"
+            android:label="BatteryActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.EarthQuakeActivity"
+            android:label="EarthQuakeActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.AgeActivity"
+            android:label="AgeActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.HauDenLukasActivity"
+            android:label="HauDenLukasActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.BilliardsActivity"
+            android:label="BilliardsActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.BrickBreakerActivity"
+            android:label="BrickBreakerActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.BubbleLevelActivity"
+            android:label="BubbleLevelActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.AllAccelGyroActivity"
+            android:label="AllAccelGyroActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.RandomGeneratorActivity"
+            android:label="RandomGeneratorActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.CompassActivity"
+            android:label="CompassActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.MetalDetectorActivity"
+            android:label="MetalDetectorActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.SpyActivity"
+            android:label="SpyActivity" />
+        <activity
+            android:name="variationenzumthema_pr5.RotationVectorDemoActivity"
+            android:label="RotationVectorDemoActivity" />
+    </application>
+
+</manifest>
