@@ -1,0 +1,47 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="variationenzumthema.ch5"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <activity
+            android:name="variationenzumthema_ch5.MainActivity"
+            android:label="Android C5" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="variationenzumthema_ch5.StepCounterActivity"
+            android:label="StepCounterActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.SensorFusionActivity"
+            android:label="SensorFusionActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.FilterActivity"
+            android:label="FilterActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.MotionActivity"
+            android:label="MotionActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.EnvironmentalActivity"
+            android:label="EnvironmentalActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.ListSensorsActivity"
+            android:label="ListSensorsActivity" />
+        <activity
+            android:name="variationenzumthema_ch5.LocationActivity"
+            android:label="LocationActivity" />
+    </application>
+
+</manifest>
