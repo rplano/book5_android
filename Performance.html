@@ -1,0 +1,340 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/ST1_Mandelbrot.png" style="display: block; margin-left: auto; margin-right: auto;width: 229px; height: 362px;" /></p>
+<h1>
+	Special Topic: Graphics Performance</h1>
+<p>
+	Eine Frage, die sich oft bei der Grafikprogrammierung stellt: geht&#39;s schneller?&nbsp; Obwohl es keine allgemeine Antwort gibt, wollen wir einige der zugrunde liegenden Regeln kennen lernen, die im Allgemeinen gültig sind.&nbsp; Dazu sehen wir uns vier verschiedenen Methoden an, wie man 50.000 GRects zeichnen kann.</p>
+<p>
+	<img alt="" src="images/FastGRectActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />In allen vier Fällen verwenden wir die folgende Aktivität,</p>
+<pre style="margin-left: 40px;">
+public class FastGRectActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private final int SIZE = 40;
+&nbsp;&nbsp; &nbsp;private final int DELAY = 40;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;View gv = new <span style="color:#0000ff;">FastGRectView</span>(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(gv);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Lediglich in den Views unterscheiden sie sich. Alle vier Views habe das gleiche Gerüst:</p>
+<pre style="margin-left: 40px;">
+class FastGRectView extends View {
+&nbsp;&nbsp; &nbsp;private Paint paint;
+&nbsp;&nbsp; &nbsp;private Random rgen = new Random();
+
+&nbsp;&nbsp; &nbsp;public FastGRectView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStrokeWidth(1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setTextSize(48f);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void <span style="color:#0000ff;">onDraw</span>(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long startTime = System.currentTimeMillis();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int k = 0; k &lt; 50000; k++) {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long time = System.currentTimeMillis() - startTime;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(Color.WHITE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawRect(0, 0, 250, 70, paint);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(Color.BLACK);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawText(&quot;time:&quot; + time, 20, 50, paint);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Der Konstruktor initialisiert alle Instanzvariablen und das Zeichnen erfolgt in der onDraw() Methode.&nbsp; Um die Zeit zu messen, verwenden wir die Methode <em>System.currentTimeMillis()</em>.&nbsp; Generell sollte so wenig wie möglich in der onDraw() Methode passieren, denn das kostet ja Zeit.&nbsp; Deswegen haben wir das <em>Paint</em> Objekt bereits im Konstuktor erzeugt.</p>
+<h3>
+	Reference Case: Simple Canvas Drawing Methods</h3>
+<p>
+	Wir beginnen mit dem einfachsten Art und Weise Rechtecke zu zeichnen, mit der Methode <em>canvas.drawRect()</em>:</p>
+<pre style="margin-left: 40px;">
+for (int k = 0; k &lt; 50000; k++) {
+&nbsp;&nbsp; &nbsp;int w = rgen.nextInt(SIZE);
+&nbsp;&nbsp; &nbsp;int x = rgen.nextInt(getWidth());
+&nbsp;&nbsp; &nbsp;int y = rgen.nextInt(getHeight());
+
+&nbsp;&nbsp; &nbsp;paint.setColor(rgen.nextInt());
+&nbsp;&nbsp; &nbsp;canvas.drawRect(new RectF(x, y, x + w, y + w), paint);
+}</pre>
+<p>
+	Das ist unser Referenzpunkt. Auf meinem Motorola G4 benötigt dieser Code ca. 1570ms.</p>
+<h3>
+	Simple Canvas Drawing with a GRect</h3>
+<p>
+	Als erste Modifikation führen wir eine <em>GRect</em> Klasse ein.</p>
+<pre style="margin-left: 40px;">
+private class GRect {
+&nbsp;&nbsp; &nbsp;protected int x, y, w, h;
+&nbsp;&nbsp; &nbsp;private Paint paint;
+
+&nbsp;&nbsp; &nbsp;public GRect(int x, int y, int w, int h) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.x = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.y = y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.w = w;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.h = h;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(Color.BLUE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStrokeWidth(1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void setColor(int color) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(color);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">draw</span>(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawRect(new RectF(this.x, this.y, this.x + this.w, this.y + this.h), paint);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Diese Klasse verwendet Instanzvariablen für den Zustand und sie hat auch eine <em>draw()</em> Methode, die für das Zeichnen verantwortlich ist.</p>
+<p>
+	In der View Klasse sieht die onDraw() Methode jetzt etwas komplizierter aus, aber nur, weil wir die Erzeugung der GRect-Objekte von dem Zeichnen trennen:</p>
+<pre style="margin-left: 40px;">
+protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">// seperate creation (this part takes about 1250ms)</span>
+&nbsp;&nbsp; &nbsp;GRect[] rects = new GRect[50000];
+&nbsp;&nbsp; &nbsp;for (int k = 0; k &lt; 50000; k++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create randomly sized rect
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int w = rgen.nextInt(SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = rgen.nextInt(getWidth());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = rgen.nextInt(getHeight());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rects[k] = new GRect(x, y, w, w);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rects[k].setColor(rgen.nextInt());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">// from drawing (this part also takes about 1250ms)</span>
+&nbsp;&nbsp; &nbsp;long startTime = System.currentTimeMillis();
+&nbsp;&nbsp; &nbsp;for (int k = 0; k &lt; 50000; k++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rects[k].draw(canvas);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Der Grund für diese Trennung ist, dass unter normalen Umständen die meisten Objekte nur einmal erstellen würden und dann nur gelegentlich ein paar hinzugefügt oder entfernt würden.&nbsp;&nbsp; Das hat aber nichts mit der Grafikleistung zu tun.</p>
+<p>
+	Naiv würde man erwarten, dass dieser Ansatz deutlich langsamer sein müsste als unser erster Ansatz. Erstens, weil wir Objekte verwenden und die Erstellung von Objekten teuer ist.&nbsp; Zweitens, weil der Code komplizierter aussieht, was in der Regel mit Langsamkeit übersetzt wird.&nbsp; Aber das Gegenteil ist der Fall: Dieser Code benötigt nur 1250ms, d.h. er ist ca. 20% schneller.&nbsp; Wir lernen also, dass Objektorientierung, wenn richtig angewendet, zu einer Leistungssteigerung führen kann. (Der Grund liegt wahrscheinlich am Prozessor-Cache.)</p>
+<h3>
+	Canvas Drawing using a Bitmap</h3>
+<p>
+	Auf fast allen Rechnern sind die einfachen Array Operationen deutlich optimiert.&nbsp; Für die Grafikprogrammierung bedeutet das, dass man bei dem Arbeiten mit Bitmaps idealerweise mit dem zugrunde liegenden Pixel-Array arbeitet.&nbsp; Um das auszuprobieren schreiben wir unseren View etwas um:</p>
+<pre style="margin-left: 40px;">
+class FastGRectView extends View {
+    ...
+&nbsp;&nbsp; &nbsp;private int mCanvasWidth;
+&nbsp;&nbsp; &nbsp;private int mCanvasHeight;
+&nbsp;&nbsp; &nbsp;private Bitmap bitmap;
+&nbsp;&nbsp; &nbsp;private int[] bitMapArray;
+
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (bitmap != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap.recycle();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCanvasWidth = w;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCanvasHeight = h;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray = new int[mCanvasWidth * mCanvasHeight];
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Wir deklarieren eine Bitmap und ihr Pixel-Array als Instanzvariablen.&nbsp; Zusätzlich benötigen wir die onSizeChanged() Methode, in der wir die Bitmap und das Array initialisieren.</p>
+<p>
+	Die onDraw() Methode erführt folgende Änderungen:</p>
+<pre style="margin-left: 40px;">
+for (int k = 0; k &lt; 50000; k++) {
+&nbsp;&nbsp; &nbsp;int w = rgen.nextInt(SIZE);
+&nbsp;&nbsp; &nbsp;int x = rgen.nextInt(getWidth() - SIZE);
+&nbsp;&nbsp; &nbsp;int y = rgen.nextInt(getHeight() - SIZE);
+
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">drawRect</span>(x, y, w, w, rgen.nextInt());
+}
+<span style="color:#0000ff;">bitmap.copyPixelsFromBuffer</span>(IntBuffer.wrap(bitMapArray));
+
+<span style="color:#0000ff;">canvas.drawBitmap</span>(bitmap, 0, 0, null);</pre>
+<p>
+	In der drawRect() Methode zeichnen wir in das Pixel-Array.&nbsp; Die Methode<em> bitmap.copyPixelsFromBuffer()</em> erlaubt es uns, aus dem Array eine Bitmap zu machen und dann mit der Methode drawBitmap() des Canvas die Bitmap auf dem Bildschirm zu zeichnen.</p>
+<p>
+	Die drawRect() Methode ist ein wenig primitiv, da es sich um eine Manipulation auf Byte-Ebene handelt:</p>
+<pre style="margin-left: 40px;">
+private void drawRect(int x, int y, int w, int h, int color) {
+&nbsp;&nbsp; &nbsp;int len = bitMapArray.length;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; w; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; h; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int idx = (y + j) * mCanvasWidth + (x + i);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (idx &lt; len) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray[(y + j) * mCanvasWidth + (x + i)] = color;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Und, wie lange dauert es?&nbsp; Nun, es dauert 740ms.&nbsp; Das ist doppelt so schnell wie unser ursprünglicher Ansatz.</p>
+<h3>
+	Canvas Drawing using a Bitmap and a GRect</h3>
+<p>
+	Können wir es noch besser machen?&nbsp; Betrachtet man unser vorheriges Beispiel, gibt es Hoffnung. Auch hier lagern wir unsere Datenhaltung und das Zeichnen in eine GRect Klasse aus:</p>
+<pre style="margin-left: 40px;">
+private class GRect {
+&nbsp;&nbsp; &nbsp;protected int x, y, w, h;
+&nbsp;&nbsp; &nbsp;private int color;
+
+&nbsp;&nbsp; &nbsp;public GRect(int x, int y, int w, int h) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.x = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.y = y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.w = w;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.h = h;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.color = Color.BLUE;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void setColor(int color) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.color = color;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void draw(int[] bitMapArray) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int len = bitMapArray.length;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; w; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; h; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int idx = (y + j) * mCanvasWidth + (x + i);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (idx &lt; len) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray[(y + j) * mCanvasWidth + (x + i)] = color;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wir stellen fest, dass sie fast identisch zu der vorherigen GRect-Klasse ist.</p>
+<p>
+	Das gleiche gilt für die onDraw() Methode:</p>
+<pre style="margin-left: 40px;">
+...
+// from drawing (this part also takes about 1250ms)
+long startTime = System.currentTimeMillis();
+for (int k = 0; k &lt; 50000; k++) {
+&nbsp;&nbsp; &nbsp;rects[k].draw(<span style="color:#0000ff;">bitMapArray</span>);
+}
+bitmap.copyPixelsFromBuffer(IntBuffer.wrap(bitMapArray));
+
+// draw bitmap on canvas
+canvas.<span style="color:#0000ff;">drawBitmap</span>(bitmap, 0, 0, null);
+...
+</pre>
+<p>
+	Der einzige Unterschied ist, dass wir das Pixel-Array an die draw()-Methode der GRects übergeben und dass wir die drawBitmap() Methode des Canvas Objekts am Ende aufrufen.</p>
+<p>
+	Ist es wirklich schneller?&nbsp; 490ms ist die Zeit, die es dauerte.&nbsp; Das ist dreimal schneller als unser ursprünglicher Ansatz!&nbsp; Wenn wir z.B. 25 Bilder pro Sekunde in unserem Spiel haben wollen, bedeutet das, dass wir ungefähr 2000 GRect Objekte pro Frame zeichnen können.</p>
+<p>
+	Lassen Sie sich also nicht von Leuten täuschen, die sagen, dass Objekte oder die Objektorientierung langsam ist.&nbsp; Ist sie komplizierter?&nbsp; Nun, am Anfang sieht es so aus.&nbsp; Aber auch das hängt von der Verkapselung ab.&nbsp; Im nächsten Beispiel sehen wir, wie man all dies in eine Bibliothek umwandelt, die der ACM-Grafikbibliothek ähnelt.&nbsp; Versuchen Sie danach, ein Spiel wie BrickBreaker mit den beiden verschiedenen Ansätzen zu programmieren und treffen Sie dann ein Urteil.</p>
+<p>
+	Noch ein Hinweis: In unserer Version der ACM-Grafikbibliothek haben wir den Bitmap-Ansatz nicht verwendet.&nbsp; Sie fragen sich vielleicht, warum?&nbsp; Nun, erstens, wenn wir deutlich weniger als 2000 Objekte zeichnen, vielleicht ein paar hundert, dann ist das Speichern nicht ganz so wichtig, weil die Methode bitmap.copyPixelsFromBuffer() etwa 10ms dauert.&nbsp; Zusätzlich bietet die Klasse Canvas viele praktische Methoden wie drawOval(), drawLines() und drawText(), um nur einige zu nennen.&nbsp; Die Implementierung all dieser Elemente in unserem Bitmap-Ansatz nimmt viel Entwicklungszeit in Anspruch.&nbsp; Aber wenn unsere Programme mit vielen tausend Objekten arbeiten müssten, dann würden wir mit Sicherheit auf den Bitmap-Ansatz zurückkommen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MandelbrotSlowActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Mandelbrot</h2>
+<p>
+	Auch Mandelbrot Fraktale haben wir schon im zweiten Buch gesehen.&nbsp; Dabei wird einfach die mathematische Gleichung<br />
+	<br />
+	&nbsp;&nbsp;&nbsp; z_n+1 = z_n * z_n + c<br />
+	<br />
+	grafisch dargestellt.&nbsp; Den Code können wir fast eins-zu-eins aus dem zweiten Semester übernehmen.&nbsp; Allerdings sollten wir vieleicht erst einmal in Vierer-Schritten durch die Iteration gehen, es stellt sich nämlich heraus, dass es gefühlt ewig dauert bis unser Bild fertig ist.&nbsp;</p>
+<p>
+	Ähnlich wie beim GameOfLife Beispiel kann man das Ganze fast um den Faktor zehn beschleunigen, wenn man mit einem Array und einer Bitmap arbeitet, anstelle der drawPoint() oder drawRect() Methode der Canvas Klasse.&nbsp; Dazu definieren wir eine Bitmap und ein bitMapArray als Instanzvariablen:</p>
+<pre style="margin-left: 40px;">
+private Bitmap bitmap;
+private int[] bitMapArray;</pre>
+<p>
+	In der onSizeChanged() Methode initialisieren wir die beiden</p>
+<pre style="margin-left: 40px;">
+protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+&nbsp;&nbsp; &nbsp;if (bitmap != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap.recycle();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+&nbsp;&nbsp; &nbsp;mCanvasWidth = w;
+&nbsp;&nbsp; &nbsp;mCanvasHeight = h;
+&nbsp;&nbsp; &nbsp;bitMapArray = new int[mCanvasWidth * mCanvasHeight];
+}</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/MandelbrotFastActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Und in der onDraw() Methode berechnen wir das Array, machen daraus dann eine Bitmap und zeichnen die Bitmap auf den Canvas:</p>
+<pre style="margin-left: 40px;">
+public void onDraw(Canvas canvas) {
+
+&nbsp;&nbsp; &nbsp;double xStep = (xMax - xMin) / mCanvasWidth * 1;
+&nbsp;&nbsp; &nbsp;double yStep = (yMax - yMin) / mCanvasHeight * 1;
+&nbsp;&nbsp; &nbsp;for (double x = xMin; x &lt; xMax; x += xStep) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = (int) (((x - xMin) * mCanvasWidth) / (xMax - xMin));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (double y = yMin; y &lt; yMax; y += yStep) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int j = (int) (((y - yMin) * mCanvasHeight) / (yMax - yMin));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray[j * mCanvasWidth + i] = function(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;bitmap.setPixels(bitMapArray, 0, mCanvasWidth, 0, 0, mCanvasWidth, mCanvasHeight);
+
+&nbsp;&nbsp; &nbsp;canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), null);
+}
+</pre>
+<p>
+	Das geht jetzt schon viel schneller, ca. ein Bild pro Sekunde.</p>
+<p>
+	Geht es noch schneller?&nbsp; Die meisten Android CPUs haben inzwischen mehr als einen Core, Quadcores sind heute schon fast die Regel.&nbsp; Bisher haben wir aber in all unseren Programmen immer nur einen dieser Cores verwendet.&nbsp; Wenn wir es schaffen die anderen auch arbeiten zu lassen, dann können wir unser Programm noch mal um einiges schneller machen, je nachdem wie viele Cores unser Gerät hat.&nbsp; Wie das geht sehen wir im Kapitel zu Concurrency.</p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

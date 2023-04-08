@@ -1,0 +1,2311 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch8_FlappyBall.png" style="display: block; margin-left: auto; margin-right: auto;width: 220px; height: 365px;" /></p>
+<h1>
+	Multimedia</h1>
+<p>
+	Wir haben schon im Kapitel zu Sensoren gesehen, dass moderne Android Geräte viel mehr sind als nur dumme Telefone mit einer Internetverbindung.&nbsp; In diesem Kapitel werden wir uns mit den Multimediafähigkeiten von Android Geräten beschäftigen.&nbsp; Natürlich kann man die zum Abspielen von MP3 Dateien und Videos verwenden, aber mit dem Mikrofon und der Kamera als &quot;Sensoren&quot;, eröffnen sich auf einmal ganz neuen Anwendungsszenarien.&nbsp; In diesem Kapitel werden wir daher zwar die Grundlagen der Multimediamöglichkeiten kennen lernen, aber auch etwas über den Tellerrand hinaus blicken.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PlayAudio.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />PlayAudio</h2>
+<p>
+	Um Audiodateien abzuspielen verwenden wir den <em>MediaPlayer</em>:</p>
+<pre style="margin-left: 40px;">
+MediaPlayer player = MediaPlayer.create(this, R.raw.trap_beat);
+player.start();
+</pre>
+<p>
+	Der MediaPlayer kann mit Audiodateien die z.B. im Resourceverzeichnis <em>/raw/</em> sind arbeiten, aber auch mit Assets oder ganz normalen Dateien auf der internen oder externen SD Karte:</p>
+<pre style="margin-left: 40px;">
+String path = Environment.getExternalStorageDirectory().getPath() 
+              + &quot;/Music/trap_beat.mp3&quot;;
+MediaPlayer.setDataSource(path);</pre>
+<p>
+	In der Regel sollte man vor dem <em>start()</em> noch die <em>prepare()</em> Methode aufrufen.</p>
+<p>
+	Der MediaPlayer hat ganz viele Methoden, die für uns interessantesten sind:</p>
+<ul>
+	<li>
+		<strong>pause():</strong> pausiert das Abspielen, mit start() geht&#39;s wieder weiter.</li>
+	<li>
+		<strong>stop():</strong> beendet das Abspielen.</li>
+	<li>
+		<strong>isPlaying():</strong> sagt einem, ob gerade was abgespielt wird.</li>
+	<li>
+		<strong>getDuration():</strong> gibt an wie lange ein Stück dauert, in Millisekunden.</li>
+	<li>
+		<strong>getCurrentPosition():</strong> gibt die momentane Abspielposition, in Millisekunden.</li>
+	<li>
+		<strong>seekTo(int msec):</strong> damit kann man die Abspielposition setzen, auch in Millisekunden.</li>
+	<li>
+		<strong>setLooping(boolean looping):</strong> lässt den MediaPlayer das Stück immer wieder wiederholen.</li>
+	<li>
+		<strong>setVolume(float leftVolume, float rightVolume):</strong> setzt die Lautstärke.</li>
+</ul>
+<p>
+	Wichtig ist noch zu wissen wie man den MediaPlayer wieder ausschaltet, das ist nämlich nicht ganz trivial:&nbsp;</p>
+<pre style="margin-left: 40px;">
+protected void onDestroy() {
+&nbsp;&nbsp; &nbsp;if (player != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.release();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player = null;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;super.onDestroy();
+}</pre>
+<p>
+	Wir müssen also zunächst die <em>stop()</em> Methode aufrufen.&nbsp; Danach müssen wir unbedingt die <em>release()</em> Methode aufrufen, und schließlich macht es Sinn mit <em>player = null</em> dem GarbageCollector (Müllsammler) mitzuteilen, dass er jetzt aufräumen darf.&nbsp; Der Grund dafür ist, dass es sich beim MediaPlayer eigentlich um eine C++ Klasse mit einem ganz dünnen Java Wrapper handelt.&nbsp; Die release() Methode macht nichts anderes als den Destructor der C++ Klasse aufzurufen.&nbsp; Wenn wir das nicht machen, then &quot;all hell breaks loose&quot;, wie die Amerikaner zu sagen pflegen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SimpleSoundGenerator.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SimpleSoundGenerator</h2>
+<p>
+	Eine andere Möglichkeit Töne zu generieren ist mit dem <em>AudioTrack</em>.&nbsp; Dabei handelt es sich um eine Klasse die Arrays von 16-Bit Werten (shorts) abspielt.&nbsp; Zu verwenden ist die Klasse denkbar einfach:</p>
+<pre style="margin-left: 40px;">
+AudioTrack audioTrack = new AudioTrack(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioManager.STREAM_MUSIC, <span style="color:#0000ff;">SAMPLE_RATE</span>, AudioFormat.<span style="color:#0000ff;">CHANNEL_OUT_MONO</span>,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, 2 * data.length, AudioTrack.MODE_STATIC);
+audioTrack.flush();
+audioTrack.write(data, 0, data.length);
+audioTrack.play();</pre>
+<p>
+	Wichtig ist dabei ob man Stereo oder Mono abspielen will und die SAMPLE_RATE, z.B.</p>
+<pre style="margin-left: 40px;">
+private final int SAMPLE_RATE = 44100;
+</pre>
+<p>
+	entspricht der Rate mit der typischerweise CDs aufgenommen werden.&nbsp; Mögliche Werte sind 8000, 11025, 16000, 22050 und 44100.</p>
+<p>
+	Zum Testen können wir mit der folgenden Methode einen Sinuston einer vorgegebenen Frequenz erzeugen:</p>
+<pre style="margin-left: 40px;">
+private final double FREQUENCY = 440;
+
+private short[] generateSound(int bufferSize) {
+&nbsp;&nbsp; &nbsp;short[] data = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;double factor = 2 * Math.PI / (SAMPLE_RATE / FREQUENCY);
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; data.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i] = (short) (Short.MAX_VALUE * Math.sin(factor * i));
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return data;
+}
+</pre>
+<p>
+	Auch beim AudioTrack handelt es sich eigentlich um eine C++ Klasse, d.h., wir müssen nach dem Aufruf der stop() Methode noch die release() Methode aufrufen, damit der AudioTrack ordentlich aufgeräumt wird.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RecordAudio.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RecordAudio</h2>
+<p>
+	Natürlich können wir nicht nur Töne erzeugen, sondern wir können auch welche aufnehmen, mit der <em>AudioRecord</em> Klasse. Sie funktioniert ähnlich wie die AudioTrack Klasse:</p>
+<pre style="margin-left: 40px;">
+AudioRecord audioRecord = new AudioRecord(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;MediaRecorder.<span style="color:#0000ff;">AudioSource.MIC</span>, SAMPLE_RATE, 
+        AudioFormat.CHANNEL_IN_MONO, 
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+
+audioRecord.startRecording();
+
+int length = audioRecord.<span style="color:#0000ff;">read</span>(buffer, 0, bufferSize);
+
+audioRecord.stop();
+audioRecord.release();
+</pre>
+<p>
+	In der Regel würden wir das Mikrofon als Quelle verwenden, es gibt aber auch andere Quellen, z.B. ein Telefongespräch. Wichtig ist der Buffer, der muss eine Mindestgröße haben, die können wir aber erfragen:</p>
+<pre style="margin-left: 40px;">
+int bufferSize = AudioRecord.getMinBufferSize(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SAMPLE_RATE, AudioFormat .CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
+short[] buffer = new short[bufferSize];
+</pre>
+<p>
+	Wenn wir längere Aufnahmen machen möchten, müssen wir um das <em>read()</em> einfach eine Schleife basteln:</p>
+<pre style="margin-left: 40px;">
+// record for roughly 2 seconds:
+for (int i = 0; i &lt; 20; i++) {
+&nbsp;&nbsp; &nbsp;int length = audioRecord.read(buffer, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; length; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeShort(buffer[j]);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	In diesem Beispiel schreiben wir die Daten einfach in einen DataOutputStream, den wir vorher angelegt haben:</p>
+<pre style="margin-left: 40px;">
+File f = new File(Environment.getExternalStorageDirectory(), &quot;AudioRecording.pcm&quot;);
+FileOutputStream fos = new FileOutputStream(f);
+BufferedOutputStream bos = new BufferedOutputStream(fos);
+DataOutputStream dos = new DataOutputStream(bos);</pre>
+<p>
+	Das so erzeugte File ist eine &quot;PCM&quot; Datei, enthält also die Audiodaten im Rohformat.&nbsp; Wir könnten sie natürlich mit der AudioTrack Klasse wieder abspielen.&nbsp; Der MediaPlayer (und andere Musikplayer) verstehen das PCM Format allerdings nicht.&nbsp; Das macht eigentlich wenig Sinn, denn das Windows WAV Format ist nichts anderes als das PCM Format mit einem Header versehen.&nbsp; Den kann man auch selbst anfügen, wie das gemacht wird kann man auf StackOverflow nachlesen [1].</p>
+<p>
+	Eine Anmerkung noch, natürlich müssen wir den Nutzer um Erlaubnis fragen, ob wir Audioaufnahmen machen dürfen:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.RECORD_AUDIO&quot; /&gt;</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PlayVideo.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />PlayVideo</h2>
+<p>
+	Das Abspielen von Videos ist ähnlich einfach wie das Abspielen von Audios.&nbsp; Zunächst definieren wir die UI und verwenden das <em>VideoView</em> Widget:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">VideoView</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/videoView&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_gravity=&quot;center&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Dem VideoView muss man lediglich mitteilen wo die Videodatei zu finden ist,</p>
+<pre style="margin-left: 40px;">
+VideoView video = (VideoView) findViewById(R.id.videoView);
+//video.setVideoPath(&quot;/sdcard/socialweb.mp4&quot;);
+Uri uri = Uri.parse(&quot;android.resource://&quot; + getPackageName() 
+                    + &quot;/&quot; + R.raw.socialweb);
+video.setVideoURI(uri);
+video.start();</pre>
+<p>
+	und mit <em>start()</em> wird das Video abgespielt.&nbsp; Der VideoView hat die gleichen Methoden wie der MediaPlayer was das Abspielen, Pausieren, usw. angeht.</p>
+<p>
+	Was allerdings signifikant schwieriger ist, ist Videos zu finden, die der VideoView abspielen kann.&nbsp; Zunächst sieht es nämlich so aus, wie wenn er jede MP4 Datei abspielen kann.&nbsp; Dem ist aber nicht so.&nbsp; Man findet dazu erfreulich wenig Dokumentation und auch die Gerätehersteller scheinen da Unterschiede zu machen.&nbsp; Auf jeden Fall nach langwieriger Suche und gefühlt zehn Viren und Trojanern die ich mir dabei auf meinem Windowsrechner geholt habe, habe ich es geschafft eine Datei zu konvertieren.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CameraPreview.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />CameraPreview</h2>
+<p>
+	Fast alle Android Geräte haben Cameras heutzutage.&nbsp; Sehen wir uns mal an wie wir darauf zugreifen können.&nbsp; Auch hier müssen wir erst wieder die UI spezifizieren, dieses Mal verwenden wir den <em>SurfaceView</em>:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">SurfaceView</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/surfaceView&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_horizontal&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Im Code holen wir uns eine Referenz auf selbigen,</p>
+<pre style="margin-left: 40px;">
+SurfaceView surface = (SurfaceView) this.findViewById(R.id.surfaceView);
+SurfaceHolder holder = surface.getHolder();</pre>
+<p>
+	und lassen uns seinen <em>SurfaceHolder</em> geben (keine Ahnung was das ist).&nbsp; Den <em>holder</em> brauchen wir, weil wir nämlich einen Callback dranhängen wollen:</p>
+<pre style="margin-left: 40px;">
+holder.addCallback(new SurfaceHolder.Callback(){
+&nbsp;&nbsp; &nbsp;private Camera <span style="color:#0000ff;">mCamera</span>;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do nothing
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">surfaceCreated</span>(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = Camera.open();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setPreviewDisplay(holder);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.startPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;CameraPreviewActivity&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">surfaceDestroyed</span>(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.stopPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.release();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = null;
+&nbsp;&nbsp; &nbsp;}&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+});</pre>
+<p>
+	Dieser SurfaceHolder.Callback hat zwei Methoden die uns interessieren: die <em>surfaceCreated()</em> wird aufgerufen wenn der SurfaceView das erste Mal angezeigt wird.&nbsp; Hier verbinden wir die Kamera mit dem SurfaceView über den Holder.&nbsp; Die Kamera weiß dann was zu tun ist.&nbsp; Die Methode <em>surfaceDestroyed()</em> wird aufgerufen wenn wir fertig sind, hier müssen wir wieder ordentlich aufräumen.</p>
+<p>
+	Natürlich möchte man nicht, dass jede beliebige Anwendung einfach auf die Kamera zugreifen darf, ohne dass der Nutzer zugestimmt hat.&nbsp; Deswegen muss man im AndroidManifest noch um Erlaubnis fragen:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; /&gt;</pre>
+<p>
+	Auch scheint der Preview im Landscape Modus besser zu funktionieren, deswegen sollte man vielleicht noch die Orientierung der App auf Landscape fixieren:</p>
+<pre style="margin-left: 40px;">
+&lt;activity
+&nbsp;&nbsp;&nbsp; android:name=&quot;variationenzumthema_ch8.CameraPreviewActivity&quot;
+&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">android:screenOrientation=&quot;landscape&quot;</span> /&gt;
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RecordVideoActivity.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />RecordVideo</h2>
+<p>
+	Unsere CameraPreview Activty zeigt zwar an was die Kamera sieht, aufnehmen tut sie aber noch nix.&nbsp; Dazu braucht man die <em>MediaRecorder</em> Klasse.&nbsp; Die ist ne Diva und will gut behandelt werden. Man kann die Details in [2] nachlesen, aber grob geht es wie folgt: erst mal muss man alles vorbereiten:</p>
+<pre style="margin-left: 40px;">
+private boolean prepareVideoRecorder(String fileName) {
+&nbsp;&nbsp; &nbsp;mMediaRecorder = new MediaRecorder();
+
+&nbsp;&nbsp; &nbsp;// Step 1: Unlock and set camera to MediaRecorder
+&nbsp;&nbsp; &nbsp;mCamera.unlock();
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setCamera(mCamera);
+
+&nbsp;&nbsp; &nbsp;// Step 2: Set sources
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+&nbsp;&nbsp; &nbsp;// Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+
+&nbsp;&nbsp; &nbsp;// Step 4: Set output file
+&nbsp;&nbsp; &nbsp;// mMediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setOutputFile(fileName);
+
+&nbsp;&nbsp; &nbsp;// Step 5: Set the preview output
+&nbsp;&nbsp; &nbsp;mMediaRecorder.setPreviewDisplay(holder.getSurface());
+
+&nbsp;&nbsp; &nbsp;// Step 6: Prepare configured MediaRecorder
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mMediaRecorder.prepare();
+&nbsp;&nbsp; &nbsp;} catch (IllegalStateException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(getLocalClassName(), &quot;IllegalStateException preparing MediaRecorder: &quot; + e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;releaseMediaRecorder();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return false;
+&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(getLocalClassName(), &quot;IOException preparing MediaRecorder: &quot; + e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;releaseMediaRecorder();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return false;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return true;
+}
+</pre>
+<p>
+	Danach kann man dann mit</p>
+<pre style="margin-left: 40px;">
+mMediaRecorder.start();</pre>
+<p>
+	loslegen.&nbsp; Mit <em>stop()</em> hört&#39;s dann wieder auf, und am Ende sollte man wieder aufräumen:</p>
+<pre style="margin-left: 40px;">
+private void releaseMediaRecorder() {
+&nbsp;&nbsp; &nbsp;if (mMediaRecorder != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mMediaRecorder.reset(); // clear recorder configuration
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mMediaRecorder.release(); // release the recorder object
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mMediaRecorder = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.lock(); // lock camera for later use
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Natürlich will der SurfaceHolder auch gut behandelt werden, und die Kamera sowieso, deswegen ufert der Code dann doch etwas aus.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TextToSpeech.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TextToSpeech</h2>
+<p>
+	Mit der immer größeren Popularität von Siri und Alexa hat sich die Erwartungshaltung der Nutzer bzgl. Sprachausgabe und Spracherkennung von Apps geändert.&nbsp; Interessanterweise ist das gar nicht so schwer zu implementieren.&nbsp; Wir beginnen mit der Sprachausgabe.&nbsp;</p>
+<p>
+	Zunächst müssen wir sicherstellen, dass unser Gerät die richtigen Einstellungen hat: über die Accessibility-Settings (Language Settings in älteren Geräten) muss die Sprachausgabe eingeschaltet sein.&nbsp; Manchmal muss man aus dem Google Play Store auch die &quot;Google Text-to-speech&quot; App nachinstallieren.</p>
+<p>
+	Die eigentliche Arbeit macht dann die <em>TextToSpeech</em> Klasse.&nbsp; Diese initialisiert man, gibt ihr noch mit in welcher Sprache sie sprechen soll, und dann lässt man sie einfach drauf los plappern:</p>
+<pre style="margin-left: 40px;">
+TextToSpeech tts =
+&nbsp;&nbsp; &nbsp;new TextToSpeech(getApplicationContext(),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new TextToSpeech.OnInitListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onInit(int status) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (status != TextToSpeech.ERROR) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.<span style="color:#0000ff;">setLanguage</span>(Locale.US);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.<span style="color:#0000ff;">speak</span>(&quot;hi there.&quot;, TextToSpeech.QUEUE_FLUSH, null, null);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.speak(&quot;how are you?&quot;, TextToSpeech.QUEUE_ADD, null, null);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;TextToSpeechActivity&quot;, &quot;No speech engine available.&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+);</pre>
+<p>
+	Wenn wir den TextToSpeech nicht mehr benötigen, dann sollten wir ihn anhalten, <em>stop()</em>, und herunterfahren, <em>shutdown()</em>:</p>
+<pre style="margin-left: 40px;">
+@Override
+public void onPause() {
+&nbsp;&nbsp; &nbsp;if (tts != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.shutdown();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts = null;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;super.onPause();
+}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SpeechRecognition.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SpeechRecognition</h2>
+<p>
+	Das Gegenstück zu Sprachausgabe ist Spracherkennung.&nbsp; Auch das ist überraschend einfach mittels eines Intents, dem <em>RecognizerIntent</em>:</p>
+<pre style="margin-left: 40px;">
+Intent intent = new Intent(<span style="color:#0000ff;">RecognizerIntent</span>.ACTION_RECOGNIZE_SPEECH);
+intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, &quot;en&quot;);
+intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, 
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+
+startActivityForResult(intent, REQUEST_CODE);</pre>
+<p>
+	Mit startActivityForResult() starten wir den Intent, und warten auf das Resultat:</p>
+<pre style="margin-left: 40px;">
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+&nbsp;&nbsp; &nbsp;if (requestCode == REQUEST_CODE) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (resultCode == RESULT_OK) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">ArrayList&lt;String&gt; matches = 
+                data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(matches.get(0));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(&quot;Something went wrong: &quot; + resultCode);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onActivityResult(requestCode, resultCode, data);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In den Extras des <em>data</em> Intent finden wir dann, was die Spracherkennung erkannt hat.&nbsp; Da die Erkennung nicht immer hunderprozentig funktioniert, liefert uns der Intent gleich mehrere mögliche Alternativen, deswegen bekommen wir eine Liste.&nbsp; Das erste Element dieser Liste, ist das wahrscheinlichste, deswegen benutzt man selbiges in der Regel.</p>
+<p>
+	Noch zwei Anmerkungen: in den älteren Android-Versionen benötigt man noch eine aktive Internetverbindung, in den neueren geht die Spracherkennung aber auch offline.&nbsp; Und ähnlich wie bei der Sprachausgabe kann nicht jedes Handy automatisch Spracherkennung: manchmal muss man diese einschalten oder erst installieren.&nbsp; Wenn aber die normale Google-Suche mit Spracherkennung funktioniert, dann funktioniert auch unser Code.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	Wir haben gesehen wie wir Audiodateien mit dem MediaPlayer bzw. der Klasse AudioTrack abspielen können.&nbsp; Audioaufnahmen erledigen wir mir der AudioRecord Klasse.&nbsp; Für das Abspielen von Videodateien verwenden wir den SurfacView, für die Aufnahme den MediaRecorder.&nbsp; Außerdem haben wir gesehen wie wir mit dem SurfaceView und der Camera Klasse einen Livefeed der Kamera anzeigen können.&nbsp; Schließlich haben wir noch mit der Klasse TextToSpeech und dem Intent ACTION_RECOGNIZE_SPEECH Sprachsynthese respektive Spracherkennung betrieben.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	Nach dieser kurzen Einführung in die grundlegenden Multimedia-Klassen wird es jetzt richtig interessant.&nbsp; Zum Aufwärmen erzeugen wir ein paar Töne und sehen uns das mit den Filtern noch einmal an.&nbsp; Interessanter wird es mit dem Mikrofon: da versuchen wir uns an einem Schnarchdetektor und einem Equalizer.&nbsp; Die Echo App ist schon anspruchsvoller und obwohl nicht perfekt ist auch die Sonar App ziemlich cool.&nbsp; Mit der Fourieranalyse wird es noch interessanter, wenn wir mit FlappyBall lernen Melodien zu pfeifen, wir unser Klavier endlich mal ordentlich stimmen können und uns ein Live-Spektrogramm unserer Stimme ansehen können.&nbsp; Mit der Kamera messen wir dann Distanzen, nehmen Fotos auf, schreiben einen Surveillance Service und faken eine 360 Grad Kamera.&nbsp; Dann kommt eine kleine Demonstration von Augmented Reality und FaceDetection ist mit Android eine triviale Übung.&nbsp; Mit Hilfe von Text-to-Speech erzeugen wir dann AudioBooks, aus unserem alten Freund ELIZA machen wir einen ChatBot, und schließlich wird noch diktiert.&nbsp; Allerdings aus unserem alten Handy eine echte IP Kamera zu machen schießt wahrscheinlich den Vogel ab.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TuneGenerator.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TuneGenerator</h2>
+<p>
+	Wenn mal gerade keine Stimmgabel zur Hand ist, und wir unsere Gitarre oder unser Klavier schnell stimmen müssen, dann können wir das mit unserer TuneGenerator App.&nbsp; Wir gehen mal davon aus, dass wir eine &quot;Gleichstufige Stimmung&quot; [3] wollen, dann sind nämlich die Frequenzen der Töne sehr einfach zu berechnen [4]:</p>
+<pre style="margin-left: 40px;">
+private double getPitch(int key) {
+&nbsp;&nbsp; &nbsp;double base = Math.pow(2.0, 1.0 / 12.0);
+&nbsp;&nbsp; &nbsp;double pitch = 440.0 * Math.pow(base, (key - 49));
+&nbsp;&nbsp; &nbsp;return pitch;
+}</pre>
+<p>
+	Dabei ist der Kammerton (A4 in USA) die 49te Taste von links auf einem normalen Klavier.&nbsp; Wenn wir jetzt noch wissen wollen wie der Ton heißt (im amerkanischen System), dann verwenden wir die Methode <em>getPitchName()</em>:</p>
+<pre style="margin-left: 40px;">
+private final String[] pitchNames = 
+    { &quot;C&quot;, &quot;C#&quot;, &quot;D&quot;, &quot;D#&quot;, &quot;E&quot;, &quot;F&quot;, &quot;F#&quot;, &quot;G&quot;, &quot;G#&quot;, &quot;A&quot;, &quot;A#&quot;, &quot;B&quot; };
+
+private String getPitchName(int key) {
+&nbsp;&nbsp; &nbsp;String pitchName = pitchNames[(key + 8) % 12];
+&nbsp;&nbsp; &nbsp;pitchName += ((key + 8) / 12);
+&nbsp;&nbsp; &nbsp;return pitchName;
+}
+</pre>
+<p>
+	Wie wir einen Sinuston einer bestimmten Frequenz erzeugen, haben wir ja bereits in der <em>generateSound()</em> Methode im SimpleSoundGenerator weiter oben gesehen.&nbsp; Wir können aber noch einen Schritt weitergehen und kontinuierlich einen Ton erzeugen.&nbsp; Dazu muss der Sound allerdings in einem separaten Thread abgespielt werden:</p>
+<pre style="margin-left: 40px;">
+public class TuneGeneratorActivity extends Activity implements Runnable {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(this).start();
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, 2 * bufferSize, AudioTrack.MODE_STREAM);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.flush();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int step = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (isPlaying) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;generateSound(step++);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.<span style="color:#0000ff;">write</span>(data, 0, data.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (step == 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.<span style="color:#0000ff;">play</span>();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Dabei ist interessant, dass die <em>play()</em> Methode nur einmal aufgerufen wird, und wir danach die Audiodaten kontinuierlich über die <em>write()</em> Methode an den AudioTrack liefern.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Piano.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Piano</h2>
+<p>
+	Wir haben ja bereits im ersten Semester eine kleines Pianoprogramm geschrieben.&nbsp; Mit unserer selbstgeschriebenen ACM Graphicslibrary können wir das natürlich ganz einfach in eine App umwandeln.&nbsp; Nur das Abspielen der Töne müssen wir noch implementieren.&nbsp;</p>
+<p>
+	Wir könnten den MediaPlayer verwenden und ähnlich wie im ersten Semester vorgefertigte Soundfiles abspielen.&nbsp; Aber wir können auch die AudioTrack Klasse verwenden.&nbsp; Das gibt uns viel mehr Kontrolle.&nbsp; Wie wir gerade gesehen haben, sollte die Tonerzeugung in einem separate Thread laufen.&nbsp; Das können wir zusammenfassen in der Klasse <em>Player</em>, die als eigenständiger Thread läuft:</p>
+<pre style="margin-left: 40px;">
+public class Player implements Runnable {
+&nbsp;&nbsp; &nbsp;private int SAMPLE_RATE = 16000;
+&nbsp;&nbsp; &nbsp;private int bufferSize = 0;
+&nbsp;&nbsp; &nbsp;public boolean isPlaying = false;
+&nbsp;&nbsp; &nbsp;private final <span style="color:#0000ff;">BlockingQueue</span>&lt;short[]&gt; <span style="color:#0000ff;">queue</span>;
+
+&nbsp;&nbsp; &nbsp;public Player(BlockingQueue&lt;short[]&gt; queue, int SAMPLE_RATE, int bufferSize) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.queue = queue;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.SAMPLE_RATE = SAMPLE_RATE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.bufferSize = bufferSize;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isPlaying = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 
+                    SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, bufferSize, 
+                    AudioTrack.MODE_STREAM);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.flush();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.play();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (isPlaying) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] data = <span style="color:#0000ff;">queue.take()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.write(data, 0, data.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.release();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Player&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Der Player bekommt seine Daten über eine BlockingQueue geliefert (Producer-Consumer), er ist der Consumer, und spielt einfach die Daten ab, wie sie über die BlockingQueue reinkommen.&nbsp; Gefüttert wird die BlockingQueue vom Producer, unserem GraphicsProgram.&nbsp; Dort werden die Daten in der mousePressed() Methode erzeugt und in die BlockingQueue geschrieben:</p>
+<pre style="margin-left: 40px;">
+public void mousePressed(int x, int y) {
+&nbsp;&nbsp; &nbsp;GObject obj = getElementAt(x, y);
+&nbsp;&nbsp; &nbsp;if (obj != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; keys.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (obj == keys[i]) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double pitch = getPitch(pitches[i] + 40);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] data = generateSound(pitch);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">queue.put(data)</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WaveformGenerator.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />WaveformGenerator</h2>
+<p>
+	Wenn einem Sinuswellen zu langweilig sind, dann kann man natürlich auch beliebige andere Wellenformen erzeugen, z.B. Sinus-, Rechteck-, Sägezahn-, Dreieck- oder Treppenwellenformen.&nbsp; Dazu müssen wir lediglich die <em>generateSound()</em> Methode aus dem SimpleSoundGenerator etwas anpassen:</p>
+<pre style="margin-left: 40px;">
+private void generateSound(int bufferSize) {
+&nbsp;&nbsp; &nbsp;data = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;double factor = 2 * Math.PI / (SAMPLE_RATE / FREQUENCY);
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; data.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i] = (short) (Short.MAX_VALUE * 0.95 * <span style="color:#0000ff;">function(factor, i)</span>);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	wobei die <em>function()</em> jetzt eben nicht mehr nur eine einfache Sinusfunktion ist, sondern je nach dem Wert der Variablen <em>waveForm</em> eine der gewünschten Wellenformen:</p>
+<pre style="margin-left: 40px;">
+private double function(double factor, int i) {
+&nbsp;&nbsp; &nbsp;switch (<span style="color:#0000ff;">waveForm</span>) {
+&nbsp;&nbsp; &nbsp;case 1:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return functionSquare(factor, i);
+&nbsp;&nbsp; &nbsp;case 2:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return functionSawTooth(factor, i);
+&nbsp;&nbsp; &nbsp;case 3:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return functionTriangle(factor, i);
+&nbsp;&nbsp; &nbsp;case 4:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return functionStaircase(factor, i);
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return functionSin(factor, i);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Hier ein paar kleine Codebeispiele wie man die verschiedenen Wellenformen erzeugen kann:</p>
+<pre style="margin-left: 40px;">
+private double functionSin(double factor, int i) {
+&nbsp;&nbsp; &nbsp;return Math.sin(i * factor);
+}
+</pre>
+<p>
+	.</p>
+<pre style="margin-left: 40px;">
+private double functionSquare(double factor, int i) {
+&nbsp;&nbsp; &nbsp;double x = i * factor;
+&nbsp;&nbsp; &nbsp;x = x % (2 * Math.PI);
+&nbsp;&nbsp; &nbsp;if (x &lt; Math.PI) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return -1;
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return +1;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<pre style="margin-left: 40px;">
+private double functionSawTooth(double factor, int i) {
+&nbsp;&nbsp; &nbsp;double x = i * factor;
+&nbsp;&nbsp; &nbsp;x = x % (2 * Math.PI);
+&nbsp;&nbsp; &nbsp;return x / (Math.PI) - 1;
+}</pre>
+<p>
+	.</p>
+<pre style="margin-left: 40px;">
+private double functionTriangle(double factor, int i) {
+&nbsp;&nbsp; &nbsp;double x = i * factor;
+&nbsp;&nbsp; &nbsp;x = x % (2 * Math.PI);
+&nbsp;&nbsp; &nbsp;if (x &lt; Math.PI) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return 2 * x / (Math.PI) - 1;
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return 2 * (2 * Math.PI - x) / (Math.PI) - 1;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<pre style="margin-left: 40px;">
+private double functionStaircase(double factor, int i) {
+&nbsp;&nbsp; &nbsp;double x = i * factor;
+&nbsp;&nbsp; &nbsp;x = x % (2 * Math.PI); // 0..2*PI
+&nbsp;&nbsp; &nbsp;x = x / (2 * Math.PI); // 0..1
+&nbsp;&nbsp; &nbsp;x = x * 10; // 0..9.999
+&nbsp;&nbsp; &nbsp;int s = (int) x; // 0..9
+&nbsp;&nbsp; &nbsp;s = s - 5; // -5..4
+&nbsp;&nbsp; &nbsp;return s / 5.0;
+}</pre>
+<p>
+	.</p>
+<p>
+	Natürlich kann man die Wellenformen auch noch grafisch in einem GraphView darstellen, oder wir verbinden den Kopfhörerausgang mit einem Oszilloskop.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AudioFilter.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AudioFilter</h2>
+<p>
+	Im Kapitel zu Sensoren haben wir von Hochpass- und Tiefpassfiltern gehört.&nbsp; Noch mal kurz zur Erinnerung, ein Hoch<em>pass</em> lässt die hohen Frequenzen <em>pass</em>ieren, ist aber für niedere Frequenzen undurchlässig, und beim Tiefpass ist es umgekehrt.&nbsp; Das kann man natürlich sehr schön demonstrieren mit Audiodateien.&nbsp;</p>
+<p>
+	Wie kommen wir aber an die Daten in einer Audiodatei?&nbsp; Für die Standard-Windows-Wave Dateien ist das relativ einfach.&nbsp; Wir öffnen sie mit einem DataInputStream,</p>
+<pre style="margin-left: 40px;">
+InputStream is = getResources().openRawResource(R.raw.trap_beat2);
+BufferedInputStream bis = new BufferedInputStream(is);
+DataInputStream dis = new DataInputStream(bis);
+
+readWavHeader(dis);</pre>
+<p>
+	und in <em>readWavHeader()</em> entfernen wir einfach die ersten 44 Bytes:</p>
+<pre style="margin-left: 40px;">
+private void readWavHeader(DataInputStream dis) throws IOException {
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 11; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dis.readInt();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Danach lesen wir dann Shorts mit <em>readShort(dis)</em> aus dem DataInputStream:</p>
+<pre style="margin-left: 40px;">
+while (dis.available() &gt; 0) {
+&nbsp;&nbsp; &nbsp;short[] data = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;int i = 0;
+&nbsp;&nbsp; &nbsp;while (dis.available() &gt; 0 &amp;&amp; i &lt; bufferSize) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i] = readShort(dis);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;i++;
+&nbsp;&nbsp; &nbsp;}
+    ...
+</pre>
+<p>
+	Der Grund warum wir die Methode readShort(dis) benötigen hat damit zu tun, dass Windows &quot;little endian&quot; ist [5] und wir die zwei Bytes des Shorts umdrehen müssen:</p>
+<pre style="margin-left: 40px;">
+private short readShort(InputStream in) throws IOException {
+&nbsp;&nbsp; &nbsp;return (short) (in.read() | (in.read() &lt;&lt; 8));
+}
+</pre>
+<p>
+	Nachdem wir die Daten jetzt eingelesen haben, müssen wir sie filtern, je nach Modus entweder die niederfrequenten oder die hochfrequenten:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; ...
+    short[] filtered = null;
+&nbsp;&nbsp; &nbsp;switch (mode) {
+&nbsp;&nbsp; &nbsp;case 1:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;LOW_PASS_FACTOR = 0.3f;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;filtered = filterLowFrequencies(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;case 2:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;LOW_PASS_FACTOR = 0.9f;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;filtered = filterHighFrequencies(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;filtered = data;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;audioTrack.write(filtered, 0, filtered.length);
+}</pre>
+<p>
+	Die beiden Methoden wenden dabei die Filter auf die Daten an:</p>
+<pre style="margin-left: 40px;">
+private short[] filterLowFrequencies(short[] recordingData) {
+&nbsp;&nbsp; &nbsp;short[] highPassArray = new short[recordingData.length];
+&nbsp;&nbsp; &nbsp;short avg = 0;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; recordingData.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;avg = lowPass(recordingData[i], avg);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;highPassArray[i] = highPass(recordingData[i], avg);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return highPassArray;
+}
+
+private short[] filterHighFrequencies(short[] recordingData) {
+&nbsp;&nbsp; &nbsp;short[] lowPassArray = new short[recordingData.length];
+&nbsp;&nbsp; &nbsp;short avg = 0;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; recordingData.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;avg = lowPass(recordingData[i], avg);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lowPassArray[i] = avg;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return lowPassArray;
+}</pre>
+<p>
+	wobei <em>lowPass()</em> und <em>highPass()</em> die gleichen sind wie im Sensorkapitel:</p>
+<pre style="margin-left: 40px;">
+private short lowPass(short current, short average) {
+&nbsp;&nbsp; &nbsp;return (short) (average * LOW_PASS_FACTOR + current * (1 - LOW_PASS_FACTOR));
+}
+
+private short highPass(short current, short average) {
+&nbsp;&nbsp; &nbsp;return (short) (current - average);
+}
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Loudness.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Loudness</h2>
+<p>
+	Wir haben schon lange keine Spiele mehr programmiert, es wird wieder Zeit.&nbsp; Bei Loudness geht es darum die Größe eines Balls (GOval) von der Lautstärke abhängig zu machen.</p>
+<p>
+	Wir schreiben also ein GraphicsProgram und im <em>setupUI()</em> fügen wir einen Ball hinzu:</p>
+<pre style="margin-left: 40px;">
+public class LoudnessActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;waitForTouch();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setupUI();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;  // game loop...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void setupUI() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setBackground(Color.WHITE);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ball = new GOval(BALL_MIN_SIZE, BALL_MIN_SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ball.setFillColor(Color.GREEN);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ball.setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(ball, getWidth() / 2, getHeight() / 2);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die Größe des Balls soll von der Lautstärke abhängen, also</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void changeBallSize(int loudness) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int size = loudness * getWidth() / MAX_LOUDNESS + BALL_MIN_SIZE;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = (getWidth() - size) / 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = (getHeight() - size) / 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ball.setBounds(x, y, size, size);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Nun kommen wir zur entscheidenden Frage, wie ermitteln wir die Lautstärke?&nbsp; Wir nehmen einfach den Durchschnitt der Absolutwerte der Rohdaten:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private int calculateLoudness(short[] copy) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double average = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; copy.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;average += Math.abs(copy[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;average /= copy.length;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return (int) average;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und die Rohdaten kommen von unserer AudioRecord Klasse:</p>
+<pre style="margin-left: 40px;">
+    public void run() {
+        ...
+        short[] data = new short[bufferSize];
+        AudioRecord audioRecord = new AudioRecord(...);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.startRecording();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (isRecording) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int length = audioRecord.read(data, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int loudness = calculateLoudness(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;changeBallSize(loudness);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+        ...
+    }
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SnoringService.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SnoringService</h2>
+<p>
+	Bevor ich die SnoringApp hatte, hat sich meine Frau immer beschwert, dass ich so laut schnarche.&nbsp; Aber jetzt seitdem ich die SnoringApp habe, kann auch meine Frau wieder ruhig schlafen.&nbsp; Die SnoringApp: ist ihren Preis wert, ich kann mir mein Leben gar nicht mehr ohne vorstellen.</p>
+<p>
+	Die SnoringApp ist in Prinzip nichts anderes als die Loudness Activity oben, mit dem Unterschied, dass wir ab einer gewissen Lautstärke einen Alarm starten (oder ein Vibrieren, Elektroschock, oder was auch immer notwendig ist um den Schnarchenden aufzuwecken):</p>
+<pre style="margin-left: 40px;">
+    if (averageLoudness &gt; LOUDNESS_THRESHOLD) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isRecording = false;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.stop();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// start alarm
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent(this, SnoringAlarmActivity.class);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(intent);
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Eine subtile Änderung gibt es aber doch: da die Loudness Activity ein GraphicsProgram ist, wird im Hintergrund ein eigener Thread gestartet (deswegen ja auch die run() Methode).&nbsp; Für unsere Games ist das notwendig, damit der GameLoop unabhängig vom UI Thread, also dem Zeichnen ist.&nbsp; Bei der Aufnahme und dem Abspielen von Audio ist das ähnlich: das soll eigentlich in einem separaten Thread laufen.&nbsp; Da wir für die SnoringApp ja kein GraphicsProgram verwenden, müssen wir das selbst machen:</p>
+<pre style="margin-left: 40px;">
+public class SnoringServiceActivity extends Activity implements <span style="color:#0000ff;">Runnable</span> {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">new Thread(this).start()</span>;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">run()</span> {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die SnoringAlarmActivity ist einfach unsere PlayAudio Activity mit einem Knopf zum Ausschalten des Alarms.&nbsp; Für den Alarm selbst können wir natürlich irgendeine Audiodatei verwenden, oder aber wir benutzen den <em>RingtoneManager</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; Uri alert = <span style="color:#0000ff;">RingtoneManager</span>.getDefaultUri(RingtoneManager.TYPE_ALARM);
+
+&nbsp;&nbsp; &nbsp;player = new MediaPlayer();
+&nbsp;&nbsp; &nbsp;player.setDataSource(context, alert);
+&nbsp;&nbsp; &nbsp;player.setAudioStreamType(AudioManager.STREAM_ALARM);
+&nbsp;&nbsp; &nbsp;player.prepare();
+&nbsp;&nbsp; &nbsp;player.start();</pre>
+<p>
+	Für Testzwecke implementieren wir das als Activity, viel sinnvoller ist es aber das in einen Service umzuwandeln.&nbsp; Das hat vor allem Vorteile für den Ladezustand unserer Batterie.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Equalizer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Equalizer</h2>
+<p>
+	Im Kapitel zu Sensoren haben wir die Klasse <em>GraphView</em> kennengelernt.&nbsp; Die kann man natürlich auch verwenden um unsere Audiodaten zu visualisieren, also einen Equalizer zu bauen. Genau wie in den zwei Apps oben, verwenden wir die AudioRecord Klasse,</p>
+<pre style="margin-left: 40px;">
+public void run() {
+    ...
+&nbsp;&nbsp;&nbsp; AudioRecord audioRecord = new AudioRecord(...);
+&nbsp;&nbsp; &nbsp;audioRecord.startRecording();
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;while (isRecording) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; int length = audioRecord.read(data, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; for (int j = 0; j &lt; data.length; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">gv</span>.addDataPoint(data[j]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; gv.postInvalidate();
+&nbsp;&nbsp; &nbsp;}
+    audioRecord.stop();
+    ...
+}</pre>
+<p>
+	und schicken die Daten an einen GraphView, den wir in der onCreate() initialisiert haben:</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;gv = new GraphView2(this);
+&nbsp;&nbsp; &nbsp;gv.setMin(Short.MIN_VALUE);
+&nbsp;&nbsp; &nbsp;gv.setMax(Short.MAX_VALUE);
+&nbsp;&nbsp; &nbsp;gv.setStyle(GraphView2.GraphStyle.LINE);
+&nbsp;&nbsp; &nbsp;gv.setColor(Color.RED);
+&nbsp;&nbsp; &nbsp;gv.setStrokeWidth(1);
+&nbsp;&nbsp; &nbsp;setContentView(gv);
+
+&nbsp;&nbsp; &nbsp;new Thread(this).start();
+}</pre>
+<p>
+	Easy.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AudioRecorder.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AudioRecorder</h2>
+<p>
+	Es gibt zahlreiche Apps im Google Play Store die die Funktion eines Diktiergerätes haben.&nbsp; Mit den beiden Klassen AudioRecord und AudioTrack können wir so eine App auch selbst umsetzen.</p>
+<p>
+	Wir beginnen mit dem Aufnahmeteil unserer Anwendung: die Anwendung soll einen Button haben mit dem wir die Aufnahme starten und stoppen können,</p>
+<pre style="margin-left: 40px;">
+public class AudioRecorderActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+    private boolean isRecording = false;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.audio_recorder_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final Button btn = (Button) findViewById(R.id.btnRecord);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (isRecording) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isRecording = false;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;Record&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isRecording = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;Stop recording&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Date date = new Date();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyyMMdd_HHmmss&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String fileName = dateFormat.format(date) + &quot;.pcm&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">Recorder recorder = new Recorder(fileName);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(recorder).start();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die Aufnahme selbst lagern wir in die innere Klasse <em>Recorder</em> aus, die ein eigener Thread ist:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class Recorder implements Runnable {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private String fileName;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public Recorder(String fileName) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.fileName = fileName;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;File f = new File(Environment.getExternalStorageDirectory(), fileName);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DataOutputStream dos = new DataOutputStream(bos);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] buffer = new short[bufferSize];
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.startRecording();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (<span style="color:#0000ff;">isRecording</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int length = audioRecord.read(buffer, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; length; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeShort(buffer[j]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.release();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bos.close();
+
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;runOnUiThread(new Runnable() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;words.add(0, fileName);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;((ArrayAdapter) lv.getAdapter()).notifyDataSetChanged();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(getLocalClassName(), e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die Klasse Recorder muss deswegen eine innere Klasse sein, damit sie auf die Instanzvariable <em>isRecording</em> zugreifen kann.&nbsp; Interessant ist hier auch wie wir aus der Klasse Recorder auf den UI Thread mittels der <em>runOnUiThread()</em> Methode zugreifen: wenn wir fertig sind mit der Aufnahme, soll die neue Aufnahme ja in der UI angezeigt werden.&nbsp; Man hätte das auch mit einem AsyncTask tun können, aber ab und zu wollen wir ja auch mal was Neues lernen.</p>
+<p>
+	Kommen wir zu dem Teil der mit dem Abspielen zu tun hat.&nbsp; Hier ist es nicht nötig einen separaten Thread zu implementieren (es sei denn man möchte das Abspielen unterbrechen können).&nbsp; In der <em>onCreate()</em> fügen wir dafür noch einen ListView hinzu, der die bereits gemachten Aufnahmen auflisten soll:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+
+        words = getFilesWithExtension(&quot;.pcm&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lv = (ListView) findViewById(R.id.listview);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ArrayAdapter&lt;String&gt; adapter = 
+            new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_spinner_item, words);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lv.setAdapter(adapter);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lv.setOnItemClickListener(new OnItemClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onItemClick(AdapterView&lt;?&gt; parent, View view, int position, long id) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String fileName = (String) ((ArrayAdapter) lv.getAdapter()).getItem(position);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;playAudio(fileName);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die getFilesWithExtension() Methode listet einfach alle Dateien mit einer bestimmten Endung auf:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private List&lt;String&gt; getFilesWithExtension(final String extension) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;List&lt;String&gt; words = new ArrayList&lt;String&gt;();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;File f = Environment.getExternalStorageDirectory();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;File[] files = f.listFiles(new FilenameFilter() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean accept(File dir, String name) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return name.toLowerCase().endsWith(extension);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; files.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;words.add(0, files[i].getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return words;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Das Einzige was jetzt noch fehlt ist die <em>playAudio()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void playAudio(String fileName) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;File f = new File(Environment.getExternalStorageDirectory(), fileName);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DataInputStream dis = new DataInputStream(bis);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int bufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, 
+                    AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 
+                    SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, bufferSize, 
+                    AudioTrack.MODE_STREAM);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.flush();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.play();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (dis.available() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] buffer = new short[bufferSize];
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (i &lt; bufferSize &amp;&amp; dis.available() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;buffer[i] = dis.readShort();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;i++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.write(buffer, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.release();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dis.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bis.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(getLocalClassName(), e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Diese öffnet die ausgewählte PCM Datei, liest die Daten in einen Buffer und sendet den Buffer an den AudioTrack.&nbsp; Sieht komplizierter aus als es ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Echo.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Echo</h2>
+<p>
+	Ein App aus dem Bereich der Psychoakkustik ist die EchoActivity.&nbsp; Hier geht es darum sich selbst zu hören, allerdings um ein paar zehntel Millisekunden zeitversetzt.&nbsp; Das Interessante dabei: man fängt an zu stottern, bzw. hört sich wie ein Idiot an.&nbsp; Der Effekt funktioniert allerdings nur mit Kopfhörer und Mikrofon.&nbsp;</p>
+<p>
+	Für die App verwenden wir zum einen die Player Klasse die wir bereits in unserer Piano Activity verwendet haben.&nbsp; Zusätzlich benötigen wir das Gegenstück dazu, die Recorder Klasse, die komplett analog dazu aufgebaut ist:</p>
+<pre style="margin-left: 40px;">
+public class Recorder implements Runnable {
+&nbsp;&nbsp; &nbsp;private int SAMPLE_RATE = 16000;
+&nbsp;&nbsp; &nbsp;private int bufferSize = 0;
+&nbsp;&nbsp; &nbsp;public boolean isRecording = false;
+&nbsp;&nbsp; &nbsp;private final BlockingQueue&lt;short[]&gt; queue;
+
+&nbsp;&nbsp; &nbsp;public Recorder(BlockingQueue&lt;short[]&gt; queue, int SAMPLE_RATE, int bufferSize) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.queue = queue;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.SAMPLE_RATE = SAMPLE_RATE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.bufferSize = bufferSize;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isRecording = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] data = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.startRecording();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (isRecording) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int length = audioRecord.read(data, 0, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// make a copy and add to queue
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] copy = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(data, 0, copy, 0, copy.length);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;queue.put(copy);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.release();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Recorder&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Das Einzige was hier besonders ist, dass wir eine Kopie des <em>data</em> Arrays machen.&nbsp; Das ist notwendig, da es sich ja bei einem Array um einen Referenzdatentypen handelt.&nbsp; Es ist nicht auszuschließen, dass die AudioRecord Klasse diese Referenz weiterverwendet um da neue Daten reinzuschreiben, was die alten überschreiben würde.&nbsp; Wenn wir aber eine Kopie haben, dann kann uns das egal sein.</p>
+<p>
+	Mit diesen Vorarbeiten wird die eigentlich Echo Activity ganz einfach:</p>
+<pre style="margin-left: 40px;">
+public class EchoActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+    private int <span style="color:#0000ff;">bufferFactor</span> = 5;
+
+&nbsp;&nbsp; &nbsp;private Player player;
+&nbsp;&nbsp; &nbsp;private Recorder recorder;
+&nbsp;&nbsp; &nbsp;private BlockingQueue&lt;short[]&gt; queue;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = (Button) findViewById(R.id.button);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, 
+                        AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">bufferSize</span> = (minBufferSize * (<span style="color:#0000ff;">bufferFactor</span> + 2)) / 2;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;queue = new ArrayBlockingQueue&lt;short[]&gt;(10);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player = new Player(queue, SAMPLE_RATE, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(player).start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;recorder = new Recorder(queue, SAMPLE_RATE, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(recorder).start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}
+</pre>
+<p>
+	Recorder und Player folgen dem klassischen Producer-Consumer Pattern, über die ArrayBlockingQueue werden die Audiodaten vom Recorder an den Player geschickt.&nbsp; Die Verzögerung von ein paar zehntel Millisekunden wird über die Größe des Buffers erzeugt: da der Player die Daten ja nicht direkt Byte für Byte, sondern immer Paketweise bekommt, hängt der Delay von der Größe der Datenpakete ab.&nbsp; Je größer die Pakete, desto länger der Delay.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Sonar.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Sonar</h2>
+<p>
+	Als nächstes wollen wir eine App schreiben mit der man U-Boote finden kann.&nbsp; Im Ernst, mit dieser App kann man grob die Distanz zwischen dem Smartphone und der nächsten großen Wand finden.&nbsp; Mit etwas mehr Aufwand, kann man sogar noch genauere Messungen machen.</p>
+<p>
+	Die Idee ist ganz einfach: man sendet ein kurzes Geräusch und wartet auf das Echo.&nbsp; Je länger das Echo benötigt, desto weiter ist etwas weg.&nbsp; Da sich Schall mit einer Geschwindigkeit von ca. 330 m/s ausbreitet, kann man daraus die Entfernung berechnen.</p>
+<p>
+	Bevor wir mit dem Coden anfangen können, müssen wir uns aber Gedanken machen bzgl. der Frequenz mit der wir senden und der Samplingrate.&nbsp;</p>
+<p>
+	Nehmen wir an wir hätten eine Samplingrate von 1 Hz pro Sekunde.&nbsp; Dann könnten wir bestenfalls Objekte lokalisieren die 330 Meter weg sind.&nbsp; Das ist ziemlich nutzlos, denn je weiter etwas weg ist, desto schwächer ist natürlich auch das Echo.&nbsp; Deswegen wollen wir eine Samplingrate die so hoch wie möglich ist: bei 44100 Hz ist unsere zeitliche Auflösung bei 0.02 Millisekunden, was ca. 0.7 cm entspricht.&nbsp;</p>
+<p>
+	Kommen wir zur Frequenz mit der wir unser Signal aussenden sollten: wenn wir mal 330 Hz als Beispiel nehmen, dann bedeutet das, dass wir 330 Schwingungen pro Sekunde haben.&nbsp; Da sich unser Signal aber auch mit 330 m/s ausbreitet, bedeutet das, dass &quot;eine Welle&quot; etwa einen Meter lang ist.&nbsp; Daraus erkennen wir, dass je höher die Frequenz, desto besser auch unsere Auflösung ist.&nbsp; Können wir eine beliebig hohe Frequenz wählen?&nbsp; Nein leider nicht, da gibt uns das Abtasttheorem von Nyquist-Shannon [6] ein oberes Limit: die Frequenz kann maximal die Hälfte der Samplingrate sein.&nbsp; Also höchstens 22500 Hz.&nbsp;</p>
+<p>
+	Beginnen wir mit dem Coden: die App ist eine einfache Activity.&nbsp; Wir haben einen Knopf mit dem wir den Sonar starten und einen GraphView der uns das Resultat anzeigt:</p>
+<pre style="margin-left: 40px;">
+public class SonarActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private final int NR_OF_WAVES = 4;
+&nbsp;&nbsp; &nbsp;private final double FREQUENCY = 8800;
+&nbsp;&nbsp; &nbsp;private final int SAMPLE_RATE = 44100; 
+&nbsp;&nbsp; &nbsp;private int waveForm = 1; 
+
+&nbsp;&nbsp; &nbsp;private GraphView2 gv;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.sonar_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnStart = (Button) findViewById(R.id.btnStart);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnStart.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int bufferSize = SAMPLE_RATE / 10;
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Recorder recorder = new Recorder(bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(recorder).start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;playSound();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv = (GraphView2) findViewById(R.id.graphview);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setMin(Short.MIN_VALUE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setMax(Short.MAX_VALUE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setStyle(GraphView2.GraphStyle.LINE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setColor(Color.RED);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setStrokeWidth(1);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wenn der Knopf gedrückt wird, starten wir als erstes die Aufnahme als eigenen Thread.&nbsp; Wir nehmen für eine Zehntelsekunde auf (SAMPLE_RATE / 10), was einer Auflösung von 33 Metern entspricht.&nbsp; Erst nachdem die Aufnahme läuft, erzeugen wir mit playSound() ein kurzes Geräusch.&nbsp; Die playSound() Methode haben wir aus dem WaveformGenerator geborgt:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void playSound() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double time = <span style="color:#0000ff;">NR_OF_WAVES</span> / FREQUENCY;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int bufferSize = (int) (time * SAMPLE_RATE) + 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;generateSound(bufferSize, <span style="color:#0000ff;">waveForm</span>);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 
+                SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, 2 * data.length, 
+                AudioTrack.MODE_STATIC);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.flush();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.write(data, 0, data.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioTrack.play();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Hier gibt es zwei Größen, die wir festlegen müssen:&nbsp; die <em>NR_OF_WAVES</em> und die <em>waveForm</em>.&nbsp; Da muss man ein bisschen probieren, bei mir haben vier Wellen, also NR_OF_WAVES = 4, gut funktioniert und als waveForm haben sich Rechteckwellen als am besten geeignet herausgestellt.</p>
+<p>
+	Sehen wir uns jetzt den Recorder an: der sieht genauso aus wie unsere anderen Recorder Threads, allerdings machen wir nur eine Aufnahme, und die Daten schicken wir dann an die <em>evaluateDistances()</em> Methode zum Auswerten:</p>
+<pre style="margin-left: 40px;">
+class Recorder implements Runnable {
+&nbsp;&nbsp; &nbsp;private int bufferSize = 0;
+
+&nbsp;&nbsp; &nbsp;public Recorder(int bufferSize) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.bufferSize = bufferSize;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] data = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, 
+                    SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, 
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.startRecording();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int length = audioRecord.read(data, 0, bufferSize);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] copy = new short[bufferSize];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(data, 0, copy, 0, copy.length);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord.release();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;audioRecord = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">evaluateDistances</span>(copy);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(getLocalClassName(), e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	In der evaluateDistances() Methode, könnten wir jetzt unsere Rohdaten einfach im GraphView anzeigen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void evaluateDistances(short[] recordingData) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double[] crossCorrelationArray = <span style="color:#0000ff;">crossCorrelation(recordingData)</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setMin(min);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.setMax(max);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = maxK; i &lt; gv.getSize() + maxK; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.addDataPoint(crossCorrelationArray[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv.postInvalidate();
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Es stellt sich aber heraus, dass man da nicht wirklich viel sieht, ausser ein paar kleinen Bumps.&nbsp; Allerdings wenn man mal kurz was in der Wikipedia zu Cross-correlation liest [7] (oder beim Professor Carl in der Vorlesung aufgepasst hat),</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private double min, max;
+&nbsp;&nbsp; &nbsp;private int maxK = 0;
+
+&nbsp;&nbsp;&nbsp; private double[] crossCorrelation(short[] recordingData) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;min = Double.MAX_VALUE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;max = Double.MIN_VALUE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double[] crossCorrelationArray = new double[recordingData.length];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; recordingData.length - data.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double tmpi = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; data.length; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tmpi += Math.abs(data[j] * recordingData[i + j]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;crossCorrelationArray[i] = tmpi;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;min = Math.min(min, crossCorrelationArray[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (max &lt; crossCorrelationArray[i]) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;max = crossCorrelationArray[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;maxK = i;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return crossCorrelationArray;
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	dann kann man auf einmal das Hauptsignal und das erste Echo ganz klar erkennen.&nbsp; Bei einer Samplingrate von 44100 Hz entspricht ein Pixel auf dem GraphView in etwa 0.7 cm.&nbsp; Oder da die Linien im Grid des GraphView 50 Pixel auseinanderliegen, was in etwa 37 cm entspricht.&nbsp; So, jetzt können wir, wenn unser Smartphone wasserdicht ist, auf einem großen Ozean nach U-Booten suchen...</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Ch8_Fourier.png" style="margin-left: 10px; margin-right: 10px; width: 325px; height: 440px; float: right;" />Fast Fourier Transform (FFT)</h2>
+<p>
+	Obertöne [8] geben jedem musikalischen Instrument seinen charakteristischen Klang.&nbsp; Auch der Klang einer Stimme, wie z.B. der von Freddie Mercury [9], wird nicht unerheblich von den Obertönen beeinflusst.&nbsp; Es gibt sogar das reine &quot;Overtone Singing&quot; [10], was auch für den characteristischen Klang des Kehlgesangs aus Tuwa [11] verantwortlich ist.</p>
+<p>
+	Hauptsächlich verantwortlich für den Klang ist das Verhältnis der verschiedenen Obertöne zueinander, vor allem deren Lautstärke, auch Amplitude genannt.&nbsp; Sind diese bekannt, kann man den Klang eines Instruments dadurch erzeugen in dem man einfach den Grundton und alle seine Obertöne im entsprechenden Verhältnis aufaddiert.</p>
+<p>
+	Der umgekehrte Prozess, wie man also einen Klang in seine Obertöne zerlegt, nennt man Fourier-Transformation [12].&nbsp; Wie das genau funktioniert braucht uns eigentlich nicht zu interessieren, wir können aber unsere Mathematiker Freunde mal fragen, die werden dann auf einmal sehr redselig.&nbsp;</p>
+<p>
+	In den nächsten vier Beispielen wollen wir uns mit ein paar sehr praktischen Anwendung der Fourier-Transformation beschäftigen.&nbsp; Für unsere Experimente verwenden wir die FFT Klasse aus dem Projekt MEAPsoft der Columbia University [13], welcher wiederum auf Code von Douglas L. Jones basiert.</p>
+<p>
+	Die Klasse FFT ist relativ einfach zu benutzen.&nbsp; Zunächst rufen wir den Konstruktor auf, dem wir sagen müssen wie groß unser Audiobuffer ist:</p>
+<pre style="margin-left: 40px;">
+bufferSize = nextpow2(bufferSize);
+FFT fft = new FFT(bufferSize);
+</pre>
+<p>
+	dabei ist eine Eigenheit des FFT, dass die <em>buffersize</em> eine Zweierpotenz sein muss.&nbsp; Die Anwendung ist dann denkbar einfach:</p>
+<pre style="margin-left: 40px;">
+...
+short[] data = new short[bufferSize];
+audioRecord.read(data, 0, bufferSize);
+double[] magn = fft.doSimpleFFT(data);</pre>
+<p>
+	Wir nehmen die Audiodaten wie gewohnt in einem Array auf, und schicken diese dann an die Methode <em>doSimpleFFT()</em> der Klasse FFT.&nbsp; Das Array <em>magn</em> das wir zurückbekommen enthält das Fourierspektrum.&nbsp; Dazu bekommen wir auch noch gleich die kleinste und größte Amplitude mit <em>getMin()</em> und <em>getMax()</em> geliefert.&nbsp; Ausserdem können wir die Frequenz des lautesten Tons, <em>maxPitch</em>, bestimmen:</p>
+<pre style="margin-left: 40px;">
+double LOWEST_FREQUENCY = SAMPLE_RATE / (double) bufferSize;
+maxPitch = fft.getMaxK() * LOWEST_FREQUENCY;</pre>
+<p>
+	Häufig interessiert uns nur dieser <em>maxPitch</em>, manchmal aber auch das gesamte Spektrum.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FlappyBall.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />FlappyBall</h2>
+<p>
+	Eine erste einfache Anwendung für unsere FFT Klasse ist FlappyBall.&nbsp; Die Idee ist, dass die Höhe des Balls durch Singen oder Pfeifen beeinflusst wird.&nbsp; Wir nehmen den Code aus dem ersten Semester und ändern lediglich die <em>moveBall()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+private final int MAX_FREQUENCY = 2000;
+private final int MIN_FREQUENCY = 400;
+private final int LOW_PASS_FACTOR = 20;
+
+private double <span style="color:#0000ff;">pitch</span> = MIN_FREQUENCY;
+private double pitchAvg = MIN_FREQUENCY;
+
+...
+
+private void moveBall() {
+&nbsp;&nbsp; &nbsp;if (pitch &gt; MIN_FREQUENCY &amp;&amp; pitch &lt; MAX_FREQUENCY) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pitchAvg = (LOW_PASS_FACTOR * pitchAvg + pitch) / (LOW_PASS_FACTOR + 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y = getHeight() - BALL_DIAM
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;- ((pitchAvg - MIN_FREQUENCY) / (MAX_FREQUENCY - MIN_FREQUENCY)) * getHeight();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ball.setLocation(getWidth() / 2, (int) y);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Interessant ist hier die Instanzvariable <em>pitch</em>: die wird nämlich im <em>Recorder</em> Thread verändert.&nbsp; Die <em>Recorder</em> Klasse ist ganz ähnlich aufgebaut wie im <em>Echo</em> Beispiel oben: die BlockingQueue benötigen wir nicht, bei der <em>buffersize</em> müssen wir wie oben darauf achten, dass es eine Zweierpotenz sein muss, und im Recording-Loop führen wir die Fourier-Transformation durch:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; ...
+    while (isRecording) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int length = audioRecord.read(data, 0, bufferSize);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double[] magn = fft.doSimpleFFT(data);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double LOWEST_FREQUENCY = SAMPLE_RATE / (double) bufferSize;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">pitch</span> = fft.getMaxK() * LOWEST_FREQUENCY;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Am Ende setzen wir die Instanzvariable <em>pitch</em> auf den Wert der lautesten Frequenz.&nbsp; Wenn man jetzt die Lücke in den Wänden nicht zufällig erzeugt würde, sondern basierend auf einer Melodie, könnte man mit unserem Programm sogar spielerisch das Pfeifen lernen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PianoTuning.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />PianoTuning</h2>
+<p>
+	Die PianoTuningActivity ist ganz ähnlich wie die FlappyBall App, denn uns interessiert hauptsächlich die Frequenz des lautesten Tons.&nbsp; Aus dieser Frequenz können wir dann die Klaviertaste ermitteln die gedrückt wurde (wenn das Klavier einigermaßen gestimmt ist).&nbsp; Im TuneGenerator Beispiel haben wir ja schon die Methoden <em>getPitch()</em> und <em>getPitchName()</em> gesehen.&nbsp; Was wir noch brauchen ist das Gegenstück zu getPitch() und zwar <em>getKey()</em>:</p>
+<pre style="margin-left: 40px;">
+private int getKey(double pitch) {
+&nbsp;&nbsp; &nbsp;double base = Math.pow(2.0, 1.0 / 12.0);
+&nbsp;&nbsp; &nbsp;double k = (Math.log(pitch) - Math.log(440.0)) / Math.log(base) + 49;
+&nbsp;&nbsp; &nbsp;if (k &gt;= 0 &amp;&amp; k &lt;= 100) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return (int) Math.round(k);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return 0;
+}
+</pre>
+<p>
+	Diese wandelt eine gegebene Frequenz (pitch) in eine Taste auf dem Klavier um.</p>
+<p>
+	Was wir aber außerdem machen können ist das Fourierspektrum anzeigen.&nbsp; Wir nehmen also das Array magn, das wir bisher ignoriert haben, und schicken es an einen GraphView:</p>
+<pre style="margin-left: 40px;">
+GraphView2 gv = (GraphView2) findViewById(R.id.graphview);
+...
+
+gv.reset();
+gv.setMax(fft.getMax());
+gv.setMin(0);
+int len = Math.min(gv.getSize(), magn.length);
+for (int j = 0; j &lt; len; j++) {
+&nbsp;&nbsp; &nbsp;gv.addDataPoint(<span style="color:#0000ff;">magn[j]</span>);
+}
+// move to the left
+int delta = gv.getSize() - len;
+for (int j = 0; j &lt; delta - 10; j++) {
+&nbsp;&nbsp; &nbsp;gv.addDataPoint(0);
+}
+gv.postInvalidate();
+...
+</pre>
+<p>
+	Interessant ist die Framerate: auf meinem Moto G4 läuft das Ganze mit ca. 10 fps, ohne irgendwelche besonderen Optimierungen.&nbsp; Impressive.</p>
+<p>
+	Wenn wir die App an einem echten Klavier ausprobieren, stellen wir fast, dass sie für die hohen Töne wunderbar funktioniert.&nbsp; Allerdings bei den tiefen liegt sie häufig daneben.&nbsp; Das hat damit zu tun, dass nicht immer der Grundton der lauteste ist.&nbsp; Unsere App sucht aber nur nach dem lautesten.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Spectrogram.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Spectrogram</h2>
+<p>
+	Im letzten Beispiel haben wir das Fourierspektrum einfach als Graph dargestellt, der sich mit der Zeit ändert.&nbsp; Man kann es aber auch so darstellen, dass man die Amplituden des Spektrums mit Farben kodiert, z.B. rot für kleine Amplituden und blau für große Amplituden.&nbsp; Wenn man diese farbigen Linien dann nebeneinander fortlaufend weiterschreibt, dann&nbsp; nennt man das ein Spektrogramm [14].</p>
+<p>
+	Der Code dafür basiert auf der PianoTuningActivity: in einem eigenen Thread nehmen wir vom Mikrofon auf, machen die Fourieranalyse und zeichnen das Spektrum in einen <em>SpectrumView</em>.&nbsp; Der SpectrumView nimmt das Spektrum das der FFT liefert und macht daraus jeweils ein kleines GImage.&nbsp; Von diesen GImages merkt er sich die letzten zehn Stück und zeichnet diese bei jedem Redraw.&nbsp; Die Details kann man im Code nachsehen, der nicht ganz trivial ist.&nbsp; Dass das überhaupt funktioniert spricht zum einen für die Leistungsfähigkeit moderner Android Geräte, aber auch für das Android Betriebssystem.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SoundWave.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />SoundWave</h2>
+<p>
+	SoundWave [15] ist ein Forschungsprojekt von Microsoft.&nbsp; Dabei geht es darum mit Hilfe des Dopplereffekts Gesten zu erkennen.&nbsp; Dazu erzeugt man einen konstanten Ton und nimmt gleichzeitig mit dem Mikrofon auf.&nbsp; Dann fuchtelt man mit der Hand ein bisschen hin und her, und man kann sofort erkennen, dass sich die Amplitude das aufgenommenen Signals ändert.&nbsp; Auch das Verhältnis der Obertöne ändert sich.&nbsp; Anscheind kann man daraus mit etwas Fantasie und Magie (= künstliche Intelligenz) Gesten erkennen.&nbsp; Vielleicht macht es noch Sinn die Frequenzen außerhalb des hörbaren Bereichs zu wählen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Distance.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />Distance</h2>
+<p>
+	Bei den Camera.Parametern gibt es eine interessante Methode:&nbsp; <em>getFocusDistances()</em>.&nbsp; Dies würde darauf schließen lassen, dass man mit der Kamera Distanzen messen kann. Sehen wir uns das mal an.</p>
+<p>
+	Wir nehmen einfach unsere CameraPreview Activtiy und machen ein paar kleine Modifkationen in der <em>surfaceCreated()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+public void surfaceCreated(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = Camera.open();
+
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.autoFocus(new AutoFocusCallback() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onAutoFocus(boolean success, Camera camera) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float distances[] = new float[3];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.getParameters().getFocusDistances(distances);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;DistanceActivity&quot;, &quot;distances are: near=&quot; 
+                        + distances[0] + &quot;m, optimal=&quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ distances[1] + &quot;m, far=&quot; + distances[2] + &quot;m&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Camera.Parameters params = mCamera.getParameters();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setParameters(params);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setPreviewDisplay(holder);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.startPreview();
+&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;DistanceActivity&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Dabei gibt die Kamera einem nur einen groben Bereich, also eine Abschätzung zwischen <em>near</em>, <em>optimal</em> und <em>far</em> an.&nbsp; Aber immerhin.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TakePhoto.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />TakePhoto</h2>
+<p>
+	Im Beispiel CameraPreview haben wir ja schon gesehen wie man auf die Kamera zugreifen und das Kamerabild in einem SurfaceView anzeigen kann.&nbsp; Was wir aber noch nicht gesehen haben, wie wir einfache Schnappschüße machen können.&nbsp;</p>
+<p>
+	Wir beginnen mit den Instanzvariablen, wir brauchen natürlich eine Referenz auf die Kamera, dann wollen wir das geschoßene Bild ja anzeigen, deswegen einen ImageView, und wir benötigen auch noch eine <em>SurfaceTexture</em>:</p>
+<pre style="margin-left: 40px;">
+private Camera camera;
+private ImageView iv;
+private SurfaceTexture surfaceTexture;</pre>
+<p>
+	Die SurfaceTexture wird von der Kamera anstelle des SurfaceViews benötigt.&nbsp; Anscheinend ist die Kamera ohne nicht glücklich.</p>
+<p>
+	In der onCreate() basteln wir wie üblich unsere UI zusammen:</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;setContentView(R.layout.take_photo_activity);
+
+&nbsp;&nbsp; &nbsp;iv = (ImageView) this.findViewById(R.id.imageView);
+
+&nbsp;&nbsp; &nbsp;Button btn = (Button) this.findViewById(R.id.btnSnap);
+&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">takePicture()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;surfaceTexture = new SurfaceTexture(42);
+}</pre>
+<p>
+	Nichts besonderes hier, die 42 ist absolut willkürlich.&nbsp; Interessant wird jetzt die <em>takePicture()</em> Methode: wir wählen die Kamera aus, setzen die SurfaceTexture und die Camera.Parameter:</p>
+<pre style="margin-left: 40px;">
+private void takePicture() {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (camera == null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera = Camera.open(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.setPreviewTexture(surfaceTexture);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Camera.Parameters params = camera.getParameters();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;params.setPictureSize(640, 480); 
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;params.setPictureFormat(ImageFormat.JPEG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.setParameters(params);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.startPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.takePicture(null, null, new PictureCallback() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onPictureTaken(byte[] data, Camera camera) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;iv.setImageBitmap(bitmap);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera.stopPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Danach beginnen wir mit dem Preview, und machen ein Bild.&nbsp; Sobald das Bild fertig ist (dauert ein bisschen), wird die Methode <em>onPictureTaken()</em> des <em>PictureCallback</em> aufgerufen.&nbsp; Und dort können wir dann aus den Rohdaten, <em>data</em>, eine Bitmap erzeugen, die wir dann im ImageView anzeigen.&nbsp; Easy.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Camera360.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />Camera360</h2>
+<p>
+	Es gibt ja inzwischen ziemlich teure 360 Grad Kameras zu kaufen.&nbsp; Was eigentlich bescheuert ist, weil ja heutzutage fast jedes Smartphone zwei Kameras hat, eine nach vorne und eine nach hinten.&nbsp; Man müsste doch einfach beide Kameras gleichzeitig ansprechen und schon hat man eine 360 Grad Kamera.</p>
+<p>
+	Stellt sich heraus, dass man auf fast keinem Smartphone beide Kameras gleichzeitig ansprechen kann.&nbsp; Das ist aber kein Problem für uns, wir sprechen einfach eine nach der anderen an, abwechselnd.&nbsp; Der Aufbau ist fast identisch mit dem TakePhoto Projekt, wir haben lediglich zwei ImageViews.&nbsp;</p>
+<p>
+	Damit die Bilder koninuierlich angezeigt werden, machen wir aus unserer Activity einen Thread, und in dessen <em>run()</em> Methode nehmen wir dann abwechselnd ein Bild mit der Kamera Nummer 0 (back-facing) und der mit der Nummer 1 (front-facing) auf:</p>
+<pre style="margin-left: 40px;">
+public class Camera360Activity extends Activity implements Runnable {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private int cameraId = 0;
+&nbsp;&nbsp; &nbsp;private boolean isCameraBusy = false;
+
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!isCameraBusy) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cameraId++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cameraId %= 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isCameraBusy = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;takePicture();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(10);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp;&nbsp; private void takePicture() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;camera = Camera.open(<span style="color:#0000ff;">cameraId</span>);
+            ...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Schon wieder 300 Euro gespart.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SurveillanceService.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SurveillanceService</h2>
+<p>
+	Eine weitere Anwendung für unsere <em>takePicture()</em> Methode ist der SurveillanceService.&nbsp; Die Idee ist recht einfach: einmal in der Stunde, Minute oder Sekunde ein Bild machen und auf der SD-Karte speichern.&nbsp; Dazu müssen wir lediglich die <em>onStartCommand()</em> Methode unseres Services überschreiben:</p>
+<pre style="margin-left: 40px;">
+public int onStartCommand(Intent intent, int flags, int startId) {
+&nbsp;&nbsp; &nbsp;Log.i(&quot;SurveillanceService&quot;, &quot;onStartCommand()&quot;);
+
+&nbsp;&nbsp; &nbsp;picturesDir = new File(
+            Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;SurveillanceService&quot;);
+&nbsp;&nbsp; &nbsp;picturesDir.mkdirs();
+
+&nbsp;&nbsp; &nbsp;long delay = 0; // delay in ms before task is executed
+&nbsp;&nbsp; &nbsp;long period = 60 * 1000; // time in ms between successive executions
+
+&nbsp;&nbsp; &nbsp;timer = new Timer();
+&nbsp;&nbsp; &nbsp;timer.schedule(new TimerTask() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">takePicture()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}, delay, period);
+
+&nbsp;&nbsp; &nbsp;// if we get killed, restart
+&nbsp;&nbsp; &nbsp;return START_STICKY;
+}</pre>
+<p>
+	Natürlich benötigen wir noch die zugehörige Activity zum Starten des Services.&nbsp; Wenn man möchte kann man in dieser Activity auch gleich die gemachten Bilder anzeigen oder einen Movie daraus machen (siehe IPCam).</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AugmentedReality.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />AugmentedReality</h2>
+<p>
+	AugmentedReality ist momentan der große Hype, deswegen wollen wir uns das mal etwas näher ansehen.&nbsp; Wir beginnen damit unsere CameraPreview Activtiy erst einmal auseinanderzunehmen, und alles was mit dem SurfaceView zu tun hat in eine eigene Klasse <em>CameraView</em> zu schreiben:</p>
+<pre style="margin-left: 40px;">
+private class CameraView extends <span style="color:#0000ff;">SurfaceView</span> implements <span style="color:#0000ff;">SurfaceHolder.Callback</span> {
+&nbsp;&nbsp; &nbsp;private Camera mCamera;
+
+&nbsp;&nbsp; &nbsp;public CameraView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SurfaceHolder holder = this.getHolder();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;holder.addCallback(this);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void surfaceCreated(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = Camera.open();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setPreviewDisplay(holder);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.startPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;CameraView&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do nothing
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void surfaceDestroyed(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.stopPreview();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.release();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = null;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	CameraView ist also sowohl ein SurfaceView als auch ein SurfaceHolder.Callback.</p>
+<p>
+	Als nächstes schreiben wir eine ganz triviale Klasse <em>OverlayView</em>, die ein einfacher View ist und lediglich einen Text mit &quot;Hello World!&quot; anzeigt:</p>
+<pre style="margin-left: 40px;">
+private class OverlayView extends View {
+
+&nbsp;&nbsp; &nbsp;public OverlayView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onDraw(canvas);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(Color.BLACK);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setTextSize(64f);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawText(&quot;Hello World!&quot;, getWidth() / 2 - 180, 200, paint);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wenn wir jetzt diese beiden Views übereinander legen, dann haben wir Augmented Reality.&nbsp; Mit einem FrameLayout ist das total trivial:</p>
+<pre style="margin-left: 40px;">
+public class AugmentedRealityActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;FrameLayout fl = new FrameLayout(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(fl);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CameraView cameraView = new CameraView(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fl.addView(cameraView);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OverlayView overlayView = new OverlayView(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fl.addView(overlayView);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Tada.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FaceDetection.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />FaceDetection</h2>
+<p>
+	Als kleines Schmankerl machen wir aus unserer AugmentedReality App eine FaceDetection App.&nbsp; Wir müssen nur ein paar Zeilen ändern.</p>
+<p>
+	Wir beginnen mit dem Erkennen von Gesichtern.&nbsp; Das kann Android ganz allein, und zwar über einen <em>FaceDetectionListener</em>: den definieren wir in der <em>onCreate()</em> Methode unserer Activity:</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;faceDetectionListener = new FaceDetectionListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onFaceDetection(Face[] faces, Camera camera) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;detectedFaces = faces;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;overlayView.invalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;};
+}</pre>
+<p>
+	Den FaceDetectionListener müssen wir jetzt noch an die Kamera anschließen, und das machen wir in der <em>surfaceCreated()</em> Methode des <em>CameraView</em>:</p>
+<pre style="margin-left: 40px;">
+public void surfaceCreated(SurfaceHolder holder) {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera = Camera.open(1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setPreviewDisplay(holder);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.startPreview();
+
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.setFaceDetectionListener(faceDetectionListener);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCamera.startFaceDetection();</span>
+
+&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;CameraView&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Schließlich zeichnen wir einfach grüne Rechtecke wo das Face detektiert wurden in der <em>onDraw()</em> Methode unserer <em>OverlayView</em> Klasse:</p>
+<pre style="margin-left: 40px;">
+private class OverlayView extends View {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp;&nbsp; protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onDraw(canvas);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (detectedFaces != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStrokeWidth(8);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(Color.GREEN);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float scaleX = (float) (getWidth() / 2000.0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float scaleY = (float) (getHeight() / 2000.0);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; detectedFaces.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Rect rect = detectedFaces[i].rect;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float left = (1000 - rect.left) * scaleX;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float top = (1000 + rect.top) * scaleY;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float right = (1000 - rect.right) * scaleX;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float bottom = (1000 + rect.bottom) * scaleY;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawRect(left, top, right, bottom, paint);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Eigentlich erschreckend einfach.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TextReader.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TextReader</h2>
+<p>
+	Im TextToSpeech Beispiel war der Text der gesprochen wurde im Code vorgegeben.&nbsp; Schöner ist es natürlich, wenn der Nutzer bestimmen kann was gesprochen wird.&nbsp; Dazu modifizieren wir das TextToSpeech Beispiel indem wir einen Button und einen EditText hinzufügen.&nbsp; Sobald auf den Knopf gedrückt wird, lassen wir den TextToSpeech Engine vorlesen was geschrieben wurde:</p>
+<pre style="margin-left: 40px;">
+...
+final EditText et = (EditText) findViewById(R.id.edittext);
+
+Button btn = (Button) findViewById(R.id.button);
+btn.setOnClickListener(new View.OnClickListener() {
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void onClick(View v) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tts.speak(et.getText().toString(), TextToSpeech.QUEUE_FLUSH, null, null);
+&nbsp;&nbsp;&nbsp; }
+});
+...
+</pre>
+<p>
+	Easy.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AudioBookCreator.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AudioBookCreator</h2>
+<p>
+	Im Beispiel TextReader haben wir gerade gesehen wie einfach es ist die Sprachausgabe von Android zu benutzen.&nbsp; Natürlich kann man sie auch verwenden um ganze Bücher in AudioBooks zu verwandeln.&nbsp;</p>
+<p>
+	Im Prinzip könnten wir das ganze Buch einfach als einen String einlesen und dann an den TextToSpeech Engine übergeben.&nbsp; Das Problem damit ist, dass sich das etwas komisch anhört.&nbsp; Der Hauptpunkt der stört: zwischen Absätzen erwartet man eine etwas längere Pause.&nbsp; Die macht der TextToSpeech Engine aber nicht.&nbsp; Deswegen müssen wir da etwas nachhelfen.</p>
+<p>
+	Als erstes lesen wir unser Buch in eine Liste, dabei entspricht jeder Absatz einem Eintrag in der Liste:</p>
+<pre style="margin-left: 40px;">
+private List&lt;String&gt; readFromResource() {
+&nbsp;&nbsp; &nbsp;List&lt;String&gt; text = new ArrayList&lt;String&gt;();
+&nbsp;&nbsp; &nbsp;StringBuilder total = new StringBuilder();
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream is = getResources().openRawResource(R.raw.tom_sawyer);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedReader r = new BufferedReader(new InputStreamReader(is));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String line;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while ((line = r.readLine()) != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (line.length() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;total.append(line);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String t = total.toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (t.length() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;text.add(t);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;total = new StringBuilder();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// OBOB
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String t = total.toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (t.length() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;text.add(t);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return text;
+}
+</pre>
+<p>
+	In der onCreate() unserer Activity rufen wir dann diese Methode auf,</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;textList = readFromResource();
+
+&nbsp;&nbsp; &nbsp;tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onInit(int status) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (status != TextToSpeech.ERROR) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.setLanguage(Locale.US);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">&nbsp;setProgressListener();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;doSpeak();</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;AudioBookCreatorActivity&quot;,&quot;No speech engine available.&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+}</pre>
+<p>
+	In der onInit() Methode fügen wir jetzt aber einen <em>UtteranceProgressListener</em> hinzu und rufen dann ein erstes Mal die doSpeak() Methode auf.&nbsp; Die <em>setProgressListener()</em> Methode sieht wie folgt aus:</p>
+<pre style="margin-left: 40px;">
+private void setProgressListener() {
+&nbsp;&nbsp; &nbsp;tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onDone</span>(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (textListIndex &lt; textList.size()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">doSpeak();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onStart(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onError(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;});
+}</pre>
+<p>
+	Die <em>onDone()</em> Methode des UtteranceProgressListener wird dann aufgerufen wenn der Engine mit dem Reden einer Utterance gerade fertig wurde.&nbsp; Deswegen müssen wir die doSpeak() Methode einmal vorher aufrufen.&nbsp; Die doSpeak() Methode wiederum ist trivial:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void doSpeak() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">pause(DELAY)</span>;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final String speech = textList.get(textListIndex);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, speech);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;textListIndex++;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die gewünschte Pause zwischen den Absätzen im Buch erzeugen wir durch den Aufruf von pause() am Anfang der doSpeak() Methode.</p>
+<p>
+	Jetzt wäre es natürlich noch schön, wenn wir die Bücher nicht nur vorlesen könnten, sondern auch in einer Datei speichern könnten.&nbsp; Da müssen wir einfach anstelle von <em>tts.speak()</em> die folgende Zeile schreiben:</p>
+<pre style="margin-left: 40px;">
+tts.synthesizeToFile(speech, null, new File(DESTINATION_FILE + textListIndex + &quot;.wav&quot;), speech);</pre>
+<p>
+	Cool, oder?</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ChatBot.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ChatBot</h2>
+<p>
+	Im ersten Semester haben wir ja bereits kurz die Bekanntschaft von ELIZA gemacht [16]. Das Programm damals war rein textbasiert.&nbsp; Mit unseren neugefunden Möglichkeiten können wir jetzt aber eine Anwendung schreiben die sprachgebunden ist.&nbsp; Soll heißen, ELIZA spricht mit uns und hört uns zu.</p>
+<p>
+	Unsere ChatBotActivity ist eine ganz normal Activity.&nbsp; Nachdem wir ELIZA initialisiert haben,</p>
+<pre style="margin-left: 40px;">
+protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;setContentView(R.layout.chatbot_activity);
+
+&nbsp;&nbsp; &nbsp;tv = (TextView) this.findViewById(R.id.textView);
+
+&nbsp;&nbsp; &nbsp;initEliza();
+
+&nbsp;&nbsp; &nbsp;String me = &quot;Hello&quot;;
+&nbsp;&nbsp; &nbsp;String eliz = eliza.processInput(me);
+&nbsp;&nbsp; &nbsp;tv.setText(eliz + &quot;\n&quot;);
+
+&nbsp;&nbsp; &nbsp;initTTS(eliz);
+}
+</pre>
+<p>
+	starten wir den TextToSpeech Engine und lassen ihn den ersten Satz sagen:</p>
+<pre style="margin-left: 40px;">
+private void initTTS(final String msg) {
+&nbsp;&nbsp; &nbsp;tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onInit(int status) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (status == TextToSpeech.SUCCESS) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.setLanguage(Locale.US);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">setProgressListener()</span>;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.<span style="color:#0000ff;">speak</span>(msg, TextToSpeech.QUEUE_FLUSH, null, msg);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(getApplicationContext(), &quot;No speech engine available.&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.shutdown();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+}</pre>
+<p>
+	Wie im AudioBookCreator arbeiten wir auch hier wieder mit einem UtteranceProgressListener.&nbsp; Nachdem der erste Satz gesagt ist, hören wir zu:</p>
+<pre style="margin-left: 40px;">
+private void setProgressListener() {
+&nbsp;&nbsp; &nbsp;tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onDone(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">startListening();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onStart(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onError(String utteranceId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;});
+}
+</pre>
+<p>
+	In der <em>startListening()</em> Methode starten wir einfach die Spracherkennung wie in unserem TextReader:</p>
+<pre style="margin-left: 40px;">
+private void startListening() {
+&nbsp;&nbsp; &nbsp;Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+&nbsp;&nbsp; &nbsp;intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, &quot;en&quot;);
+&nbsp;&nbsp; &nbsp;intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+&nbsp;&nbsp; &nbsp;intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+
+&nbsp;&nbsp; &nbsp;startActivityForResult(intent, REQUEST_CODE);
+}</pre>
+<p>
+	und in der onActivityResult() Methode,</p>
+<pre style="margin-left: 40px;">
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+&nbsp;&nbsp; &nbsp;if (requestCode == REQUEST_CODE &amp;&amp; resultCode == RESULT_OK) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ArrayList&lt;String&gt; matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; tv.append(me + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String eliz = eliza.<span style="color:#0000ff;">processInput</span>(me);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tts.<span style="color:#0000ff;">speak</span>(eliz, TextToSpeech.QUEUE_FLUSH, null, eliz);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(eliz + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;super.onActivityResult(requestCode, resultCode, data);
+}</pre>
+<p>
+	lassen wir erst ELIZA den Input verarbeiten und anschließend per Sprachsynthese ausgeben.&nbsp; Jetzt haben wir immer jemanden zum Reden wenn uns langweilig ist, WhatsApp ade.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Dictation.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Dictation</h2>
+<p>
+	Die meisten Diktier-Apps aus dem Google Play Store sind ziemlich langweilig: sie nehmen einfach das Gesagte auf und speichern es als Sound File ab.&nbsp; Mit etwas Spracherkennung, können wir das viel besser.</p>
+<p>
+	Unsere App besteht aus einem Button und einem TextView.&nbsp; Wenn wir auf den Button das erste Mal drücken soll die Spracherkennung beginnen, beim zweiten Mal soll sie wieder aufhören.&nbsp; Deswegen bietet sich hier vielleicht ein ToggleButton an.&nbsp; Was allerdings noch cool wäre, wenn man irgendwie diesen komischen Google Dialog während der Spracherkennung wegbekommen könnte.&nbsp; Kann man.</p>
+<p>
+	Als erstes muss unsere App ein <em>RecognitionListener</em> Interface implementieren, mit all den dazugehörigen Methoden:</p>
+<pre style="margin-left: 40px;">
+public class DictationActivity extends Activity 
+    implements <span style="color:#0000ff;">RecognitionListener</span> {
+
+&nbsp;&nbsp; &nbsp;private TextView tv;
+&nbsp;&nbsp; &nbsp;private SpeechRecognizer recognizer;
+
+    ...
+}</pre>
+<p>
+	und wir benötigen einen <em>SpeechRecognizer</em> als Instanzvariable.</p>
+<p>
+	Dann müssen wir das Ganze in der onCreate() initialisieren:</p>
+<pre style="margin-left: 40px;">
+protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;setContentView(R.layout.dictation_activity);
+
+&nbsp;&nbsp; &nbsp;tv = (TextView) findViewById(R.id.textView);
+
+&nbsp;&nbsp; &nbsp;// init speech recognition engine
+&nbsp;&nbsp; &nbsp;if (SpeechRecognizer.isRecognitionAvailable(this)) {
+&nbsp;&nbsp; &nbsp;    recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;recognizer.setRecognitionListener(this);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, &quot;en&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, 
+                                  RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ToggleButton btn = (ToggleButton) findViewById(R.id.toggleButton);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (isChecked) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">recognizer.startListening(recognizerIntent);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">recognizer.stopListening();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Dictation&quot;, &quot;No speech recognition engine installed!&quot;);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wir schauen zuerst nach, ob es überhaupt Spracherkennung gibt.&nbsp; Danach initialisieren wir unseren <em>recognizer</em>, und sagen ihm noch wer ihm zuhört.&nbsp; Dann bereiten wir wie üblich einen RecognizerIntent vor.&nbsp; Diesen starten wir allerdings nicht als Intent, sondern über die <em>startListening()</em> Methode des <em>recognizer</em>.&nbsp; Startet man den <em>recognizer</em> auf diese Art und Weise, dann muss man ihn aber auch von Hand wieder anhalten, deswegen die <em>stopListening()</em> Methode.</p>
+<p>
+	Nachdem wir die <em>stopListening()</em> Methode aufgerufen haben, macht die Spracherkennung ihre Arbeit, und wenn sie fertig ist, wird die Methode <em>onResults()</em> des <em>RecognitionListener</em> aufgerufen:</p>
+<pre style="margin-left: 40px;">
+@Override
+public void onResults(Bundle results) {
+&nbsp;&nbsp; &nbsp;ArrayList&lt;String&gt; matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+&nbsp;&nbsp; &nbsp;String text = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;for (String match : matches) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;text += match + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;tv.append(&quot;- &quot; + text + &quot;\n&quot;);
+}</pre>
+<p>
+	Und das war&#39;s eigentlich schon.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Morse.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Morse</h2>
+<p>
+	Jeder hat schon mal etwas von Morsezeichen gehört, insbesondere das &quot;SOS&quot; Signal, drei kurz, drei lang, drei kurz, ist wohl jedem bekannt [17]. &nbsp; Der Morsecode wurde eigentlich für Telegrafen erfunden um über lange Distanzen zu kommunizieren.&nbsp; Er ist nicht besonders effektiv und auch nicht sehr tolerant was seine Fehleranfälligkeit angeht, aber dafür ist er sehr einfach.&nbsp; Wir wollen den Morsecode verwenden, damit zwei Android Geräte miteinander kommunizieren können.&nbsp; Dass das Thema ganz aktuell ist, zeigt z.B. der Artikel [18]: es gibt nämlich sogenannte akustische Cookies die Verwendung finden um personalisierte Werbeanzeigen einzublenden.&nbsp; Die basieren genau auf diesem Prinzip.</p>
+<p>
+	Als erstes benötigen wir eine Möglichkeit aus Strings Morsezeichen zu erzeugen und umgekehrt aus Morsezeichen wieder Strings.&nbsp; Dafür verwenden wir die <em>MorseStateMachine</em> Klasse, die genau das macht:</p>
+<pre style="margin-left: 40px;">
+// init
+MorseStateMachine msm = new MorseStateMachine();
+
+// encode
+String msg = &quot;MORSE CODE&quot;;
+String morse = msm.convertStringToMorseCode(msg.toUpperCase());
+System.out.println(morse);
+
+// decode
+msm.addNewString(&quot;_______===_===___===_===_===___=_===_=___=_=_=___=_______===_=_===_=___==&quot;);
+System.out.println(msm.getMorseMessage());
+msm.addNewString(&quot;=_===_===___===_=_=___=_______&quot;);
+System.out.println(msm.getMorseMessage());&nbsp;&nbsp; 
+</pre>
+<p>
+	Dabei bedeutet der Unterstrich, &#39;_&#39;, kein Signal, und das Gleichheitszeihen, &#39;=&#39;, ein Signal.&nbsp; Laut Wikipedia soll ein Dah dreimal so lange sein wie ein Dit [19].</p>
+<p>
+	Das weitere Vorgehen ist ganz ähnlich wie bei unserer Sonar Anwendung: der Nutzer gibt in einem EditText einen Text ein, aus dem macht die MorseStateMachine dann &#39;_&#39; und &#39;=&#39;, und die senden wir dann wie bei der Sonar Anwendung als kleine Wellenpakete.&nbsp; Auf der empfangenden Seite, wird dann aus dem empfangenen Signal wieder &#39;_&#39; und &#39;=&#39;, je nachdem ob ein Ton ankommt oder nicht.&nbsp; Und mit der MorseStateMachine machen wir daraus wieder Text, den wir dann anzeigen.</p>
+<p>
+	Interessanterweise haben die uralt akustischen Modems [20] nach genau diesem Prinzip funktioniert.&nbsp; Wobei allerdings andere Kodierungs- und Kompressionsverfahren eingesetzt wurden, und man überhaupt viel Gehirnschmalz aus der Signalverarbeitung braucht, damit das Ganze ordentlich und mit hohen Datenübertragungraten funktioniert.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/IPCam.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />IPCam</h2>
+<p>
+	Zum krönenden Abschluss wollen wir aus unserem Smartphone eine IP Kamera machen.&nbsp; Das ist gar nicht so schwer, wir müssen lediglich unsere TakePhoto App mit unserer WebServerActivity App aus dem letzten Kapitel kombinieren.</p>
+<p>
+	Bevor wir aber loslegen, müssen wir uns noch kurz die RFC1341 ansehen [21]: dort wird MIME definiert, und speziell im Kapitel 7.2 wird der Multipart Content-Type spezifiziert [22]:</p>
+<pre style="margin-left: 40px;">
+Content-Type: multipart/mixed; boundary=gc0p4Jq0M2Yt08jU534c0p</pre>
+<p>
+	Der besagt so viel wie, dass jetzt mehrere Teile kommen (<em>multipart</em>) und dass diese Teile durch den String &quot;gc0p4Jq0M2Yt08jU534c0p&quot; begrenzt (<em>boundary</em>) werden.&nbsp; Diese Boundary wird verwendet, um die verschiedenen Teile voneinander trennen zu können, d.h. wann immer der String</p>
+<pre style="margin-left: 40px;">
+<span style="color:#ff0000;"><strong>--</strong></span>gc0p4Jq0M2Yt08jU534c0p</pre>
+<p>
+	in den Daten vorkommt, weiß man jetzt kommt der nächste Teil.&nbsp; Wie weiß man, dass man fertig ist?&nbsp; Dazu sendet man einfach</p>
+<pre style="margin-left: 40px;">
+<span style="color:#ff0000;"><strong>--</strong></span>gc0p4Jq0M2Yt08jU534c0p<span style="color:#ff0000;"><strong>--</strong></span></pre>
+<p>
+	also, zwei Dashes vor dem Boundary String und zwei danach.&nbsp; Der Boundary String ist beliebig, sollte aber nicht in den eigentlichen Daten vorkommen.&nbsp; Interessanterweise verstehen fast alle Browser den Multipart Content-Type.</p>
+<p>
+	Kommen wir zum Code.&nbsp; Wie bereits oben angedeutet, nehmen wir die TakePhoto App und machen ein paar kleine Änderungen.&nbsp; Als erstes implementieren wir das <em>Runnable</em> Interface, und am Ende der <em>onCreate()</em> starten wir unseren Thread:</p>
+<pre style="margin-left: 40px;">
+public class TakePhotoActivity extends Activity implements Runnable {
+
+&nbsp;&nbsp;&nbsp; public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;TextView tv = (TextView) findViewById(R.id.textView);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(Util.getMyLocalIpAddress().getHostAddress() + &quot;:&quot; + PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread th = new Thread(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;th.start();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/IPCam_Browser.png" style="margin-left: 10px; margin-right: 10px; width: 217px; height: 208px; float: right;" />Danach müssen wir die run() Methode implementieren.&nbsp; Hier kopieren wir zunächst die run() Methode aus der WebServerActivity:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ServerSocket server = new ServerSocket(PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (isRunning) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = server.accept();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#ff0000;">(new ConnectionThread(++threadNr, socket)).start();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Für unsere IPCam macht es keinen Sinn für jede neue Connection einen neuen Thread zu starten, denn die Connection soll ja offen bleiben.&nbsp; An die Stelle setzen wir daher den folgenden Code:</p>
+<pre style="margin-left: 40px;">
+final OutputStream out = socket.getOutputStream();
+
+// send first part of header
+String httpHeader1 = &quot;HTTP/1.0 200 OK\r\n&quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot;Content-type: multipart/x-mixed-replace; boundary=--BoundaryString\r\n\r\n&quot;;
+out.write(httpHeader1.getBytes(&quot;ASCII&quot;));
+
+// send image stream
+while (isRunning &amp;&amp; socket.isConnected()) {
+&nbsp;&nbsp; &nbsp;camera.takePicture(null, null, new PictureCallback() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onPictureTaken(byte[] data, Camera camera) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// send second part of header
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String httpHeader2 = &quot;--BoundaryString\r\n&quot; + &quot;Content-type: image/jpeg\r\n&quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot;Content-length: &quot; + data.length + &quot;\r\n\r\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.write(httpHeader2.getBytes(&quot;ASCII&quot;));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.write(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.flush();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;pause(DELAY);
+}
+
+out.close();
+socket.close();
+socket = null;</pre>
+<p>
+	Und das war&#39;s auch schon.&nbsp; Wenn wir jetzt mit einem Browser in unserem lokalen Netzwerk auf die angezeigt IP Adresse gehen, dann bekommen wir den Livefeed der Smartphone Kamera angezeigt.&nbsp; Die Pause im Code ist notwendig, weil wir unser Smartphone damit doch an seine Grenzen bringen.&nbsp; Bei meinem Handy funktioniert das noch mit einem DELAY von 300 Millisekunden, mehr geht aber nicht.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Camera2Preview.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Camera2Preview</h2>
+<p>
+	Eine Sache noch: bei unseren bisherigen Camera Programmen gab es immer diese komische Warnung: &quot;The type <em>Camera</em> is deprecated&quot;, und man wurde ermahnt man solle doch die <em>Camera2</em> Klasse verwenden.&nbsp; In diesem Projekt haben wir das CameraPreview Projekt mit der Camera2 Klasse implementiert.&nbsp; Die Camera2 Klasse kann zwar viel mehr als die normale Camera Klasse, allerdings bläht sich der Code derart auf, dass es für ein Buch zur Einführung in die Android Progammierung nicht mehr geeignet ist.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	Auch in diesem Kapitel kann man sich noch weiterbilden wenn man möchte.</p>
+<p>
+	.</p>
+<h2>
+	Endian</h2>
+<p>
+	Arbeitet man auf dem Bytelevel, dann passieren häufig komische Fehler, die auf der unterschiedlichen Endianness [5] von CPUs und Betriebssystemen zu tun haben.&nbsp; Prinzipiell gibt es Little-Endian und Big-Endian.&nbsp; Wir sollten den Unterschied kennen.</p>
+<p>
+	.</p>
+<h2>
+	Fourier</h2>
+<p>
+	Häufig wird Fourier-Transformation in der Mathe3 Vorlesung geskippt.&nbsp; Das ist eigentlich sehr schade.&nbsp; Natürlich muss man nicht in kleinsten Detail wissen wie sie funktioniert, aber grob verstehen sollte man sie schon und vielleicht ein bisschen was in Referenz [12] dazu nachlesen.&nbsp; Nicht nur im Audiobereich, auch die Videokompression, z.B. Jpeg, verwendet häufig einer Variante der Fourier-Transformation.</p>
+<p>
+	.</p>
+<h2>
+	Nyquist&ndash;Shannon</h2>
+<p>
+	Das Nyquist-Shannon-Abtasttheorem [6] ist der Grund warum CDs mit einer Sampling Rate von 44 kHz aufgenommen werden.&nbsp; Es ist Zeit mehr darüber zu erfahren.</p>
+<p>
+	.</p>
+<h2>
+	Cross-Correlation</h2>
+<p>
+	Wie kommt man in einem verrauschten Signal an die &quot;guten&quot; Daten?&nbsp; Es gibt viele unterschiedliche Möglichkeiten, aber eine mit der man anfangen sollte ist die Cross-Correlation [7], die wir für die Sonar App verwendet haben.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Nennen Sie drei Medientypen die man mit dem Android MediaPlayer abspielen kann.<br />
+		&nbsp;</li>
+	<li>
+		Ist es besser den MediaPlayer in der onCreate() oder der onResume() zu erzeugen?&nbsp; Warum?<br />
+		&nbsp;</li>
+	<li>
+		Wenn Sie den MediaPlayer nicht mehr benötigen, sollten Sie die folgenden Schritte befolgen:<br />
+		<pre style="margin-left: 40px;">
+if ( player != null ) {
+&nbsp;&nbsp; &nbsp;player.stop();
+&nbsp;&nbsp; &nbsp;player.release();
+&nbsp;&nbsp; &nbsp;player = null;
+}</pre>
+		Warum ist das so?</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Recording .Wav with Android AudioRecorder, <a href="https://stackoverflow.com/questions/17192256/recording-wav-with-android-audiorecorder">https://stackoverflow.com/questions/17192256/recording-wav-with-android-audiorecorder</a></p>
+<p>
+	[2] Capturing videos, <a href="https://developer.android.com/guide/topics/media/camera#capture-video">https://developer.android.com/guide/topics/media/camera#capture-video</a></p>
+<p>
+	[3] Gleichstufige Stimmung, <a href="https://de.wikipedia.org/wiki/Gleichstufige_Stimmung">https://de.wikipedia.org/wiki/Gleichstufige_Stimmung</a></p>
+<p>
+	[4] Frequenzen der gleichstufigen Stimmung, <a href="https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung">https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung</a></p>
+<p>
+	[5] Endianness, <a href="https://en.wikipedia.org/wiki/Endianness">https://en.wikipedia.org/wiki/Endianness</a></p>
+<p>
+	[6] Nyquist&ndash;Shannon sampling theorem, <a href="https://en.wikipedia.org/wiki/Nyquist–Shannon_sampling_theorem">https://en.wikipedia.org/wiki/Nyquist&ndash;Shannon_sampling_theorem</a></p>
+<p>
+	[7] Cross-correlation, <a href="https://en.wikipedia.org/wiki/Cross-correlation">https://en.wikipedia.org/wiki/Cross-correlation</a></p>
+<p>
+	[8] Overtone, <a href="https://en.wikipedia.org/wiki/Overtone">https://en.wikipedia.org/wiki/Overtone</a></p>
+<p>
+	[9] The Secrets Behind Freddie Mercury&#39;s Legendary Voice, <a href="https://www.youtube.com/watch?v=p3MjsrMNCbU">https://www.youtube.com/watch?v=p3MjsrMNCbU</a></p>
+<p>
+	[10] Polyphonic Overtone Singing, <a href="https://www.youtube.com/watch?v=vC9Qh709gas">https://www.youtube.com/watch?v=vC9Qh709gas</a></p>
+<p>
+	[11] Tuvan throat singing, <a href="https://en.wikipedia.org/wiki/Tuvan_throat_singing">https://en.wikipedia.org/wiki/Tuvan_throat_singing</a></p>
+<p>
+	[12] Fast Fourier transform, <a href="https://en.wikipedia.org/wiki/Fast_Fourier_transform">https://en.wikipedia.org/wiki/Fast_Fourier_transform</a></p>
+<p>
+	[13] MEAPsoft, Columbia University, <a href="http://www.ee.columbia.edu/~ronw/code/MEAPsoft/doc/html/FFT_8java-source.html">http://www.ee.columbia.edu/~ronw/code/MEAPsoft/doc/html/FFT_8java-source.html</a></p>
+<p>
+	[14] Spectrogram, <a href="https://en.wikipedia.org/wiki/Spectrogram">https://en.wikipedia.org/wiki/Spectrogram</a></p>
+<p>
+	[15] SoundWave, <a href="https://www.microsoft.com/en-us/research/project/soundwave-using-the-doppler-effect-to-sense-gestures/">https://www.microsoft.com/en-us/research/project/soundwave-using-the-doppler-effect-to-sense-gestures/</a></p>
+<p>
+	[16] ELIZA, <a href="https://en.wikipedia.org/wiki/ELIZA">https://en.wikipedia.org/wiki/ELIZA</a></p>
+<p>
+	[17] Morse code, <a href="https://en.wikipedia.org/wiki/Morse_code">https://en.wikipedia.org/wiki/Morse_code</a></p>
+<p>
+	[18] SoniControl: App soll vor akustischen Cookies schützen, <a href="https://www.heise.de/newsticker/meldung/SoniControl-App-soll-vor-akustischen-Cookies-schuetzen-4059259.html">https://www.heise.de/newsticker/meldung/SoniControl-App-soll-vor-akustischen-Cookies-schuetzen-4059259.html</a></p>
+<p>
+	[19] Morsezeichen, <a href="https://de.wikipedia.org/wiki/Morsezeichen#Zeitschema_und_Darstellung">https://de.wikipedia.org/wiki/Morsezeichen#Zeitschema_und_Darstellung</a></p>
+<p>
+	[20] Acoustic coupler, <a href="https://en.wikipedia.org/wiki/Acoustic_coupler">https://en.wikipedia.org/wiki/Acoustic_coupler</a></p>
+<p>
+	[21] MIME (Multipurpose Internet Mail Extensions), <a href="https://tools.ietf.org/html/rfc1341">https://tools.ietf.org/html/rfc1341</a></p>
+<p>
+	[22] The Multipart Content-Type, <a href="https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html">https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

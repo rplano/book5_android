@@ -1,0 +1,602 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/ST3_StepCounting.png" style="display: block; margin-left: auto; margin-right: auto;width: 229px; height: 363px;" /></p>
+<h1>
+	Special Topic: Services</h1>
+<p>
+	Bisher haben wir nur Activitys kennen gelernt.&nbsp; Für gefühlt 99% aller Anwendungen genügen diese auch.&nbsp; Es gibt aber eine handvoll Anwendungen, bei denen es praktisch wäre, wenn sie im Hintergrund weiterlaufen würden.&nbsp; Zwei Anwendungen mit denen wir schon zu tun hatten sind der MusicPlayer und der StepCounter.&nbsp; Bei beiden erwarten wir eigentlich, dass sie im Hintergrund weiterlaufen, auch wenn wir eine andere Activity im Vordergrund haben.&nbsp; Genau für diese Fälle gibt es Services.&nbsp; Außerdem lernen wir noch die BroadcastReceiver kennen.&nbsp; Diese werden in der Regel von Systemevents getriggert, und haben ähnlich wie Services kein Userinterface.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SimpleServiceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SimpleService</h2>
+<p>
+	Der einfachste Service muss lediglich die Klasse <em>Service</em> erweitern und die Methode <em>onBind()</em> implementieren:</p>
+<pre style="margin-left: 40px;">
+public class SimpleService extends Service {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public IBinder onBind(Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return null;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Natürlich ist er so total nutzlos.&nbsp; Wie bei Activities haben auch Services die <em>onCreate()</em> und <em>onDestroy()</em> Methoden,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;public void onCreate() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;SimpleService&quot;, &quot;onCreate()&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate();
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void onDestroy() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;SimpleService&quot;, &quot;onDestroy()&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onDestroy();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...</pre>
+<p>
+	die wir zum Initialisieren und Aufräumen überschreiben können.&nbsp; Wirklich interessant ist die <em>onStartCommand()</em> Methode, denn hier wird der Service gestartet:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;public int <span style="color:#0000ff;">onStartCommand</span>(Intent intent, int flags, int startId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;SimpleService&quot;, &quot;onStartCommand()&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// if we get killed, restart
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// return START_STICKY;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Don&#39;t automatically restart this Service if it is killed
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return START_NOT_STICKY;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...</pre>
+<p>
+	Alles was den Service ausmacht, passiert eigentlich hier (ein bisschen ähnlich wie bei der run() Methode von Threads).&nbsp; Interessant ist der Rückgabeparameter dieser Methode.&nbsp; Wenn wir den Wert <em>START_NOT_STICKY</em> zurückgeben, dann ist der Service damit beendet.&nbsp; Geben wir aber den Wert <em>START_STICKY</em> zurück, dann wird Android den Service immer wieder starten (meistens wenigstens), selbst wenn es ihn mal aus Platzmangel abgeschossen hat.&nbsp;</p>
+<p>
+	Im AndroidManifest müssen wir den Service noch bekannt machen, das geht über die folgenden Zeilen:</p>
+<pre style="margin-left: 40px;">
+...
+&lt;service
+&nbsp;&nbsp;&nbsp; android:name=&quot;variationenzumthema_st3.SimpleService&quot;
+&nbsp;&nbsp;&nbsp; android:exported=&quot;false&quot; /&gt;
+...
+</pre>
+<p>
+	Jetzt bleibt noch die Frage, wie starten wir denn unseren Service?&nbsp; Eine Möglichkeit ist, das über eine Activity zu tun.&nbsp; Dort definieren wir einen Intent:</p>
+<pre style="margin-left: 40px;">
+public class SimpleServiceActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+        ...
+        final Intent simpleServiceIntent = 
+            new Intent(getApplicationContext(), SimpleService.class);
+        ...
+        <span style="color:#0000ff;">startService</span>(simpleServiceIntent);
+        ...
+        <span style="color:#0000ff;">stopService</span>(simpleServiceIntent);
+        ...
+    }
+    ...
+}</pre>
+<p>
+	über den wir dann mittels <em>startService()</em> den Service starten und mittels <em>stopService()</em> beenden.</p>
+<p>
+	Wie wissen wir ob ein Service schon läuft?&nbsp; Das geht entweder auf dem Gerät über die Einstellungen -&gt; Developer options -&gt; Running services, oder mit der folgenden Methode:</p>
+<pre style="margin-left: 40px;">
+private boolean isServiceRunning(Class&lt;?&gt; serviceClass) {
+&nbsp;&nbsp; &nbsp;ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+&nbsp;&nbsp; &nbsp;for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (serviceClass.getName().equals(service.service.getClassName())) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return false;
+}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MusicServiceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />MusicService</h2>
+<p>
+	Als erste nützliche Anwendung für einen Service wollen wir einen MusicService implementieren, der die Musik weiterspielt, auch wenn unsere MusicServiceActivity nicht mehr im Vordergrund ist.</p>
+<p>
+	Dazu definieren wir die Instanzvariable <em>player</em> vom Typ MediaPlayer und implementieren die <em>onStartCommand()</em> und <em>onDestroy()</em> Methoden:</p>
+<pre style="margin-left: 40px;">
+public int onStartCommand(Intent intent, int flags, int startId) {
+&nbsp;&nbsp; &nbsp;if (player == null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player = MediaPlayer.create(this, R.raw.trap_beat);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.start();
+
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (player.isPlaying()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.seekTo(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return START_NOT_STICKY;
+}
+
+public void onDestroy() {
+&nbsp;&nbsp; &nbsp;if (player != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.stop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;player.release();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;super.onDestroy();
+}
+</pre>
+<p>
+	Gestartet wird der Service über die <em>MusicServiceActivity</em>, die identisch zur SimpleServiceActivity ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/StepCounterServiceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />StepCounterService</h2>
+<p>
+	Damit der StepCounter-Sensor Schritte zählt, muss immer ein Listener definiert sein.&nbsp; Wenn wir dafür eine Activity verwenden, dann werden nur so lange Schritte gezählt wie diese Activity im Vordergrund ist.&nbsp; Öffnen wir aber eine andere Activity oder ist unser Gerät ausgeschaltet, dann werden keine Schritte gezählt, was natürlich nicht besonders nützlich ist.&nbsp; Deswegen wollen wir in dieser Anwendung einen Service die Schritt zählen lassen.</p>
+<p>
+	Dazu mischen wir unseren Code aus der <em>StepCounterActivity</em> aus Kapitel sechs mit dem <em>SimpleService</em> oben:</p>
+<pre style="margin-left: 40px;">
+public class StepCounterService 
+    extends <span style="color:#0000ff;">Service</span> 
+    implements <span style="color:#0000ff;">SensorEventListener</span> {
+
+    ...
+
+}
+</pre>
+<p>
+	Da die Service Klasse keine onResume() und onPause() Methode hat, schieben wir den Code zum Registrieren des StepCounter Sensors in die <em>onStartCommand()</em> Methode und zum Deregistrieren in die <em>onDestroy()</em> Methode.</p>
+<p>
+	Ein User Interface hat ein Service natürlich keines, deswegen lassen wir alles was mit dem TextView zu tun hat weg.&nbsp; Interessanterweise können Services aber toasten, d.h. immer wenn die onSensorChanged() Methode aufgerufen wird, also ein Schritt erkannt wurde, zeigen wir die Anzahl der Schritte in einem Toast an:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;float steps = event.values[0];
+&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;steps=&quot; + steps, Toast.LENGTH_SHORT).show();
+}
+</pre>
+<p>
+	Zum Starten unseres Services benötigen wir wieder eine <em>StepCounterServiceActivity</em>, die identisch zur SimpleServiceActivity ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/StepCounterBinderServiceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />StepCounterBinderService</h2>
+<p>
+	Wenn uns das stört, dass wir alle paar Schritte &quot;getoastet&quot; werden, dann müssen wir irgendwie auf den Service und seine Daten zugreifen können, damit wir die dann in einer Activity anzeigen können. Dazu müssen wir den Service an die Activity &quot;binden&quot;.&nbsp;</p>
+<p>
+	Als Erstes schreiben wir eine Klasse namens <em>StepBinder</em> vom Typ Binder,</p>
+<pre style="margin-left: 40px;">
+public class StepCounterBinderService extends Service ... {
+
+&nbsp;&nbsp;&nbsp; private final IBinder mBinder = new StepBinder();
+
+&nbsp;&nbsp;&nbsp; public class StepBinder extends <span style="color:#0000ff;">Binder</span> {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StepCounterBinderService <span style="color:#0000ff;">getService</span>() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return StepCounterBinderService.this;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+    ...
+}&nbsp; 
+</pre>
+<p>
+	die die Methode <em>getService()</em> enthält, welche uns einfach eine Referenz auf eine Instanz unseres Services gibt.&nbsp; In der <em>onBind()</em> Methode, die wir jetzt das erste Mal verwenden, geben wir einfach eine Referenz auf den Binder zurück:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public IBinder onBind(Intent intent) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return mBinder;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Damit haben wir also einen Referenz auf unseren Service, und können auf all seine public Methoden zugreifen.&nbsp; Deswegen wenn wir noch eine Methode namens</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; public float getNumberOfSteps() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return steps;
+&nbsp;&nbsp; }</pre>
+<p>
+	haben, können wir aus unsere Activity auf die Schritte zugreifen.</p>
+<p>
+	Kommen wir zur Activity:&nbsp; Hier müssen wir uns mit Hilfe der Methode <em>bindService()</em> mit dem Service verbinden,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected void onStart() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onStart();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent(this, StepCounterBinderService.class);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">bindService</span>(intent, <span style="color:#0000ff;">mConnection</span>, Context.BIND_AUTO_CREATE);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;protected void onStop() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onStop();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">unbindService</span>(<span style="color:#0000ff;">mConnection</span>);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und natürlich später die Verbindung auch wieder mit <em>unbindService()</em> aufheben.&nbsp; Um jetzt über den Binder an den Service ranzukommen, benötigen wir noch die <em>mConnection</em>, eine ServiceConnection die wir in der <em>onCreate()</em> definieren:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private StepCounterBinderService <span style="color:#0000ff;">mService</span>;
+&nbsp;&nbsp; &nbsp;private ServiceConnection <span style="color:#0000ff;">mConnection</span>;
+
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+        ...
+    &nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">mConnection</span> = new ServiceConnection() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onServiceConnected(ComponentName className, IBinder service) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StepBinder binder = (StepBinder) service;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">mService</span> = binder.getService();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onServiceDisconnected(ComponentName arg0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do nothing
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;};
+        ...
+}
+</pre>
+<p>
+	Jetzt haben wir mit <em>mService</em> eine Referenz auf den Service und können dort alle Methoden aufrufen die public sind, z.B. die getNumberOfSteps() Methode.</p>
+<p>
+	Wenn wir Daten von der Activity an den Service übergeben wollen, dann geht das am besten beim Starten des Services: der Service wird ja über einen Intent gestartet, und dem Intent können wir ja Extras mitgeben, wie wir bereits im ersten Kapitel gesehen haben.</p>
+<p>
+	Offensichtlich ist das Ganze nicht ganz trivial, deswegen sollte man sich zweimal überlegen ob die direkte Kommunikation zwischen Activty und Service wirklich nötig ist.&nbsp; Im nächsten Beispiel sehen wir nämlich, dass es auch einfacher geht.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TemperatureServiceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TemperatureService</h2>
+<p>
+	Wenn wir z.B. die Temperatur in einem Raum kontinuierlich überwachen wollen, dann bietet es sich an einen Service dafür zu verwenden.&nbsp; Da wir aber die Temperatur nicht im Sekundentakt benötigen, sondern nur ein paar Mal pro Stunde, eignet sich ein <em>JobService</em> dafür am besten.&nbsp; Wie wir Temperaturen mit der Batterie messen können haben wir ja im Sensor Kapitel bereits gesehen.</p>
+<p>
+	Ein JobService hat eine <em>onStartJob()</em> und eine <em>onStopJob()</em> Methode,</p>
+<pre style="margin-left: 40px;">
+public class TemperatureService extends JobService {
+
+&nbsp;&nbsp; &nbsp;public boolean onStartJob(JobParameters params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean onStopJob(JobParameters params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return false;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	die genau das machen was man von ihnen erwartet.&nbsp;</p>
+<p>
+	Gestartet wird der JobService in der Regel aus einer Activity.&nbsp; Dazu sagen wir ihm welche JobService-Klasse gestartet werden soll, und in welchem REFRESH_INTERVAL der Service aufgerufen werden soll:</p>
+<pre style="margin-left: 40px;">
+public class TemperatureServiceActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private final int JOB_ID = 42;
+&nbsp;&nbsp; &nbsp;private final int <span style="color:#0000ff;">REFRESH_INTERVAL</span> = 15 * 60 * 1000; 
+
+&nbsp;&nbsp; &nbsp;private JobScheduler mJobScheduler;
+
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mJobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ComponentName componentName = new ComponentName(getApplicationContext(), <span style="color:#0000ff;">TemperatureService.class</span>);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JobInfo.Builder jobBuilder = new JobInfo.Builder(JOB_ID, componentName);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jobBuilder.setPeriodic(<span style="color:#0000ff;">REFRESH_INTERVAL</span>);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // jobBuilder.setExtras(bundle).build();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JobInfo jobInfo = jobBuilder.build();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (mJobScheduler.<span style="color:#0000ff;">schedule</span>(jobInfo) == JobScheduler.RESULT_SUCCESS) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(&quot;&quot;, &quot;Success&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(&quot;&quot;, &quot;Failure&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+        ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mJobScheduler.cancelAll();
+        ...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Bei neureren Android Systemen kann man nur Intervalle von mindestens 15 Minuten verwenden.&nbsp; Wie wir im Screenshot sehen können, scheint der JobService aber sogar damit Probleme zu haben, wenigstens nachtsüber.</p>
+<p>
+	Fast hätte ich es vergessen, in der AndroidManifest Datei müssen wir noch um Erlaubnis fragen, ob wir einen Job schedulen dürfen:</p>
+<pre style="margin-left: 40px;">
+&lt;service
+&nbsp;&nbsp;&nbsp; android:name=&quot;variationenzumthema_st3.TemperatureService&quot;
+&nbsp;&nbsp;&nbsp; android:permission=&quot;android.permission.BIND_JOB_SERVICE&quot; /&gt;
+</pre>
+<p>
+	.</p>
+<h2>
+	SimpleReceiver</h2>
+<p>
+	Eine andere Möglichkeit Services zu starten ist mittels eines <em>BroadcastReceiver</em>.&nbsp; BroadcastReceiver sind relativ unscheinbar und einfach zu programmieren.&nbsp; Man muss lediglich die Methode <em>onReceive()</em> überschreiben:</p>
+<pre style="margin-left: 40px;">
+public class SimpleReceiver extends BroadcastReceiver {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onReceive(Context context, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;v.vibrate(500);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;Hi from SimpleReceiver!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Gestartet werden BroadcastReceiver durch Systemevents, die man in der AndroidManifest Datei festlegt:</p>
+<pre style="margin-left: 40px;">
+&lt;receiver
+&nbsp;&nbsp;&nbsp; android:name=&quot;variationenzumthema_st3.SimpleReceiver&quot;
+&nbsp;&nbsp;&nbsp; android:enabled=&quot;true&quot;
+&nbsp;&nbsp;&nbsp; android:exported=&quot;true&quot; &gt;
+&nbsp;&nbsp;&nbsp; &lt;intent-filter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;action android:name=&quot;android.intent.action.<span style="color:#0000ff;">ACTION_POWER_CONNECTED</span>&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;/intent-filter&gt;
+&lt;/receiver&gt;</pre>
+<p>
+	Wenn man die Liste der möglichen Systemevents durchgeht, und man auch nur das kleinste Fünkchen Überwachungsphobie hat, wird einem ganz anders. Z.B. gibt es da:</p>
+<pre style="margin-left: 40px;">
+ACTION_POWER_CONNECTED
+ACTION_SHUTDOWN
+BATTERY_LOW
+BOOT_COMPLETED
+DATA_SMS_RECEIVED
+DOCK_EVENT
+DREAMING_STARTED
+HEADSET_PLUG
+MEDIA_MOUNTED
+NEW_OUTGOING_CALL
+PACKAGE_INSTALL
+SCREEN_OFF
+USER_PRESENT
+...
+</pre>
+<p>
+	Da man als Enduser weder merkt, dass ein Receiver läuft, noch bei der Installation darauf hingewiesen wird, hat man noch einen weiteren Grund an manche Verschwörungstheorie zu glauben.</p>
+<p>
+	Eine Sache noch: natürlich ist es ganz wichtig, dass der Nutzer einem explizit erlaubt, dass man den Vibrator verwenden darf:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.VIBRATE&quot; /&gt;</pre>
+<p>
+	Eigentlich lächerlich.&nbsp;</p>
+<p>
+	Wenn Sie jemanden zum Wahnsinn treiben wollen, dann starten Sie aus einem Service heraus (der von einem Receiver gestartet wird) zu zufälligen Zeiten den Vibrator.&nbsp; Bis die Leute rausfinden wo das Vibrieren herkommt, sind die längst in der Klapse.</p>
+<p>
+	.</p>
+<h2>
+	MusicReceiver</h2>
+<p>
+	Um mal zu sehen, wie man von einem Receiver heraus einen Service starten kann, sehen wir uns kurz das folgende Beispiel an:</p>
+<pre style="margin-left: 40px;">
+public class MusicReceiver extends BroadcastReceiver {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onReceive(Context context, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent musicServiceIntent = new Intent(context, MusicService.class);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;context.startService(musicServiceIntent);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In dem Fall starten wir unseren MusicService von oben.&nbsp; Natürlich müssen wir den Receiver wieder in der AndroidManifest Datei mit einem Systemevent verbinden.&nbsp; Hypothetisch könnte die Musik jetzt in einer Endlosschleife laufen (<em>player.setLooping(true)</em>), und der Nutzer wird die Musik nur durch Deinstallieren der App wieder los (oder über die Developer Optionen den Service abschießen).</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/NotificationService.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />NotificationReceiver</h2>
+<p>
+	Der MusicReceiver oben war ein Beispiel wie man es nicht machen sollte.&nbsp; Denn eigentlich sollte unser Nutzer immer die Möglichkeit haben, einen Service zu beenden.&nbsp; Dazu müsste er aber wissen, dass ein Service läuft.&nbsp; Das macht man am besten über <em>Notifications</em>.&nbsp; Notifications sind kleine Icons, die in der Statuszeile angezeigt werden, über die der Nutzer mit unserer Anwendung interagieren kann.&nbsp;</p>
+<p>
+	Wir beginnen wieder mit dem Receiver,</p>
+<pre style="margin-left: 40px;">
+public class NotificationReceiver extends BroadcastReceiver {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onReceive(Context context, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent musicServiceIntent = 
+            new Intent(context, <span style="color:#0000ff;">NotificationService.class</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;context.startService(musicServiceIntent);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Der Receiver started den <em>NotificationService</em>, der vom Code her identisch mit unserem MusicService oben ist, der einzige Unterschied sind die folgenden Zeilen:</p>
+<pre style="margin-left: 40px;">
+public class NotificationService extends Service {
+
+&nbsp;&nbsp; &nbsp;private final int <span style="color:#0000ff;">NOTIFICATION_ID</span> = 42;
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent notificationIntent = new Intent(this, <span style="color:#0000ff;">NotificationActivity.class</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Notification notification = 
+            new Notification.Builder(this)
+                .setSmallIcon(R.drawable.notification_icon)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;.setContentTitle(&quot;Cool Music App&quot;)
+                .setContentText(&quot;Play some cool music...&quot;)
+                .setContentIntent(pendingIntent)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;.build();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startForeground(<span style="color:#0000ff;">NOTIFICATION_ID</span>, notification);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/NotificationService2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Wir basteln hier also eine Notification, versehen sie mit einem eigenen Icon (kann nur transparent-weiß sein), einem Titel und Text, sowie einem Intent, der gestartet werden soll, wenn der Nutzer auf die Notification klickt.&nbsp; In unserem Fall ist das die NotificationActivity:</p>
+<pre style="margin-left: 40px;">
+public class NotificationActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">final Intent notificationServiceIntent = 
+            new Intent(getApplicationContext(), NotificationService.class);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;LinearLayout ll = new LinearLayout(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll.setBackgroundColor(0x200000ff);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll.setOrientation(LinearLayout.VERTICAL);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = new Button(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;End NotificationService&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">stopService(notificationServiceIntent);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;NotificationService stopped&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll.addView(btn);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(ll);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Diese Activity sollte mindestens dem Nutzer erlauben, den Service zu beenden.&nbsp; Dann ist alles gut.</p>
+<p>
+	.</p>
+<h2>
+	PhoneCallReceiver</h2>
+<p>
+	Zum Abschluß noch ein kleines Schmankerl: auf Stack Overflow habe ich den AbstractPhoneCallReceiver gefunden.&nbsp; Das ist ein klassischer BroadcastReceiver so wie wir sie gerade verwendet haben. Interessant ist, dass er auf das Telefon hört, deswegen braucht er auch zwei Permissions,</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.PROCESS_OUTGOING_CALLS&quot; /&gt;</pre>
+<p>
+	die eine für eingehende und die andere für ausgehende Telefonate.&nbsp; Das schöne an derm AbstractPhoneCallReceiver ist, dass er uns die Schmutzarbeit abnimmt, und wir müssen lediglich die Methoden überschreiben, die uns interessieren, als da sind:</p>
+<pre style="margin-left: 40px;">
+public class PhoneCallReceiver extends AbstractPhoneCallReceiver {
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onIncomingCallStarted(Context context, String number, Date start) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;onIncomingCallStarted(): &quot;+number, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//recordAudio();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onOutgoingCallStarted(Context context, String number, Date start) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;onOutgoingCallStarted(): &quot;+number, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onIncomingCallEnded(Context context, String number, Date start, Date end) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;onIncomingCallEnded(): &quot;+number, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//playAudio();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onOutgoingCallEnded(Context context, String number, Date start, Date end) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;onOutgoingCallEnded(): &quot;+number, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onMissedCall(Context context, String number, Date start) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;onMissedCall(): &quot;+number, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	Wenn wir also jetzt beim Telefonieren zuhören wollen, müssen wir mit der Audioaufnahme in der <em>onIncomingCallStarted()</em> Methode beginnen und in der <em>onIncomingCallEnded()</em> Methode wieder aufhören.&nbsp; Wie das mit der Audioaufnahme funktioniert haben wir ja im Multimedia Kapitel besprochen.</p>
+<p>
+	.</p>
+<h2>
+	WhoStoleMyPhoneService</h2>
+<p>
+	Die Idee hinter <em>WhoStoleMyPhoneService</em> ist ganz einfach: wir wollen ein Bild mit der Selfie-Kamera machen, wenn immer eine der folgenden Aktionen passiert:</p>
+<p style="margin-left: 40px;">
+	ACTION_SCREEN_ON, ACTION_SCREEN_OFF oder ACTION_USER_PRESENT.</p>
+<p>
+	Dazu schreiben wir einen Service der in der <em>onStartCommand()</em> Methode einen BroadcastReceiver registriert, der auf diese Aktionen hört:</p>
+<pre style="margin-left: 40px;">
+public class WhoStoleMyPhoneService extends Service {
+&nbsp;&nbsp; &nbsp;private BroadcastReceiver mReceiver;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public int onStartCommand(Intent intent, int flags, int startId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mReceiver = new WhoStoleMyPhoneReceiver();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registerReceiver(mReceiver, intentFilter);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return START_STICKY;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+</pre>
+<p>
+	Der BroadcastReceiver ist eine lokale Klasse, die in der <em>onReceive()</em> Methode einfach ein Bildchen macht:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private class WhoStoleMyPhoneReceiver extends BroadcastReceiver {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private Camera camera;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private SurfaceTexture surfaceTexture;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onReceive(Context context, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;surfaceTexture = new SurfaceTexture(42);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;takePicture();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;Smile!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Idealerweise wird das Bildchen nicht lokal, sondern im Internet gespeichert, sonst hat das Ganze ja wenig Sinn.&nbsp; Und natürlich muss der Service noch irgendwie gestartet werden.&nbsp;</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Geben Sie ein Beispiel wofür man typischerweise die Service Klasse und wofür die BroadcastReceiver Klasse verwenden könnte.<br />
+		&nbsp;</li>
+	<li>
+		In diesem Kapitel haben Sie von den sogenannten BroadcastReceivern gehört.&nbsp; Wofür sind diese nützlich, geben Sie vielleicht ein Beispiel.<br />
+		&nbsp;</li>
+	<li>
+		In Android gibt es vier Arten von Applikationen:<br />
+		o&nbsp; Activity<br />
+		o&nbsp; Service<br />
+		o&nbsp; BroadcastReceiver<br />
+		o&nbsp; ContentProvider<br />
+		Beschreiben Sie jede kurz und geben Sie je ein Beispiel.<br />
+		&nbsp;</li>
+	<li>
+		&nbsp;Was müssen Sie tun, damit ihre Programm startet wenn der Systemevent &quot;ACTION_POWER_CONNECTED&quot; ausgelöst wird.</li>
+</ol>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

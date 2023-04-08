@@ -1,0 +1,1593 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch4_Philosphers.png" style="display: block; margin-left: auto; margin-right: auto;width: 333px; height: 180px;" /></p>
+<h1>
+	Concurrency</h1>
+<p>
+	Auf unseren Computern und Telefonen sieht es so aus, als ob viele Dinge gleichzeitig passieren, mehrere geöffnete Fenster oder Aktivitäten, im Hintergrund laufende Dienste, gleichzeitige Downloads, etc.&nbsp; Es ist für uns so natürlich, dass wir es nicht einmal bemerken.&nbsp; Moderne Prozessoren haben mehrere Kerne, 4 bis 8 ist heutzutage die Norm, und die Zahl steigt mit jeder neuen Prozessorgeneration.&nbsp; Noch extremer ist das bei Grafikkarten bei denen die GPUs sogar mehrere tausend &quot;Kerne&quot;, sogenannte Shader, haben.&nbsp; Die Frage die sich für uns stellt ist, wie nutzen wir diese zusätzlichen Kerne?</p>
+<p>
+	In unserer ganz normalen Java Anwendung laufen bereits mehrere Threads ohne unser Zutun:&nbsp; In einem einfachen Java-Konsolenprogramm gibt es mindestens den Haupt-Thread und den Garbage-Collector-Thread.&nbsp; Für eine typische Java-UI-Anwendung mit Swing haben wir zusätzlich den UI-Thread und einen Thread zur Verwaltung der Events. Diese &quot;Standard Threads&quot; merken wir normalerweise nicht einmal (es sei denn, sie tun nicht, was sie sollen).</p>
+<p>
+	In diesem Kapitel geht es darum zu lernen, wie wir unsere eigenen Threads schreiben können und wie man allgemeine Fallstricke vermeidet.&nbsp; Die Multi-Thread-Programmierung ist nicht ganz trivial wie wir gleich sehen werden.</p>
+<p>
+	.</p>
+<h2>
+	Timer and TimerTask</h2>
+<p>
+	Der einfachste Weg, um ein paar einfache Aufgaben im Hintergrund zu erledigen, ist mit Androids Timer und TimerTask Klassen. Grundsätzlich sagt der TimerTask, was zu tun ist und der Timer sagt, wann es zu tun ist.&nbsp; D.h. wir verwenden den Timer, um einen TimerTask zu starten.&nbsp; Der folgende Code schreibt alle zwei Sekunden eine kleine Meldung in die Logdatei:</p>
+<pre style="margin-left: 40px;">
+public class TimerActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long delay = 3000; // delay in ms before task is executed
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long period = 2000; // time in ms between successive executions
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Timer timer = new Timer();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;timer.schedule(new TimerTask() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;TimerActivity&quot;, &quot;run()&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}, delay, period);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(20000); // wait 20 secs
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;timer.cancel();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Es ist interessant festzustellen, dass der Task weiterläuft, auch wenn wir die TimerActivity in den Hintergrund schicken.&nbsp; Erst beim Beenden der Application wird der Task beendet.&nbsp; Im LogCat sehen wir dass der Task koninuierlich weiterläuft:</p>
+<p>
+	<img alt="" src="images/TimerTaskActivity.png" style="margin-left: 10px; margin-right: 10px; width: 451px; height: 130px;" /></p>
+<p>
+	.</p>
+<p>
+	Wenn eine Anwendung läuft, verbraucht sie Strom.&nbsp; Das gilt auch für die TimerActivity, selbst wenn sie im Hintergrund läuft.&nbsp; Wir sollten daher in der onPause() Methode dafür sorgen, dass evtl. laufende Threads angehalten werden, um die Batterie unseres Nutzers zu schonen.&nbsp; Für den Timer macht das die <em>cancel()</em> Methode.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ProgressBarActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AsyncTask</h2>
+<p>
+	Der TimerTask ist einfach zu handhaben und tut was er soll.&nbsp; Allerdings, darf man aus der run() Methode des TimerTasks nicht auf UI Elemente zugreifen.&nbsp; Warum, sei dahin gestellt, wichtig ist, dass der große Bruder des TimerTasks, der AsyncTask das darf.</p>
+<p>
+	Ein klein wenig komplizierter ist der AsyncTask schon.&nbsp; Aber wir haben eben den Vorteil, dass wir auch auf die Benutzeroberfläche zugreifen können.&nbsp; Eine typische Anwendung ist z.B. ein Fortschrittsbalken.&nbsp; Wir beginnen mit einem sehr einfachen Beispiel, das lediglich aus einem ProgressDialog besteht:</p>
+<pre style="margin-left: 40px;">
+public class ProgressBarActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private ProgressDialog progressDialog;
+&nbsp;&nbsp; &nbsp;private Context context;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.context = this;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog = new ProgressDialog(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.setCancelable(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.setMessage(&quot;Downloading file...&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.setProgress(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.setMax(100);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;progressDialog.show();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">new DownloadTask().execute(&quot;I am the parameter&quot;);</span>
+&nbsp;&nbsp; &nbsp;}
+    ...
+
+}</pre>
+<p>
+	Um den AsyncTask zu starten, rufen wir einfach seine <em>execute()</em> Methode auf, mit oder ohne Parametern.&nbsp; In unserem Beispiel simulieren wir einen Download, der nur etwas Zeit verschwendet:</p>
+<pre style="margin-left: 40px;">
+private class DownloadTask extends <span style="color:#0000ff;">AsyncTask&lt;String, Integer, String&gt;</span> {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onPreExecute() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;DownloadTask.onPreExecute()&quot;, &quot;starting...&quot;);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected String <span style="color:#0000ff;">doInBackground</span>(String... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String response = params[0] + &quot; - I am the return value.&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 1; i &lt;= 10; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread.sleep(1000);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">publishProgress(i * 10);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return response;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void <span style="color:#0000ff;">onProgressUpdate</span>(Integer... values) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;DownloadTask.onProgressUpdate()&quot;, &quot;percent=&quot; + values[0]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">progressDialog.setProgress</span>(values[0]);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onPostExecute(String result) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;DownloadTask.onPostExecute()&quot;, &quot;done: result=&quot; + result);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">progressDialog.dismiss();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, result, Toast.LENGTH_SHORT).show();</span>
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Der Syntax von AsyncTask ist etwas gewöhnungsbedürftig.&nbsp; Zunächst fällt die spitze Klammer mit den Datenypen String, Integer und String auf: diese geben an welche Datentypen als Parameter und Rückgabewerte in den Methoden doInBackground(), onProgressUpdate() und onPostExecute() verwendet werden.</p>
+<p>
+	Der erste, in diesem Fall ein String, bezieht sich auf den Typ des Parametertyps der Methode doInBackground().&nbsp; Dies ist auch der gleiche der an die execute()-Methode übergeben wird, die von der Aktivity aus aufgerufen wird.&nbsp; Der zweite, in diesem Fall ein Integer, ist der Parametertyp der Methode onProgressUpdate(). Und die letzte, in diesem Fall ein String, ist der Parametertyp der Methode onPostExecute().&nbsp; Das klingt komplizierter als es ist.</p>
+<p>
+	Wenn wir also die execute() Methode in der Aktivity aufrufen, wird ein neuer Task gestartet und dann dessen doInBackground() Methode aufgerufen.&nbsp; Hier läuft der Task als eigener Thread.&nbsp; Solange wir die doInBackground() Methode nicht verlassen, lebt der Task.&nbsp; Verlässt der Task aber die doInBackground() Methode, dann wird automatisch die onPostExecute() Methode aufgerufen, und das war&#39;s.</p>
+<p>
+	Aber der Sinn der Übung war ja ursrpünglich, dass wir den Fortschrittsbalken im UI-Thread verändern können: das geschieht mit der Methode <em>publishProgress()</em>.&nbsp; Die rufen wir in der doInBackground() Methode.&nbsp; Die publishProgress() Methode ruft indirekt die onProgressUpdate() auf, und die wiederum darf auf den UI-Thread zugreifen.</p>
+<p>
+	Also im AsyncTask dürfen sowohl die onProgressUpdate() als auch die onPostExecute() auf den UI-Thread zugreifen.&nbsp; Allerdings die doInBackground() darf das nicht, dort passiert aber in der Regel die ganze Arbeit.</p>
+<p>
+	.</p>
+<h2>
+	Threads</h2>
+<p>
+	Wenn weder TimerTask noch AsyncTask unser Problem lösen, müssen wir zu schwereren Waffen greifen: den Threads.&nbsp; Im Prinzip verwenden sowohl der TimerTask als auch der AsyncTask Threads, nur wir sehen das nicht.</p>
+<p>
+	Es gibt zwei Möglichkeiten aus einer beliebigen Klasse einen Thread zu machen.&nbsp; Die erste ist einfach von der <em>Thread</em> Klasse zu vererben:</p>
+<pre style="margin-left: 40px;">
+public class MyFirstThread extends Thread {
+
+&nbsp;&nbsp; &nbsp;public void run() {
+        ...
+    }
+}</pre>
+<p>
+	Die zweite ist das <em>Runnable</em> Interface zu implementieren:</p>
+<pre style="margin-left: 40px;">
+public class MySecondThread implements Runnable {
+
+&nbsp;&nbsp; &nbsp;public void run() {
+        ...
+    }
+}</pre>
+<p>
+	In beiden Fällen müssen wir die <em>run()</em> Methode überschreiben, und ja das ist die gleiche <em>run()</em> Methode wie wir sie seit Karel kennen.&nbsp; Solange wir uns innerhalb der run() Methode befinden, lebt unser Thread.&nbsp; Sobald wir die run() Methode verlassen, ist er tot.</p>
+<p>
+	Wie der Mensch durchläuft das Leben eines Threads drei Phasen, er wird geboren, er lebt und er stirbt irgendwann.&nbsp; Und ähnlich wie bei Menschen, wenn man einmal tot ist, war&#39;s das.&nbsp; Soll heißen, man kann Threads nicht wiederbeleben.</p>
+<p>
+	Was wir allerdings noch nicht geklärt haben: wir werden denn Threads geboren?&nbsp; Das macht die start() Methode:</p>
+<pre style="margin-left: 40px;">
+MyFirstThread th1 = new MyFirstThread();
+th1.start();
+
+MySecondThread mst = new MySecondThread();
+Thread th2 = new Thread(mst);
+th2.start();
+</pre>
+<p>
+	Im ersten Fall, wo wir vererben, können wir einfach die start() Methode direkt aufrufen.&nbsp; Im zweiten Fall, übergeben wir das Runnable Objekt an ein Thread Objekt, und starten dieses dann.</p>
+<p>
+	Der Unterschied zwischen dem Aufruf der start()-Methode und dem Aufruf der run()-Methode kann mit einem Sequenzdiagramm schön visualisiert werden.</p>
+<p>
+	<img src="images/Ch4_Threads.png" style="width: 599px; height: 356px;" /></p>
+<p>
+	.</p>
+<p>
+	Zu Lebzeiten können sich Threads in verschiedenen Zuständen befinden:</p>
+<ul>
+	<li>
+		Running</li>
+	<li>
+		Waiting, Sleeping, Blocked</li>
+	<li>
+		Ready to run</li>
+</ul>
+<p>
+	Der &quot;Thread Scheduler&quot; ist für die Verwaltung der Threads zuständig.&nbsp; Er sorgt dafür, dass jeder Thread mal zum Laufen kommt, und managt auch die Zustände der Threads.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SliderNoThreadingActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SliderNoThreadingActivity</h2>
+<p>
+	Sehen wir uns mal ein einfaches Beispiel an.&nbsp; Dazu betrachten wir erst einmal die Klasse <em>Slider</em>, bei der es sich einfach um ein GRect handelt:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private class Slider extends GRect {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public Slider(int size, int color) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(size / 2, size);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(color);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Als nächstes erstellen wir zehn von diesen Sliders und lassen sie einfach von links nach rechts über den Bildschirm gleiten.&nbsp; Bisher haben wir das immer mit unserem <em>game loop</em> gemacht:</p>
+<pre style="margin-left: 40px;">
+public class SliderNoThreadingActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Slider[] sliders = createSliders();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// game loop
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; sliders.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sliders[i].move(STEP, 0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Wir haben also eine riesige Schleife, in der wir jedem der Slider sagen, dass er sich bewegen soll.&nbsp; Dann warten wir ein wenig und wiederholen das Ganze.&nbsp; Das ist das einfache Leben, wir haben nur einen Thread.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SliderThreadingActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SliderThreadingActivity</h2>
+<p>
+	Im obigen Beispiel sind die Sliders ziemlich dumm.&nbsp; Man muss ihnen sagen was sie tun sollen, nämlich sich zu bewegen.&nbsp; Wäre es nicht cool, wenn die Slider so klug wären, sich selbst zu bewegen?&nbsp; Um unsere Slider schlau zu machen, müssen wir einfach nur das <em>Runnable</em> Interface implementieren:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private class Slider extends GRect <span style="color:#0000ff;">implements Runnable</span> {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public Slider(int size, int color) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(size / 2, size);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(color);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void<span style="color:#0000ff;"> run()</span> {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;move(STEP, 0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Sobald wir sagen, dass unsere Klasse das Runnable Interface implementiert, müssen wir auch die <em>run()</em> Methode überschreiben, die zu diesem Interface gehört.&nbsp; In der run() Methode, haben wir eine Schleife, die unserem game loop sehr ähnlich sieht.&nbsp; Jeder Schieberegler macht jetzt seine eigene Bewegung und wartet, ganz von selbst.&nbsp;</p>
+<p>
+	Aber, wie machen wir die Sliders lebendig?&nbsp; Hier kommt die Thread Klasse ins Spiel:</p>
+<pre style="margin-left: 40px;">
+public class SliderThreadingActivity extends GraphicsProgram {
+
+&nbsp;&nbsp; &nbsp;private final int SLIDER_SIZE = 80;
+&nbsp;&nbsp; &nbsp;private final int DELAY = 40;
+&nbsp;&nbsp; &nbsp;private final int STEP = 5;
+
+&nbsp;&nbsp; &nbsp;private RandomGenerator rgen = new RandomGenerator();
+
+&nbsp;&nbsp; &nbsp;public void mousePressed(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create a new slider
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Slider slider = new Slider(SLIDER_SIZE, rgen.nextColor());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(slider, 0, rgen.nextDouble(0, getHeight()));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// run the slider in a new Thread
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">Thread sliderThread = new Thread(slider);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sliderThread.start();</span>
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Wir übergeben eines der Runnable Objekte (also einen Slider) an den Konstruktor der Thread Klasse und rufen dann einfach dessen start() Methode auf, um den Thread zu starten.&nbsp; Danach wird der Thread lebendig und macht sein eigenes Ding.&nbsp; Ist ziemlich einfach.</p>
+<p>
+	.</p>
+<h2>
+	Sequence Diagram</h2>
+<p>
+	Um den feinen Unterschied zwischen den beiden Ansätzen oben zu sehen, ist ein Sequenzdiagramm sehr hilfreich.&nbsp; Im Sequenzdiagramm werden die Objekte nach rechts und die Zeit nach unten angetragen.&nbsp; Dabei sieht man wie die verschiedenen Objekte untereinander kommunizieren.&nbsp; Im ersten Beispiel sehen wir einen dicken Balken der den momentan laufenden Thread anzeigt, den einzigen Thread:</p>
+<p>
+	<img alt="" src="images/Ch4_Slider1.png" style="margin-left: 10px; margin-right: 10px; width: 315px; height: 360px;" /></p>
+<p>
+	.</p>
+<p>
+	Im zweiten Beispiel dagegen gibt es mehrere dicke Balken, jedes Mal, wenn ein neuer Thread erstellt wird, fügen wir einen neuen hinzu:</p>
+<p>
+	<img alt="" src="images/Ch4_Slider2.png" style="margin-left: 10px; margin-right: 10px; width: 339px; height: 363px;" /></p>
+<p>
+	.</p>
+<p>
+	Jeder dieser neuen Threads macht sein eigenes Ding.&nbsp; Wir sehen auch, dass es außer beim Erstellen sehr wenig Interaktion zwischen den verschiedenen Threads gibt, und das ist eine gute Sache.</p>
+<p>
+	Für moderne CPUs mit mehreren Kernen bedeutet die Verwendung mehrerer Threads, dass jeder Thread auf einem eigenen Kern laufen kann.&nbsp; Während wir im Single-Thread-Modus programmieren, verwenden wir nur einen Kern, die anderen Kerne tun nichts.&nbsp; Das ist Verschwendung.&nbsp; Wenn wir also unsere Programme beschleunigen wollen, sollten wir Threads verwenden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Ch4_Philosphers.png" style="margin-left: 10px; margin-right: 10px; width: 333px; height: 180px; float: right;" />Dining Philosophers</h2>
+<p>
+	Also, warum hat jeder so viel Angst vor Threads, scheint bisher ziemlich harmlos zu sein.&nbsp; Nun, es gibt ein sehr berühmtes Beispiel, das sehr schön visualisiert, was schief gehen kann: es nennt sich das <em>Philosophenproblem</em>, oder auf Englisch &quot;Dining Philosophers&quot; [1].</p>
+<p>
+	Die Geschichte geht so: Es waren einmal zwei chinesische Philosophen, die an einem Tisch saßen.&nbsp; Sie philosophierten und die einzige Ablenkung, die sie hatten, war ab und zu zu essen.&nbsp; Jeder Philosoph bekam eine Schüssel Reis, aber es wurden insgesamt nur zwei Stäbchen&nbsp; zur Verfügung gestellt.&nbsp; Jetzt ist es unmöglich Reis mit nur einem Stäbchen zu essen (zumindest für unsere Philosophen).&nbsp; Um zu überleben, muss ein Philosoph also beide Stäbchen bekommen.</p>
+<p>
+	Grundsätzlich gibt es da drei Möglichkeiten:</p>
+<ul>
+	<li>
+		Der erste Philosoph nimmt sehr schnell beide Stäbchen, isst den Reis und behält die Stäbchen für sich.&nbsp; Die Folge ist, dass es ihm gut geht, aber sein Mitphilosph wird verhungern.</li>
+	<li>
+		Der erste Philosoph nimmt sehr schnell beide Stäbchen, isst den Reis und legt die Stäbchen wieder auf den Tisch.&nbsp; Sein Mitphilosph nimmt die Stäbchen, isst.&nbsp; Beiden geht es gut und sie können fleisig weiter philosophieren.</li>
+	<li>
+		Jeder nimmt einen Stäbchen und behält es.&nbsp; Dann werden beide verhungern.</li>
+</ul>
+<p>
+	Es ist klar, dass das Problem in der Verteilung der Stäbchen liegt.&nbsp; Wenn jeder Philosoph sein eigenes Paar Essstäbchen hätte, würden beide glücklich bis ans Ende ihrer Tage leben.&nbsp; Aber weil es eine gemeinsame Resource gibt, die Stäbchen, und diese Resource für das Überleben unerlässlich ist, könnte es zu Problemen kommen.</p>
+<p>
+	Diese Probleme haben Namen und die häufigsten sind die folgenden vier:</p>
+<ul>
+	<li>
+		<strong>Race Condition:</strong> Ein Thread hat die kritische Resource und gibt sie nicht zurück. Philosoph 1 hat beide Stäbchen, isst weiter und gibt die Stäbchen nicht zurück.</li>
+	<li>
+		<strong>Starvation:</strong> Ein Thread kann nicht laufen, weil er auf eine kritische Resource wartet. Philosoph 2 wartet auf die Stäbchen und verhungert.</li>
+	<li>
+		<strong>Dead Lock:</strong> Ein Thread hat einen Teil einer kritischen Ressource, braucht aber einen anderen Teil, um mit seiner Aufgabe fortzufahren. Philosoph 1 hat ein Stäbchen und Philosoph 2 hat das andere.&nbsp; Aber man braucht beide Stäbchen, um zu essen (und zu überleben).</li>
+	<li>
+		<strong>Lock Starvation:</strong> Das apssiert, wenn eine kritische Ressource von einem Thread gesperrt ist und somit kein anderer Thread darauf zugreifen kann, was bedeutet, dass der andere Thread verhungert.&nbsp; Wenn einer der Philosophen ein Stäbchen behält und es nicht zurückgibt, dann ist das so etwas.</li>
+</ul>
+<p>
+	Im Allgemeinen führt Thread-unsicherer Code zu diesen Problemen. Also müssen wir lernen, wie man Thread-Save-Code schreibt!</p>
+<p>
+	Was ist also die Lösung in unserem Philosophenproblem?&nbsp; Die Lösung besteht aus zwei Teilen: Erstens, wenn ein Philosoph beide Stäbchen bekommt, sollte er sie nach dem Essen zurückgeben und den anderen im Idealfall benachrichtigen.&nbsp; Zweitens, falls er nur eines der Stäbchen bekommt, aber nicht das andere, sollte er dieses zurückgeben, ein wenig warten, und es erneut versuchen.</p>
+<p>
+	.</p>
+<h2>
+	PhilosopherProgram</h2>
+<p>
+	Sehen wir uns das Dining Philosopher Problem mal aus der Nähe an: dazu implementieren wir das Problem in als normale Java Konsolenanwendung.&nbsp; Wir verwenden Standard Java und nicht Android, da wir uns auf das wesentliche konzentrieren wollen.&nbsp; Wir fangen mit unseren Stäbchen an: Das ist eine sehr einfache Klasse, sie hat nur einen Namen als Instanzvariable:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private class ChopStick {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private String name;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public ChopStick(String name) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.name = name;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public String getName() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return name;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Auch das Hauptprogramm ist ziemlich einfach. Es ist ein Standard-Java-Programm.&nbsp; Wir erstellen zwei Essstäbchen, fügen sie zu einer Liste hinzu, und wir erstellen zwei Philosophen mit ihren jeweiligen Threads:</p>
+<pre style="margin-left: 40px;">
+public class PhilosopherProgram {
+
+&nbsp;&nbsp; &nbsp;private <span style="color:#0000ff;">List&lt;ChopStick&gt; chopSticks;</span>
+
+&nbsp;&nbsp; &nbsp;public PhilosopherProgram() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create list and add two chop sticks:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks<span style="color:#0000ff;"> = Collections.synchronizedList(new ArrayList&lt;ChopStick&gt;());</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(new ChopStick(&quot;A&quot;));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(new ChopStick(&quot;B&quot;));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create two philosophers:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Philosopher p1 = new Philosopher(&quot;1&quot;, chopSticks);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Philosopher p2 = new Philosopher(&quot;2&quot;, chopSticks);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread t1 = new Thread(p1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread t2 = new Thread(p2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;t1.start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;t2.start();
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public static void main(String[] args) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PhilosopherProgram pp = new PhilosopherProgram();
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Wichtig ist, dass unsere Liste von zwei Chopsticks, <em>chopSticks</em>, die gemeinsame Resource ist.&nbsp; Deshalb haben wir die Liste mit <em>synchronizedList()</em> zu einer synchronisierten Liste gemacht. Wann immer wir eine Liste zwischen Threads teilen, müssen wir sicherstellen, dass es sich um eine synchronisierte Version handelt.</p>
+<p>
+	Die <em>Philosopher</em> Klasse selbst implementiert das Runnable Interface, d.h. sie ist ein Thread.&nbsp; Zusätzlich hat sie einen Namen, eine Referenz auf die gemeinsame Ressource, die <em>chopSticks</em>, und sie hat einen Lebenszähler, die <em>liveForce</em>.&nbsp; Ist die <em>liveForce</em> auf Null, ist der Philosoph tot.</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private class Philosopher implements Runnable {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private String name;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private List&lt;ChopStick&gt; chopSticks;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private int liveForce = 5;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public Philosopher(String name, List&lt;ChopStick&gt; chopSticks) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.name = name;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.chopSticks = chopSticks;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Was uns im weiteren interessiert ist zu sehen, was alles in der run() Methode schief gehen kann.</p>
+<h3>
+	Philosopher v.1</h3>
+<p>
+	In unserem ersten Versuch schreiben wir Code, wie wir es normalerweise tun würden.&nbsp; Also, solange wir noch liveForce haben, laufen wir weiter.&nbsp; Bei jeder Iteration verlieren wir ein Leben.&nbsp; Nur wenn wir beide Stäbchen haben, können wir essen und damit unsere liveForce wieder auffüllen. Wenn wir kein Leben mehr haben, sind wir tot.</p>
+<pre style="margin-left: 40px;">
+private void run() {
+&nbsp;&nbsp; &nbsp;ChopStick cs1 = null;
+&nbsp;&nbsp; &nbsp;ChopStick cs2 = null;
+&nbsp;&nbsp; &nbsp;while (liveForce &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;liveForce--;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name + &quot; still has &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ liveForce + &quot; lives.&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// wait between 0 and DELAY milliseconds
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">pause(new Random().nextInt(DELAY));</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// try to get both chop sticks
+        if (cs1 == null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (chopSticks.size() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs1 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs1.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (chopSticks.size() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs2 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs2.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do we have both chop sticks?
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if ((cs1 != null) &amp;&amp; (cs2 != null)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;liveForce = 5;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name + &quot; is dead.&quot;);
+}
+</pre>
+<p>
+	Was die Stäbchen angeht, versuchen wir zuerst, das ersten Stäbchen zu bekommen.&nbsp; Sobald wir das erste haben, versuchen wir das zweite zu bekommen.</p>
+<p>
+	Das mag jetzt etwas komisch erscheinen, aber es ist meist nicht ganz trivial Threading Probleme zu entdecken.&nbsp; Deswegen übertreiben wir hier ein wenig, damit die Problem deutlich zu Tage treten. Deshalb haben wir die Pause oben eingefügt.&nbsp; Die Probleme existieren trotz Pause, sie treten dann aber nur seltener auf.&nbsp; (Für manch einen mag das auch schon eine Lösung sein...)<br />
+	<br />
+	Wenn wir diesen Code ein paar Mal ausführen, bemerken wir zwei verschiedene Ergebnisse.&nbsp; Die meiste Zeit werden beide Philosophen sterben, denn jeder bekommt einen Stäbchen, das ist ein <em>dead lock</em>, das zum Verhungern (<em>starvation</em>) führt.&nbsp; Aber ab und zu bekommt der eine Philosoph beide Stäbchen (<em>race condition</em>) und der andere Philosoph wird sterben (<em>starvation</em>).&nbsp; Aber es passiert nie, dass beide Philosophen sehr lange überleben.</p>
+<p>
+	Man sieht das beispielhaft an der folgende Ausgabe im LogCat:</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+	<tbody>
+		<tr>
+			<td>
+				<p style="text-align: center;">
+					<img alt="" src="images/Philosopher1a.png" style="margin-left: 10px; margin-right: 10px; width: 350px; height: 370px;" /><br />
+					Philosopher1a.png</p>
+			</td>
+			<td>
+				<p style="text-align: center;">
+					<img alt="" src="images/Philosopher1b.png" style="margin-left: 10px; margin-right: 10px; width: 350px; height: 370px;" /><br />
+					&nbsp;&nbsp;&nbsp; Philosopher1b.png</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>
+	.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<h3>
+	Philosopher v.2</h3>
+<p>
+	Offensichtlich haben wir zwei Probleme.&nbsp; wir wollen das zweite zuerst lösen: natürlich, wenn wir anständige Philosophen sind, dann müssen wir die Stäbchen nach dem Essen zurückgeben.</p>
+<pre style="margin-left: 40px;">
+private void run() {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do we have both chop sticks?
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if ((cs1 != null) &amp;&amp; (cs2 != null)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;liveForce = 5;
+
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // return chop sticks
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(cs1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(cs2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs1 = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs2 = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Returned chop sticks.&quot;);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;...
+}
+</pre>
+<p>
+	Wenn wir diesen Code ein paar Mal ausführen, stellen wir fest, dass jedes Mal beide Philosophen sterben, nur dauert es etwas länger.&nbsp; Wir haben das Problem der <em>race condition</em> gelöst.&nbsp; Das ist also eine gute Sache (für uns, nicht für die Philosophen).</p>
+<p>
+	Im LogCat sieht das so aus:</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+	<tbody>
+		<tr>
+			<td>
+				<p style="text-align: center;">
+					<img alt="" src="images/Philosopher2.png" style="margin-left: 10px; margin-right: 10px; width: 356px; height: 373px;" /><br />
+					Philosopher2.png</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>
+	.</p>
+<h2>
+	Synchronization</h2>
+<p>
+	Wie lösen wir das Deadlock Problem?&nbsp; Das heißt in unserem Beispiel, dass jeder Philosoph nur ein Stäbchen hat?&nbsp; Eine Idee wäre, nachdem wir den ersten Chop-Stick haben, zu versuchen den zweiten zu bekommen.&nbsp; Wenn wir es schaffen, gut.&nbsp; Wenn wir es nicht schaffen, könnten wir unseren ersten Chop-Stick zurücklegen und fangen von vorne an.&nbsp; Das sieht zunächst nach einer guten Lösung aus.&nbsp; Es ist auch besser als die anderen Lösungen, die wir oben versucht haben.&nbsp; Aber wenn wir den Code ausführen, merken wir immer noch, dass die Philosophen weiter sterben.&nbsp;</p>
+<p>
+	Wir könnten noch ein paar andere Sachen versuchen, aber es verschiebt nur das eigentliche Problem.&nbsp; Wir brauchen eine radikal andere Lösung:&nbsp; Was, wenn wir dem anderen Philosophen verbieten könnten, an die Stäbchen zu kommen?&nbsp; Wir bauen eine Art Barriere auf dem Tisch, die es uns erlaubt, beide Stäbchen zu greifen.&nbsp; Dann essen wir, und nachdem wir fertig sind, geben wir die Stäbchen zurück und entfernen die Barriere.&nbsp; Dann kann der andere das Gleiche tun.&nbsp; Dieses &quot;Barrierebauen&quot; ist das, was man <em>Synchronisation</em> nennt.</p>
+<h3>
+	Philosopher v.3</h3>
+<p>
+	Der Code mit Synchronisation sieht so aus:</p>
+<pre style="margin-left: 40px;">
+private void run() {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // try to get both chop sticks
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// lock the other guy(s) out
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">synchronized (chopSticks) {</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (chopSticks.size() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs1 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs1.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (chopSticks.size() &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs2 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs2.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">}</span>&nbsp;&nbsp; &nbsp;
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Der synchronisierte Block wird wie eine Zeile Code ausgeführt, d.h. alle anderen Threads (und Philosophen) müssen warten, bis wir mit unserem Codeblock fertig sind. Das ist die Holzhammer Methode, sie ist nicht sehr ausgefallen, aber sie löst unser Deadlock Problem.&nbsp; Wenn unsere Philosophen die Stäbchen nach dem Essen zurückgeben, dann werden beide mal dran kommen und beide überleben.</p>
+<h3>
+	Philosopher v.4</h3>
+<p>
+	Dass wir den Ansatz oben die &quot;Holzhammer Methode&quot; genannt haben, deutet darauf hin, dass es anscheinend auch eine vornehmere Methode gibt.&nbsp; Die wollen wir uns jetzt ansehen.&nbsp; In unserer dritten Version verwendeten wir den so genannten Polling-Ansatz: Der Philosoph, der die Stäbchen nicht bekommt, muss weiter versuchen, sie zu bekommen, das ist Polling.&nbsp; Polling ist nicht sehr effizient. Anstelle es immer wieder zu versuchen und zu versuchen, wäre es doch besser zu warten (<em>wait</em>), wenn wir wissen, dass jemand anderes die Stäbchen hat.&nbsp; Wenn aber der andere fertig ist, sollte er uns doch gefälligst benachrichtigen (<em>notify</em>).&nbsp; Das ist es, was der folgende Code tut:</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;...&nbsp;&nbsp; &nbsp;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// try to get both chop sticks
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">&nbsp;synchronized (chopSticks) {</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (chopSticks.size() &lt; 2) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">chopSticks.wait();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs1 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs1.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs2 = chopSticks.remove(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Philosopher #&quot; + name
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; got chop stick &quot; + cs2.getName());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">}</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do we have both chop sticks?
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if ((cs1 != null) &amp;&amp; (cs2 != null)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;liveForce = 5;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// now return the chop sticks:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">synchronized (chopSticks) {</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(cs1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;chopSticks.add(cs2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs1 = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cs2 = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Returned chop sticks.&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">chopSticks.notifyAll();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">}</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Wir fangen damit an, mit <em>synchronized</em> die anderen Philisophen auszusperren.&nbsp; Dann checken wir, ob zwei Stäbchen verfügbar sind.&nbsp; Wenn nicht, dann warten wir.&nbsp; Wenn ja, schnappen wir uns beide und essen.&nbsp; Sobald wir mit dem Essen fertig sind, geben wir beide Stäbchen zurück und benachrichtigen die anderen, dass die Stäbchen wieder verfügbar sind.</p>
+<p>
+	Hypothetisch hätten wir auch einen riesigen synchronisierten Codeblock erstellen und alles darin machen können.&nbsp; Aber das ist eine schlechte Angewohnheit und anfällig für Probleme.&nbsp; Die Regel ist, synchronisierte Blöcke so klein wie möglich zu halten.&nbsp; Das haben wir im obigen Code getan.&nbsp; Testen Sie ob der Code oben funktioniert, Sie werden sehen, dass unsere beiden Philosophen glücklich bis ans Ende ihrer Tage leben werden.</p>
+<p>
+	.</p>
+<h2>
+	Producer - Consumer Problem</h2>
+<p>
+	Sehr oft treffen wir auf ein Szenario, in dem ein Thread Nachrichten an einen anderen Thread sendet.&nbsp; Dies wird auch als das Producer-Consumer-Problem bezeichnet [2].&nbsp; Ein Thread produziert also immer die Nachrichten und der andere Thread verbraucht sie.&nbsp;</p>
+<p>
+	Ein Beispiel ist ein Webserver: der lauscht immer auf eingehende Requests. Normalerweise leitet dieser Listener-Thread diese eingehenden Nachrichten einfach an andere Threads weiter, um die Arbeit zu erledigen.&nbsp; Denn wenn der Listener Thread auch die Arbeit machen würde, könnte ein Teil der eingehenden Nachricht verloren gehen.</p>
+<p>
+	<img src="images/Ch4_ProducerConsumer.png" style="width: 615px; height: 237px;" /></p>
+<p>
+	Die beiden Threads (Webserver und Listener) teilen sich eine gemeinsame Ressource, die Requests.&nbsp; Wie wir bei unseren Philosophen gesehen haben, könnte das zu Problemen führen.&nbsp; Da dies ein Problem ist, das sehr häufig auftritt, haben sich Leute eine Lösung ausgedacht, die <em>BlockingQueue</em> [3].&nbsp; Wir sehen uns die blockierende Warteschlange gleich mal im Code an.&nbsp; In unserer Activity erstellen wir eine BlockingQueue und je einen <em>Producer</em> und <em>Consumer</em> Thread:</p>
+<pre style="margin-left: 40px;">
+public class ProducerConsumerActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// can keep at most 10 elements:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">BlockingQueue&lt;String&gt; queue = new ArrayBlockingQueue&lt;String&gt;(10);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Producer p = new Producer(queue);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Consumer c = new Consumer(queue);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread t1 = new Thread(p);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread t2 = new Thread(c);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;t1.start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;t2.start();
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Im Allgemeinen kann es mehr als einen Consumer und auch mehr als einen Producer geben.&nbsp; In unserem Fall sind die Nachrichten nur Strings, aber das kann alles mögliche sein, sogar binäre Daten.<br />
+	<br />
+	Der Producer produziert die Nachrichten und fügt sie in die Warteschlange ein:</p>
+<pre style="margin-left: 40px;">
+private class Producer implements Runnable {
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">private BlockingQueue&lt;String&gt; queue;</span>
+
+&nbsp;&nbsp; &nbsp;public Producer(BlockingQueue&lt;String&gt; queue) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.queue = queue;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// send ten messages on average one per second
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 10; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">queue.put(&quot;Message #&quot; + i);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY / 2 + rnd.nextInt(DELAY / 2));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// end the consumer thread
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;queue.put(&quot;quit&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Producer&quot;, &quot;Producer is done.&quot;);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Producer&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Der Konsument nimmt sie aus der Warteschlange und konsumiert sie:</p>
+<pre style="margin-left: 40px;">
+private class Consumer implements Runnable {
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">private BlockingQueue&lt;String&gt; queue;</span>
+
+&nbsp;&nbsp; &nbsp;public Consumer(BlockingQueue&lt;String&gt; queue) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.queue = queue;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// receive messages
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String msg;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (!(msg = <span style="color:#0000ff;">queue.take()</span>).equals(&quot;quit&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Consumer&quot;, msg);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// we are done
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Consumer&quot;, &quot;Consumer is done.&quot;);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;Consumer&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wirklich nicht so schwer.&nbsp; Im LogCat sieht das dann so aus:</p>
+<p>
+	<img alt="" src="images/ProducerConsumerActivity.png" style="margin-left: 10px; margin-right: 10px; width: 450px; height: 130px;" /></p>
+<p>
+	.</p>
+<p>
+	Wenn wir mit BlockingQueues in Java arbeiten, haben wir verschiedene Implementierungen zur Auswahl: ArrayBlockingQueue, DelayQueue, LinkedBlockingDeque, LinkedBlockingQueue, LinkedTransferQueue, PriorityBlockingQueue, und SynchronousQueue.&nbsp; Und es gibt auch verschiedene Methoden zum Schreiben, Lesen und Prüfen der Warteschlange.&nbsp; Man sollte hier erst einmal die Dokumentation lesen [3] und danach eine bewusste Entscheidung treffen.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	In diesem Kapitel haben wir zunächst was zu TimerTask und AsyncTask erfahren.&nbsp; Dann haben wir gesehen wie man Threads erstellt und ausführt, aber auch die Probleme kennen gelernt die dabei auftreten können wie Deadlock, Race-Condition und Starvation.&nbsp; Gelöst haben wir diese Problem mit Synchronisation.&nbsp; Und schließlich haben wir noch das Producer-Consumer-Problem mit einer BlockingQueue gelöst.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	In den Projekten vertiefen wir uns den AsyncTask mit zwei Beispielen.&nbsp; Anschließend werden wir sehen wie Grafikprogramme von mehreren Threads profitieren können, dabei werden wir vor allem auch das Thema Synchronisation vertiefen.&nbsp; Zum Schluß sehen wir noch wie wir explizit von den vielen CPU Cores in unserem Smartphones Nutzen ziehen können.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AlarmClockActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AlarmClock</h2>
+<p>
+	Eine erste Anwendung für den AsyncTask ist ein Wecker.&nbsp; Die UI können wir aus dem ersten Semester borgen.&nbsp; Was neu ist ist der AlarmClockTask.&nbsp; Der wird über die onClick() gestartet, und wir sagen über die execute() Methode auch wann der Alarm losgehen soll:</p>
+<pre style="margin-left: 40px;">
+public class AlarmClockActivity extends Activity {
+
+    ...
+    // UI stuff
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; btnStart.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+                long alarmTime = ...;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;srt = new AlarmClockTask();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;srt.execute(<span style="color:#0000ff;">alarmTime</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+    ...
+
+&nbsp;&nbsp;&nbsp; // Params, Progress, Result
+&nbsp;&nbsp; &nbsp;private class AlarmClockTask extends AsyncTask&lt;Long, Long, String&gt; {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected String doInBackground(Long... <span style="color:#0000ff;">params</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long <span style="color:#0000ff;">alarmTime</span> = params[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long remainingTime = alarmTime - System.currentTimeMillis();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (remainingTime &lt;= 0)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;publishProgress(remainingTime);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return &quot;done&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected void onProgressUpdate(Long... values) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;face.setText(convertSecondsInTime(values[0]));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected void onPostExecute(String result) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// 100% volume
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// 1000 ms
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 1000);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die <em>alarmTime</em> wird nämlich der doInBackground() Methode als Parameter übergeben.&nbsp; Über publishProgress() wird dann in der onProgressUpdate() die UI geupdated.&nbsp; Wenn die Zeit abgelaufen ist, wird die onPostExecute() aufgerufen, und dort erzeugen wir über den ToneGenerator einen Alarmton.&nbsp; Interessant ist vielleicht noch zu beobachten was passiert wenn unsere Activty in den Hintergrund geht, oder wenn das Smartphone ausgeschaltet wird.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SpeedReaderActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SpeedReader</h2>
+<p>
+	Es gibt eine Vielzahl von Techniken wie man seine Lesegeschwindigkeit erhöhen kann [4], eine davon ist die App die wir gleich schreiben werden.&nbsp; Auch hier benötigen wir wieder einen AsyncTask um auf die UI zugreifen zu können.</p>
+<p>
+	Die UI besteht aus einem TextView für den zu lesenden Text, einer SeekBar für die Geschwindigkeit, und einem Button um das Ganze noch mal zu wiederholen.</p>
+<pre style="margin-left: 40px;">
+public class SpeedReaderActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private final int MAX_SPEED = 1000;
+&nbsp;&nbsp; &nbsp;private final int INITIAL_SPEED = 500;
+
+&nbsp;&nbsp;&nbsp; private String text = &quot;We hold these truths to be self-evident, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot;that all men are created equal, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot;that they are endowed by their Creator with certain unalienable Rights, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot;that among these are Life, Liberty and the pursuit of Happiness.&quot;;
+    ...
+}</pre>
+<p>
+	Auch hier wird der AsyncTask gestartet, wenn wir auf den Button klicken.&nbsp; In der execute() Methode übergeben wir dieses Mal aber den Text der vorgelesen werden soll.&nbsp; Der SpeedReaderTask selbst besteht lediglich aus zwei Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; // Params, Progress, Result
+&nbsp;&nbsp; &nbsp;private class SpeedReaderTask extends AsyncTask&lt;String, String, String&gt; {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected String doInBackground(String... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String text = params[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] words = text.split(&quot; &quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (String word : words) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(delay);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;publishProgress(word);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return &quot;done&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected void onProgressUpdate(String... values) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String word = values[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(word);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ConfettiActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Confetti</h2>
+<p>
+	Das Konfetti-Programm aus dem ersten Semester soll das erste Opfer unserer neuen Superpowers werden: Anstelle einfach dumm herunterzufallen, sollen die Confetti sich auch noch ein bisschen zufällig hin uns her bewegen.&nbsp; In unserem ursprünglichen Programm waren die Confetti zufällig gefärbte GOvals.&nbsp; Ähnlich wie wir GRects in der SliderThreadingActivity zu Sliders gemacht haben, verwandeln wir nun die GOvals in Confettis, die das Runnable Interface implementieren:</p>
+<pre style="margin-left: 40px;">
+private class Confetti extends GOval implements Runnable {
+
+&nbsp;&nbsp; &nbsp;public Confetti(int width, int col) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(width, width);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(col);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// animate the slide across the screen
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; HEIGHT / STEP; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY_MOVE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = (int) (Math.random() * 2 - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;move(x, STEP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	In der run() Methode bewegen wir das Confetti um den Betrag STEP nach unten und lassen es auch ein kleines bisschen nach links oder rechts wandern.&nbsp; In unserem GraphicsProgram erstellen wir neue Confetti wie im ersten Semester, und machen dann aber daraus Threads:</p>
+<pre style="margin-left: 40px;">
+public class ConfettiActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;waitForTouch();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;HEIGHT = getHeight();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create a new random confetti
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int width = rgen.nextInt(SIZE / 2, SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int col = rgen.nextColor();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x = rgen.nextDouble(-SIZE / 2, getWidth());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y = rgen.nextDouble(-SIZE / 2, 100);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Confetti confetti = new Confetti(width, col);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(confetti, x, y);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// run the confetti in a new Thread
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread confettiThread = new Thread(confetti);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;confettiThread.start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY_CREATION);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<h3>
+	Observations</h3>
+<p>
+	Der Code, wie er ist, läuft gut, aber wenn wir ihn eine Weile laufen lassen, werden wir einige interessante Beobachtungen machen. Wir stellen fest, dass sich das ganze Konfetti am Boden sammelt.&nbsp; Das sieht gut aus, aber es ist ein Problem: Das sind alles tote Threads, und der Müll wird nicht eingesammelt (garbage collected).&nbsp; In einem lang laufenden Programm führt dies früher oder später zu Speicherproblemen.</p>
+<p>
+	Wenn wir die Anzahl der pro Sekunde erzeugten Konfetti erhöhen, dann friert das Programm irgendwann einfach ein.&nbsp; In einer ersten Schätzung könnten wir denken, dass das mit der Tatsache zu tun hat, dass wir mehr Konfetti haben, als wir pro Sekunde zeichnen können. Aber das ist nicht richtig.&nbsp; Der wahre Grund liegt in der sehr schlampigen Art und Weise, wie wir die draw() Methode der GObjects in der onDraw() Methode der GView Klasse aufrufen.</p>
+<p>
+	Noch etwas anderes: Lassen wir die App ein wenig laufen.&nbsp; Dann schicken wir die App in den Hintergrund, indem wir etwas anderes auf unserem Handy starten und ein wenig warten.&nbsp; Dann kehren wir zu unserer Confetti App zurück: wenn wir genau hinsehen, bemerken wir vielleicht kurz den alten Zustand der Benutzeroberfläche, und dann tauchen auf einmal ganz viele neue Confettis auf.&nbsp; Das heißt, obwohl der UI-Thread nicht lief, wurden weiterhin im Hintergrund Confettis generiert.&nbsp; Jedes Mal, wenn wir einen Thread starten, einschließlich des Haupt-Threads, läuft der so lange weiter, wie er in seiner run() Methode ist.&nbsp; Daher ist unser Ansatz, eine Endlosschleife innerhalb der run() Methode durchzuführen, nicht besonders schlau.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SnowFlakeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Snowflakes</h2>
+<p>
+	Am Ende von Kapitel vier im zweiten Buch sahen wir die KochSnowflake.&nbsp; Stellt sich heraus, wenn wir die Confetti im obigen Programm durch Schneeflocken ersetzen, bekommt das Ganze eine Weihnachtliche Atmosphäre.&nbsp; Eine Möglichkeit, eine Klasse SnowFlake zu erstellen, ist mithilfe des GPolygon.&nbsp; Wenn das mit GPolygonen aber nicht funktioniert, kann man alternativ auch nach Bildern von Schneeflocken suchen und die GImage-Klasse verwenden.</p>
+<pre style="margin-left: 40px;">
+private class SnowFlake extends GPolygon implements Runnable {
+    ...
+&nbsp;&nbsp;&nbsp; public SnowFlake(int size) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;createKochSnowflake(0, 0, size, NR_OF_ITERATIONS);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void createKochSnowflake(int x, int y, int length, 
+                                     int nrOfIterations) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x, y, length, 0, nrOfIterations);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x + length, y, length, -120, nrOfIterations);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x1 = x + length * Math.cos(-60 * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y1 = y - length * Math.sin(-60 * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x1, y1, length, 120, nrOfIterations);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp;&nbsp; private void drawKochLine(double x0, double y0, double length, 
+                              double angle, int nrOfIterations) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// base case:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (nrOfIterations == 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x1 = x0 + length * Math.cos(angle * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y1 = y0 - length * Math.sin(angle * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;addVertex((int) x1, (int) y1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// recursive case:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double len = length / 3;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double ang = angle;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x0, y0, len, ang + 0, nrOfIterations - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x1 = x0 + len * Math.cos(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y1 = y0 - len * Math.sin(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x1, y1, len, ang + 60, nrOfIterations - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ang = ang + 60;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x2 = x1 + len * Math.cos(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y2 = y1 - len * Math.sin(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x2, y2, len, ang - 120, nrOfIterations - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ang = ang - 120;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x3 = x2 + len * Math.cos(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y3 = y2 - len * Math.sin(ang * Math.PI / 180);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;drawKochLine(x3, y3, len, ang + 60, nrOfIterations - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FireWorksActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Fireworks</h2>
+<p>
+	Eine weitere schöne Anwendung von Multi-Threading ist ein Feuerwerksprogramm.&nbsp; Ein Feuerwerk besteht aus Raketen, die explodieren, und dann folgen kleine Lichter den Gesetzen der Schwerkraft.&nbsp; Wir ignorieren die Rakete und kümmern uns nur um die kleinen Lichter nach der Explosion:</p>
+<pre style="margin-left: 40px;">
+public class FireWorksActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">startExplosion();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);.
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Bei der Explosion erzeugen wir eine feste Anzahl von Lichtern (GLight), jedes mit der gleichen Farbe, alle an der gleichen Stelle beginnend, aber jedes mit einer anderen Richtung:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void startExplosion() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int col = rgen.nextBrightColor();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = rgen.nextInt(0, getWidth());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = rgen.nextInt(0, getHeight());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double angle = Math.random(); // start with a random angle
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double deltaAngle = 2.0 * Math.PI / NR_LIGHTS;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; NR_LIGHTS; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double vx = SPEED * Math.cos(angle);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double vy = SPEED * Math.sin(angle);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GLight light = new GLight(vx, vy, col);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(light, x, y);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread thread = new Thread(light);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;thread.start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;angle += deltaAngle;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Aus jedem Licht wird ein eigener Thread.&nbsp; D.h. bei vielen Explosionen gibt es viele Threads!&nbsp; Die <em>GLight</em> Klasse selbst ist trivial:</p>
+<pre style="margin-left: 40px;">
+private class GLight extends GOval implements Runnable {
+&nbsp;&nbsp; &nbsp;private static final int DELAY = 40;
+&nbsp;&nbsp; &nbsp;private static final double GRAVITY = 0.05;
+
+&nbsp;&nbsp; &nbsp;double vx;
+&nbsp;&nbsp; &nbsp;double vy;
+
+&nbsp;&nbsp; &nbsp;public GLight(double vx, double vy, int col) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(SIZE, SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(col);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.vx = vx;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.vy = vy;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// animate the light
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 100; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;move((int) vx, (int) vy);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;vy = vy + GRAVITY;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// make the lights invisible:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(Color.BLACK);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<h3>
+	Observations</h3>
+<p>
+	Mit unserer Fireworks-Aktivity können wir noch ein paar zusätzliche Dinge lernen.&nbsp; Wenn wir die Anwendung etwas länger laufen lassen, dann stellen wir fest, dass die Framerate mit der Zeit abnimmt. Warum ist das so?&nbsp; Weil keines der Lichtobjekte vom Bildschirm entfernt wird. (Wenn wir die Anzahl der Feuerwerke, die wir pro Sekunde erzeugen, erhöhen, wird der Effekt früher sichtbar.)</p>
+<p>
+	Um das Ganze etwas näher zu untersuchen, sehen wir uns mal an wie viel Speicher unsere Anwendung verbraucht.&nbsp; Mit der folgenden Methode können wir den Speicherverbrauch ermitteln und im Log ausgeben:</p>
+<pre style="margin-left: 40px;">
+private ActivityManager.MemoryInfo getAvailableMemory() {
+&nbsp;&nbsp; &nbsp;ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+&nbsp;&nbsp; &nbsp;ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+&nbsp;&nbsp; &nbsp;activityManager.getMemoryInfo(memoryInfo);
+&nbsp;&nbsp; &nbsp;return memoryInfo;
+}</pre>
+<p>
+	Nicht überraschend stellen wir fest, dass der verfügbare Speicher immer weniger wird.&nbsp; Ab und zu schlägt der Garbage Collector zu, aber er kann nicht wirklich viel tun, da wir für immer an unseren Lichtern festhalten, was zur Folge hat, dass uns früher oder später der Speicher ausgeht.&nbsp; Wieder können wir den Effekt beschleunigen, indem wir die folgenden beiden Zeilen zu unserer GLight Klasse hinzufügen:</p>
+<pre style="margin-left: 40px;">
+private class Light extends GOval implements Runnable {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;byte[] oneKiloByte;
+
+&nbsp;&nbsp; &nbsp;public Light(double vx, double vy, int col) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oneKiloByte = new byte[1024];
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Die Änderung macht unsere Lichter ein wenig &quot;schwerer&quot; aus Sicht des Speichers.</p>
+<p>
+	Also auch das Fireworks hat das gleiche Problem wie Confetti: Lassen wir die App ein wenig laufen und schicken sie dann in den Hintergrund.&nbsp; Wenn wir dann zu unserer App zurückkehren, bemerken wir kurz den alten Zustand der Benutzeroberfläche, bevor auf einmal sofort eine ganze Reihe neuer Lichter auftaucht, und je nachdem, wie lange wir gewartet haben, friert die App ein.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FireWorksCleanActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Cleanup after Yourself</h2>
+<p>
+	Wenigstens einmal sollten wir ein Programm schreiben, das sein Chaos auch wieder aufräumt.&nbsp; Grundsätzlich müssen wir die Lichter aus unserem Programm entfernen.&nbsp; Dies geschieht mit der remove() Methode der Klasse GraphicsProgram.&nbsp; Aber woher wissen wir, wann wir ein Licht entfernen müssen?&nbsp; Wenn das Licht fertig ist, verlässt es die run() Methode.&nbsp; Danach ist der Licht Thread tot.&nbsp; Glücklicherweise können wir einen Thread mit der isAlive()-Methode fragen, ob er tot oder lebendig ist.</p>
+<p>
+	Wir sammeln also alle Threads in einer Map:</p>
+<pre style="margin-left: 40px;">
+public class FireWorksCleanActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">private Map&lt;Thread, Light&gt; allLights = new HashMap&lt;Thread, Light&gt;();</span>
+
+
+&nbsp;&nbsp; &nbsp;private void startExplosion() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; NR_LIGHTS; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Light light = new Light(vx, vy, col);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(light, x, y);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread thread = new Thread(light);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;thread.start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">allLights.put(thread, light);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Dann müssen wir in regelmäßigen Abständen unsere Liste durchgehen,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">cleanupLightsNoLongerUsed();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und die toten Threads finden:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void cleanupLightsNoLongerUsed() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;List&lt;Thread&gt; toBeRemoved = new ArrayList&lt;Thread&gt;();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (Thread t : allLights.keySet()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#0000ff;">!t.isAlive()</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Light l = allLights.get(t);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// remove light from UI:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;remove(l);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;toBeRemoved.add(t);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (Thread t : toBeRemoved) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;allLights.remove(t);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir entfernen die Lichter vom Bildschirm und wir müssen die Lichter auch aus unserer Map entfernen.&nbsp; Letzteres ist etwas tricky: während wir über eine Liste oder Map iterieren, dürfen wir keine Elemente aus der Liste entfernen.&nbsp; Deshalb brauchen wir eine temperoräre Liste, um die Elemente zu sammeln, die entfernt werden sollen (toBeRemoved), und wenn wir alle gefunden haben, können wir sie dann nach der Iteration entfernen.</p>
+<p>
+	Funktioniert es?&nbsp; Testen wir es: wir erhöhen wieder das &quot;Gewicht&quot; jeder Leuchte, indem wir die Größe des oneKiloByte Arrays um den Faktor zehn erhöhen.&nbsp; Wir werden feststellen, dass die App viel länger ohne Probleme läuft.&nbsp; Was zeigt, dass wir gute Arbeit geleistet haben.&nbsp; Aber irgendwann (in meinem Fall, wenn das oneKiloByte etwa ein Megabyte groß ist) wird man eine wirklich seltsame Fehlermeldung bekommen:&nbsp; Der Müllsammler (garbage collector) gibt auf: viel zu viel zum Aufräumen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FireWorksCleanAntiFreezeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AntiFreeze</h2>
+<p>
+	Haben wir unser &quot;Freeze&quot;-Problem behoben?&nbsp; Nein, das ist noch da.&nbsp; Der Grund ist, dass unsere run() Methode weiterläuft, auch wenn unsere Anwendung in den Hintergrund geht:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startExplosion();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cleanupLightsNoLongerUsed();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;FireWorksActivity&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;availMem=&quot; + getAvailableMemory().availMem + 
+                    <span style="color:#0000ff;">&quot;, nr of lights=&quot; + allLights.size()</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Das sehen wir, wenn wir die Anzahl der Lichter beobachten: Obwohl unser Prozess im Hintergrund läuft, läuft er weiter und erhöht die Anzahl der Lichter.&nbsp; Wenn wir dann zurückkehren, laufen so viele Threads, dass unser UI-Thread nie genug Zeit hat, mit dem Zeichnen all der Lichter nachzukommen.</p>
+<p>
+	Was wir also tun müssen, ist unseren Thread zu unterbrechen, wenn die Anwendung in den Hintergrund geht.&nbsp; Dafür überschreiben wir die Methode onPause(), die wird ja aufgerufen kurz bevor unsere Activity in den Hintergrund geschickt wird.&nbsp; In ihr teilen wir unseren Threads mit, dass sie schlafen sollen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private Object mPauseLock;
+&nbsp;&nbsp; &nbsp;private boolean <span style="color:#0000ff;">mPaused</span>;
+
+&nbsp;&nbsp;&nbsp; protected void onPause() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;synchronized (mPauseLock) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">mPaused = true;</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onPause();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Offensichtlich müssen wir unsere Threads wieder aufwecken, wenn wir aus dem Winterschlaf zurückkehren.&nbsp; Das geschieht in der onResume() Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected void onResume() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;synchronized (mPauseLock) {
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mPaused = false;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mPauseLock.notifyAll();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onResume();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Und in unserem GameLoop müssen wir prüfen, ob wir pausieren sollen oder nicht:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startExplosion();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cleanupLightsNoLongerUsed();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;FireWorksActivity&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;availMem=&quot; + getAvailableMemory().availMem + 
+                    &quot;, nr of lights=&quot; + allLights.size());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;synchronized (mPauseLock) {
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (mPaused) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mPauseLock.wait();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (InterruptedException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Sie haben wahrscheinlich bemerkt, dass wir jedes Mal, wenn wir versuchen, die mPaused Variable zu lesen oder zu ändern, sorgfältig auf ein Sperrobjekt synchronisiert haben (<em>mPauseLock</em>).&nbsp; Und wir verwenden dieses Sperrobjekt, um die Methoden wait() und notifyAll() aufzurufen.&nbsp; Das Sperrobjekt übernimmt die Sperrverwaltung.&nbsp;</p>
+<p>
+	Testen Sie Ihre Anwendung jetzt, es wird funktionieren.&nbsp; Auch nach einer Woche im Hintergrund lief meine App noch gut.&nbsp; Es gab ein kleines Speicherleck, das auch durch eine andere Anwendung verursacht worden sein könnte.&nbsp; Für mich ist eine Woche gut genug.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RaceHorseActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RaceHorses</h2>
+<p>
+	In diesem letzten Beispiel wollen wir ein kleines Rennen durchführen, zum Beispiel zwischen Pferden [5].&nbsp; Offensichtlich sind unsere Pferde GRects, was sonst.&nbsp; Wie immer beginnen wir mit der Aktivity, wir erstellen zehn Pferde, platzieren sie auf dem Bildschirm, verwandeln sie in Threads und starten sie:</p>
+<pre style="margin-left: 40px;">
+public class RaceHorseActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;public void run() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">&nbsp;boolean[] isThereAWinner = new boolean[1];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isThereAWinner[0] = false;</span>
+
+        // create ten horses
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;RaceHorse[] rhs = new RaceHorse[NR_OF_HORSES];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; rhs.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rhs[i] = new RaceHorse(HORSE_SIZE / 2, HORSE_SIZE, <span style="color:#0000ff;">isThereAWinner</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(rhs[i], 100, 50 + ((HORSE_SIZE + 20) * i));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GThickLine finishLine = new GThickLine(600 - 2, 0, 600 - 2, getHeight(), 2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(finishLine);
+
+        // turn them into threads
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread[] ths = new Thread[NR_OF_HORSES];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; rhs.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ths[i] = new Thread(rhs[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+        // start them of
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; rhs.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ths[i].start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die Sache, die ein wenig knifflig ist, wie wissen wir, wer gewonnen hat? Es gibt da verschiedene Möglichkeiten, aber die eleganteste ist die folgende: wir deklarieren eine boolesche Variable <em>isThereAWinner</em>, setzen sie anfänglich auf false und übergeben sie an alle Pferde.&nbsp; Wenn ein Pferd die Ziellinie erreicht, prüft es den Wert dieser Variablen.&nbsp; Wenn er false ist, dann ändert es ihn auf true, so dass alle anderen Pferde, sehen wer der erste war:</p>
+<pre style="margin-left: 40px;">
+private class RaceHorse extends GRect implements Runnable {
+&nbsp;&nbsp; &nbsp;private boolean[] isThereAWinner;
+
+&nbsp;&nbsp; &nbsp;public RaceHorse(double w, double h, boolean[] isThereAWinner) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super((int) w, (int) h);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.isThereAWinner = isThereAWinner;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 50; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;move(10, 0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(rgen.nextInt(50, 150));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// reached finish, check if I am first
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#0000ff;">!isThereAWinner[0]</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">isThereAWinner[0] = true;</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//pause(200):
+            setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(Color.RED);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;invalidate();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Warum haben wir ein Array anstelle einer stink-normalen booleschen Variable verwenden?&nbsp; Der Grund dafür ist, dass primitive Datentypen als Kopie übergeben werden (pass-by-value), während Objekte und Arrays als Referenz übergeben werden (pass-by-reference).&nbsp; In unserem Beispiel macht es keinen Sinn mit einer Kopie zu arbeiten, wir müssen den Wert des Originals verändern.&nbsp; (Man könnte weiter fragen, warum nicht die Wrapper-Klasse Boolean anstelle des Arrays verwenden?&nbsp; Schließlich werden Objekte ja als Referenz übergeben.&nbsp; Nun, versuchen Sie es und Sie werden sehen, dass die Wrapper-Klassen zu nichts gut sind).</p>
+<p>
+	Wenn wir unser Programm starten, scheint alles gut zu laufen.&nbsp; Aber erinnern wir uns an die Philisophen und ihre gemeinsame Resource, den Chop Stick?&nbsp; Wir haben hier auch eine gemeinsame Rssource, das <em>isThereAWinner</em> Array.&nbsp; Könnte das ein Problem sein?&nbsp; Darauf können wir wetten.&nbsp; Alles, was wir tun müssen, ist die Zeile &quot;pause(200)&quot; zu entkommentieren.&nbsp; Auf einmal gibt es mehr als nur ein Pferd das denkt, dass es gewonnen hat.&nbsp; Eine klassische <em>Race-Condition</em>!&nbsp; (Jetzt wissen Sie, woher der Name kommt).</p>
+<p>
+	Wie lösen wir das Problem?&nbsp; Richtig, durch richtige Synchronisation.&nbsp; Wir müssen sicherstellen, dass der gesamte If-Block als eine Einheit ausgeführt wird, deshalb umgeben wir ihn mit einem synchronized Block:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; synchronized (isThereAWinner) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!isThereAWinner[0]) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(200);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isThereAWinner[0] = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFilled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setFillColor(Color.RED);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Das erfüllt den Zweck.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MandelbrotSuperFastActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />MandelbrotSuperFast</h2>
+<p>
+	In dem Special Topic &quot;Graphics Performance&quot; haben wir unser Mandelbrot Beispiel aus dem ersten Semester etwas beschleunigt.&nbsp; Die Frage ist aber geht es noch schneller?&nbsp; Die meisten Android CPUs haben ja inzwischen mehr als einen Core, Quadcores sind heute schon fast die Regel.&nbsp; Deswegen wollen wir hier unser Mandelbrot Programm parallelisieren.</p>
+<p>
+	Bevor wir aber damit beginnen, wollen erst einmal wissen wie viele Prozessoren uns denn zur Verfügung stehen:</p>
+<pre style="margin-left: 40px;">
+int nrCPUs = Runtime.getRuntime().availableProcessors();</pre>
+<p>
+	Falls wir ein etwas älteres oder billigeres Smartphone haben, und wir feststellen dass wir nur einen Prozessor haben, dann können wir uns die folgende Arbeit natürlich sparen, das wird nichts bringen.</p>
+<p>
+	Der Aufbau ist nahezu identisch mit dem Mandelbrot Beispiel aus dem Special Topic Kapitel.&nbsp; Was sich aber ändert, ist wie wir die Arbeit aufteilen:</p>
+<pre style="margin-left: 40px;">
+class MandelbrotView extends View {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private final int <span style="color:#0000ff;">NR_OF_THREADS</span> = 16;
+&nbsp;&nbsp; &nbsp;private boolean[] isDone = new boolean[<span style="color:#0000ff;">NR_OF_THREADS</span>];
+&nbsp;&nbsp; &nbsp;private int[][] bitMapArray2;
+
+&nbsp;&nbsp;&nbsp; protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray2 = 
+            new int[NR_OF_THREADS][mCanvasWidth * mCanvasHeight / <span style="color:#0000ff;">NR_OF_THREADS</span>];
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Eine Frage die sich stellt ist, wie viele Threads sollen wir nehmen?&nbsp; Naiv würde man sagen, so viele wie wir CPU-Cores haben.&nbsp; Das geht allerdings davon aus, dass jeder Thread gleich viel Arbeit bekommt.&nbsp; Bei unserem Mandelbrot Beispiel (und bei vielen ähnlichen Beispielen) sind manche Streifen aber viel mehr Arbeit als andere.&nbsp; Deswegen macht es Sinn, die Arbeit in noch kleinere Stücke aufzuteilen.</p>
+<p>
+	In unserem Beispiel wählen wir 16 Threads.&nbsp; Für jeden dieser Threads legen wir ein eigenes Bitmap Array an, und wir haben noch ein kleines boolsches Array mit dem wir feststellen können ob schon alle fertig sind.</p>
+<p>
+	In der onDraw() Methode starten wir die 16 Threads, und jeder bekommt einen kleinen Streifen des Mandelbrotsets zur Bearbeitung:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double dy = (yMax - yMin) / <span style="color:#0000ff;">NR_OF_THREADS</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y = yMin;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; NR_OF_THREADS; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;MandelbrotTask task = new MandelbrotTask(i, bitMapArray2[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;task.<span style="color:#0000ff;">executeOnExecutor</span>(AsyncTask.THREAD_POOL_EXECUTOR, (double) mCanvasWidth,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(double) mCanvasHeight / NR_OF_THREADS, xMin, xMax, y, y + dy);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y += dy;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Beim MandelbrotTask handelt es sich um einen AsyncTask.&nbsp; Der bekommt im Constructor seine ID übergeben und den Teil des Bitmap Arrays an dem er arbeiten soll.&nbsp; Interessant ist hier, dass wir nicht die Methode execute() wie sonst aufrufen, sondern die Methode <em>executeOnExecutor()</em>.&nbsp; Diese ist zwingend notwendig, damit die AsyncTasks auch wirklich auf separaten Prozessoren laufen.</p>
+<p>
+	Über das isDone[] Array wissen wir ob alle Threads fertig sind, so lange warten wir:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // make sure all threads are done
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;boolean done = false;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (!done) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;done = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; isDone.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!isDone[i]) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;done = false;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Dann kleben wir die einzelnen Streifen wieder zusammen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; int dHeight = mCanvasHeight / NR_OF_THREADS;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int height = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; NR_OF_THREADS; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap.setPixels(bitMapArray2[i], 0, mCanvasWidth, 0, height, mCanvasWidth,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mCanvasHeight / NR_OF_THREADS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;height += dHeight;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und zeichnen die Bitmap auf unserem Canvas:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), null);
+        ...
+    }</pre>
+<p>
+	Fehlt noch der MandelbrotTask: der besteht im Prinzip nur aus der doInBackground() Methode in der wir die Mandelbrot Menge berechnen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class MandelbrotTask extends AsyncTask&lt;Double, Void, Long&gt; {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private int myIndex = -1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private int[] bitMapArray;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public MandelbrotTask(int indx, int[] bitMapArray) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.myIndex = indx;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.bitMapArray = bitMapArray;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected Long doInBackground(Double... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long startTime = System.currentTimeMillis();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int mCanvasWidth = (int) params[0].doubleValue();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int mCanvasHeight = (int) params[1].doubleValue();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double xMin = params[2];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double xMax = params[3];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double yMin = params[4];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double yMax = params[5];
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// draw pixels in bitmap
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double xStep = (xMax - xMin) / mCanvasWidth * 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double yStep = (yMax - yMin) / mCanvasHeight * 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (double x = xMin; x &lt; xMax; x += xStep) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = (int) (((x - xMin) * mCanvasWidth) / (xMax - xMin));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (double y = yMin; y &lt; yMax; y += yStep) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int j = (int) (((y - yMin) * mCanvasHeight) / (yMax - yMin));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitMapArray[j * mCanvasWidth + i] = function(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isDone[myIndex] = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return (System.currentTimeMillis() - startTime);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private int function(double x0, double y0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x = 0.0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y = 0.0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int iteration = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (x * x + y * y &lt; 4 &amp;&amp; iteration &lt; MAX_ITERATION) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double xtemp = x * x - y * y + x0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y = 2 * x * y + y0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x = xtemp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;iteration++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return RAINBOW_COLORS[iteration % RAINBOW_NR_OF_COLORS];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Interessant sind die Frameraten die wir jetzt erhalten, ja nach Anzahl der Prozessoren die unser Smartphone hat, erhöht sich die Geschwindigkeit proportional.&nbsp; Wenn wir jetzt noch zoomen könnten, wäre es perfekt.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HeatMapActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />HeatMap</h2>
+<p>
+	Bei der HeatMap Activity geht es darum die Wärmeleitungsgleichung [6] zu visualisieren.&nbsp; Die Wärmeleitungsgleichung beschreibt wie sich die Temperatur orts- und zeitabhängig ändert.&nbsp; Das hört sich vielleicht kompliziert an, sieht aber cool aus.&nbsp;</p>
+<p>
+	Als erstes zerlegen wir unseren Raum, also den Bildschirm, in lauter kleine Rechtecke, unser <em>data</em> Array:</p>
+<pre style="margin-left: 40px;">
+public class HeatMapActivity extends Activity implements Runnable {
+&nbsp;&nbsp; &nbsp;private float[][] data = new float[NR_ROWS][NR_COLUMNS];</pre>
+<p>
+	Dann müssen wir ein paar Konstanten definieren</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public static final int DELAY = 50;
+&nbsp;&nbsp; &nbsp;public static final int NR_ROWS = 30;
+&nbsp;&nbsp; &nbsp;public static final int NR_COLUMNS = 30;
+&nbsp;&nbsp; &nbsp;public static final int DATA_MAX_VALUE = 100;
+&nbsp;&nbsp; &nbsp;public static final float TIME_DISSIPATION_FACTOR = 0.9f;
+&nbsp;&nbsp; &nbsp;public static final float SPACE_DISSIPATION_FACTOR = 0.1f;</pre>
+<p>
+	Die ersten drei sind selbsterklärend, DATA_MAX_VALUE ist der maximale Wert den unsere data Werte annehmen können, und die zwei letzten Konstanten kommen von der Heatequation.&nbsp; Die können wir beliebig setzen, aber bei den vorgegebenen Werten sieht es am hübschesten aus.&nbsp; Und wir benötigen noch einen View,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;private HeatMapView gv;</pre>
+<p>
+	da wir das Ganze ja visualisieren wollen.&nbsp; In der onCreate() initialisieren wir den View und starten uns als Thread:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gv = new HeatMapView(this, data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(gv);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new Thread(this).start();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die run() Methode tut fast nichts:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;applyHeatDissipation();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die ganze Arbeit passiert in der <em>applyHeatDissipation()</em> Methode, effektiv ist das die Wärmeleitungsgleichung in Java, verstehen müssen wir das nicht:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void applyHeatDissipation() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[][] data2 = new float[NR_ROWS][NR_COLUMNS];
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 1; i &lt; NR_COLUMNS - 1; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 1; j &lt; NR_ROWS - 1; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float data0 = data[i][j];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float delta = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int m = -1; m &lt; 2; m++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int n = -1; n &lt; 2; n++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float d = data[i + m][j + n] - data0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (d &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;delta += d;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data2[i][j] = delta * SPACE_DISSIPATION_FACTOR;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 1; i &lt; NR_COLUMNS - 1; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 1; j &lt; NR_ROWS - 1; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i][j] = data[i][j] * TIME_DISSIPATION_FACTOR;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i][j] += data2[i][j];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (data[i][j] &lt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i][j] = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Fehlt noch der View und wir sind fertig:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class HeatMapView extends View {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private float[] hsv = { 240f, 1f, 1f };
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private float[][] data;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private Paint cPaint;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public HeatMapView(Context context, float[][] data) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.data = data;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cPaint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dwidth = getWidth() / NR_COLUMNS + 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dheight = getHeight() / NR_ROWS + 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; NR_COLUMNS; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; NR_ROWS; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float x = i * dwidth;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float y = j * dheight;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;hsv[0] = (DATA_MAX_VALUE - data[i][j]) * 240 / DATA_MAX_VALUE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int col = Color.HSVToColor(hsv);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cPaint.setColor(col);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawRect(x, y, x + dwidth, y + dheight, cPaint);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Der View stellt einfach nur das data[] Array bildlich dar.&nbsp;</p>
+<p>
+	Wenn wir das so laufen lassen, passiert noch nichts, alles was wir sehen ist ein blauer Bildschirm.&nbsp; Was noch fehlt ist eine Hitzequelle, und die erzeugen wir über den Touchevent in der Activity:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public boolean onTouchEvent(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dwidth = this.getWindow().getDecorView().getWidth() / NR_COLUMNS + 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dheight = this.getWindow().getDecorView().getHeight() / NR_ROWS + 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = (int) (event.getX() / dwidth);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int j = (int) (event.getY() / dheight);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;data[i][j] = 100;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return super.onTouchEvent(event);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Hübsch, oder?</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	Zu Threading gibt es ganze Bücher, die sich nur diesem Thema widmen.&nbsp; Soll heißen, was wir hier besprochen haben, ist nur eine erste, oberflächliche Einführung.&nbsp; Man kann sich aber wenigstens das Dining Philosophers Problem mal etwas näher ansehen.</p>
+<p>
+	.</p>
+<h2>
+	Dining Philosophers Problem</h2>
+<p>
+	Unser alter Freund, Herr Dijkstra, hat sich das Problem der Abendessenden Philosphen als Hausaufgabe für seine Studierenden ausgedacht [1].&nbsp; Die ursprüngliche Version ist etwas komplizierter als meine, deswegen sollten wir uns das Original mal durchlesen.</p>
+<p>
+	[1] Dining philosophers problem, https://en.wikipedia.org/wiki/Dining_philosophers_problem</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Geben Sie ein Beispiel wofür man einen AsyncTask verwenden könnte.&nbsp; Was unterscheidet ihn von normalen Threads?<br />
+		&nbsp;</li>
+	<li>
+		In der Vorlesung haben wir uns die Problematik des Multithreading mit einem Beispiel verdeutlicht.&nbsp; In dem Beispiel rannten Pferde (durch schwarze Rechtecke dargestellt) um die Wette.&nbsp; Jenes Pferd welches als erstes über die Ziellinie rannte, vollführte einen Siegestanz (es wurde rot anstelle von schwarz).&nbsp; Meist hat das auch funktioniert, aber manchmal kam es zu einem Fehler der mit Multithreading zu tun hatte.&nbsp; Wie machte sich der Fehler bemerkbar?&nbsp; Wie haben wir das Problem gelöst?<br />
+		&nbsp;</li>
+	<li>
+		Betrachten Sie die Klasse &#39;Horse&#39;:<br />
+		<pre style="margin-left: 40px;">
+public class Horse {
+&nbsp;&nbsp;&nbsp; ...
+}
+</pre>
+		Nehmen Sie an, dass die Klasse bereits komplett implementiert wurde.&nbsp; Ihre Aufgabe besteht lediglich darin, die Klasse so zu modifizieren, dass sie als separater Thread laufen kann.&nbsp; Welches Interface müssen Sie implementieren und welche Methode müssen Sie überschreiben?<br />
+		&nbsp;</li>
+	<li>
+		In der Vorlesungen haben wir das Problem der abend-essenden Philosophen behandelt (dining philosophers).&nbsp; Erinnern Sie sich an die Geschichte, und benutzen Sie die Analogie um zu erklären was eine &#39;Race Condition&#39; (auf deutsch &#39;kritischer Wettlauf&#39;) ist, was &#39;Starvation&#39; (auf deutsch &#39;Verhungern&#39;) bedeutet und was man unter &#39;Dead Lock&#39; (auf deutsch &#39;Verklemmung&#39;) versteht.<br />
+		&nbsp;</li>
+	<li>
+		Was ist der Unterschied zwischen einem TimerTask und eine AsyncTask?<br />
+		&nbsp;</li>
+	<li>
+		Wenn ein Thread mal tot ist, können Sie ihn dann wiederbeleben?<br />
+		&nbsp;</li>
+	<li>
+		Es gibt zwei Möglichkeiten aus einer beliebigen Klasse einen Thread zu machen.&nbsp; Die erste ist einfach von der Thread Klasse zu vererben:<br />
+		<pre style="margin-left: 40px;">
+public class MyFirstThread extends Thread {
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+		Die zweite ist das Runnable Interface zu implementieren:<br />
+		<pre style="margin-left: 40px;">
+public class MySecondThread implements Runnable {
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+		Welche ist zu bervorzugen und warum?<br />
+		&nbsp;</li>
+	<li>
+		Was ist die generelle Idee hinter dem Producer-Consumer Pattern?</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Dining philosophers problem, <a href="https://en.wikipedia.org/wiki/Dining_philosophers_problem">https://en.wikipedia.org/wiki/Dining_philosophers_problem</a></p>
+<p>
+	[2] Producer&ndash;consumer problem, <a href="https://en.wikipedia.org/wiki/Producer–consumer_problem">https://en.wikipedia.org/wiki/Producer&ndash;consumer_problem</a></p>
+<p>
+	[3] Interface BlockingQueue&lt;E&gt;, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/BlockingQueue.html">https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/BlockingQueue.html</a></p>
+<p>
+	[4] Speed reading, <a href="https://en.wikipedia.org/wiki/Speed_reading">https://en.wikipedia.org/wiki/Speed_reading</a></p>
+<p>
+	[5] Programming Methodology, CS106A, von Mehran Sahami, <a href="https://see.stanford.edu/Course/CS106A">https://see.stanford.edu/Course/CS106A</a></p>
+<p>
+	[6] Heat equation, <a href="https://en.wikipedia.org/wiki/Heat_equation">https://en.wikipedia.org/wiki/Heat_equation</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

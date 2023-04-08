@@ -1,0 +1,1218 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch6_Sensors.png" style="display: block; margin-left: auto; margin-right: auto;width: 226px; height: 358px;" /></p>
+<h1>
+	Sensors</h1>
+<p>
+	Die meisten Android-Geräte haben Sensoren, manche sogar ganz viele.&nbsp; Im Prinzip unterscheidet man zwischen drei verschiedene Arten von Sensoren: den Positions-Sensoren, den Umwelt-Sensoren und den Bewegungs-Sensoren.&nbsp; Von den Positions-Sensoren, meist GPS, erhält man seine Position in Längen- und Breitengraden, manchmal auch die Höhe über dem Meeresspiegel.&nbsp; Mit den Umweltsensoren kann man Helligkeit, Temperatur und je nach Gerät manchmal auch Luftdruck messen.&nbsp; Bewegungssensoren messen Linear- und Drehbeschleunigung, und der Magnetfeldsensor gehört auch zu den Bewegungssensoren.&nbsp; Technisch müsste man wohl sowohl das Mikrofon als auch die Kamera als Sensoren bezeichnen.&nbsp; Sogar die Batterie ist als Sensor zu gebrauchen: man kann mit ihr Temperatur messen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/LocationActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Location</h2>
+<p>
+	Beginnen wir mit einem der wichtigsten Sensoren dem GPS Sensor [3].&nbsp; Praktisch jedes Handy hat einen.&nbsp; Man verwendet ihn meistens um festzustellen wo man sich befindet.&nbsp; Man kann ihn aber auch verwenden um seine Geschwindigkeit und in Abwesenheit eines Magnetfeldsensors auch seine Richtung zu bestimmen, grob wenigstens.</p>
+<p>
+	Hat man keinen GPS ist noch nicht alles verloren, Android hat nämlich noch zwei andere Möglichkeiten zu bestimmen wo es sich befindet.&nbsp; Zum Einen über das Mobilfunknetz: jedes Handy verbindet sich mit dem Mobilfunknetz über die Mobilfunkmasten.&nbsp; Da diese Masten aber eindeutige Identifikationsnummern haben, und außerdem bekannt ist wo sich welcher Mast befindet, kann man auf diese Art und Weise ganz grob die Position bestimmen.&nbsp; Es muss sich eben in der Nähe dieses Mastens befinden.&nbsp; Zum Anderen kann man auch über das Wifi-Netz feststellen wo jemand ist, wenn man weiß wo der Wifi-Accesspoint steht.</p>
+<p>
+	Die Genauigkeit der verschiedenen Methoden ist ganz unterschiedlich: GPS ist das genaueste, mit einer Auflösung von ca. 5 bis 10 Metern.&nbsp; Es kostet aber auch den meisten Strom.&nbsp; Die Ortsbestimmung über das Mobilfunknetz ist viel ungenauer, in Städten manchmal auf ca. 100 Meter genau, auf dem Land sind es eher Kilometer.&nbsp; Aber es kostet keine zusätzliche Energie.&nbsp; Wifi ist irgendwo dazwischen, allerdings funktioniert es eher selten.</p>
+<p>
+	Wie weiß man jetzt welche LocationProvider denn überhaupt zur Verfügung stehen?&nbsp; Man fragt einfach den <em>LocationManager</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // list all providers
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; String msg = &quot;Available Providers are:\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; List&lt;String&gt; providers = locationManager.getAllProviders();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; for (String providerName : providers) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LocationProvider provider = locationManager.getProvider(providerName);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; msg += &quot;- &quot; + provider.getName() + &quot;, &quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; msg += provider.getAccuracy() + &quot;, &quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; msg += provider.getPowerRequirement() + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; tv.setText(msg);
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // get best provider
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Criteria criteria = new Criteria();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; criteria.setAccuracy(Criteria.ACCURACY_FINE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; String bestProvider = locationManager.getBestProvider(criteria, true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; tv.append(&quot;\nBest Provider is: &quot; + bestProvider);
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Will man noch wissen welcher denn der beste Provider ist, dann verwendet man die <em>Criteria</em> Klasse, und sagt z.B. man möchte einen Provider mit der ACCURACY_FINE.</p>
+<p>
+	Nachdem wir wissen welchen unserer LocationProvider wir wollen, ist der nächste Schritt diesen zu verwenden.&nbsp; Eine Möglichkeit ist das LocationListener Interface zu implementieren und die <em>onLocationChanged()</em> Methode zu überschreiben:</p>
+<pre style="margin-left: 40px;">
+public class LocationActivity extends Activity implements <span style="color:#0000ff;">LocationListener</span> {
+    protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;locationManager.<span style="color:#0000ff;">requestLocationUpdates</span>(bestProvider, 1000, 1, this);
+    }
+
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onLocationChanged</span>(Location location) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String msg = &quot;&quot; + location.getLongitude() + &quot;, &quot; + location.getLatitude();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; 
+&nbsp;&nbsp; &nbsp;public void onPause() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;locationManager.removeUpdates(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onPause();
+&nbsp;&nbsp; &nbsp;}
+
+    ...
+}</pre>
+<p>
+	Damit der LocationListener aber weiß welchen der vielen Provider er denn verwenden soll, müssen wir ihm das mitteilen mit der <em>requestLocationUpdates()</em> Methode: hier sagen wir welchen Provider er verwenden soll (bestProvider), wie oft er die Position updaten soll (1000 ms) und was so die Distanzänderungen sind die uns interessieren (1 Meter).&nbsp; Man sollte immer bedenken, dass der GPS Sensor ziemlich viel Strom frißt, deswegen je seltener wir ihn verwenden, desto seltener müssen wir auch unser Handy wieder aufladen.&nbsp; Auch was wir nicht vergessen dürfen ist, den GPS Sensor wieder auszuschalten, wenn wir ihn nicht mehr brauchen.&nbsp; Das machen wir in der onPause() Methode oben.</p>
+<p>
+	Damit das Program auch funktioniert, muss natürlich GPS eingeschaltet sein und man muss den Nutzer auch um Erlaubnis fragen.&nbsp; Das machen wir wie üblich in der AndroidManifest Datei:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; &lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;uses-permission android:name=&quot;android.permission.ACCESS_FINE_LOCATION&quot; /&gt;</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ListSensorsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />List Sensors</h2>
+<p>
+	Was gibt es denn noch für Sensoren, außer dem GPS Sensor?&nbsp; Am besten fragt man den SensorManager, der weiß nämlich Bescheid:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; SensorManager mSensorManager = (<span style="color:#0000ff;">SensorManager</span>) getSystemService(SENSOR_SERVICE);
+&nbsp;&nbsp; &nbsp;List&lt;Sensor&gt; sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+
+&nbsp;&nbsp; &nbsp;String msg = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;for (Sensor sensor : sensorList) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String type = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (Build.VERSION.SDK_INT &gt;= 20) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = sensor.getStringType();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = &quot;&quot; + sensor.getType();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += sensor.getName() + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;&nbsp;&nbsp; &quot; + type + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;&nbsp;&nbsp; &quot; + sensor.getPower() + &quot; mA\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#0000ff;">Build.VERSION.SDK_INT &gt;= 21</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;&nbsp;&nbsp; &quot; + sensor.isWakeUpSensor() + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;TextView tv = (TextView) findViewById(R.id.textview);
+&nbsp;&nbsp; &nbsp;tv.setText(msg);
+</pre>
+<p>
+	Interessant im Beispiel oben ist vielleicht wie wir mit <em>Build.VERSION.SDK_INT</em> feststellen, welche Version von Android unser Nutzer verwendet, und abhängig davon Methoden aufrufen, die es erst ab einer gewissen Version gibt.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/EnvironmentalActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Environmental</h2>
+<p>
+	Betrachten wir die Umwelt-Sensoren etwas näher.&nbsp; Das grobe Gerüst ist bei allen Sensoranwendungen gleich:</p>
+<pre style="margin-left: 40px;">
+public class SensorActivity extends Activity implements <span style="color:#0000ff;">SensorEventListener</span> {
+
+&nbsp;&nbsp; &nbsp;private SensorManager mSensorManager;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public final void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public final void <span style="color:#0000ff;">onSensorChanged</span>(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case Sensor.TYPE_LIGHT:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float illuminance_in_lx = event.values[0];
+            ...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onResume() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onResume();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        if (mLight != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;    mSensorManager.registerListener(this, mLight, SensorManager.<span style="color:#0000ff;">SENSOR_DELAY_NORMAL</span>);
+    &nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onPause() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onPause();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager.unregisterListener(this);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wir erweitern den <em>SensorEventListener</em> und implementieren dessen Methoden <em>onSensorChanged()</em> und <em>onAccuracyChanged()</em>, wobei wir praktisch nur onSensorChanged() verwenden werden.&nbsp; Dann benötigen wir einen SensorManager über den wir unsere Sensoren bekommen.&nbsp; Was dann noch wichtig ist, dass wir in der onResume() unsere Sensoren registrieren und in der onPause() wieder deregistrieren.</p>
+<p>
+	Im Beispiel oben haben wir den Licht-Sensor verwendet, den fast jedes Android Gerät hat, außerdem findet man noch folgende Sensoren mit abnehmender Häufigkeit:</p>
+<ul>
+	<li>
+		TYPE_LIGHT: misst die Luminosität in Lux,</li>
+	<li>
+		TYPE_PROXIMITY: misst die Entfernung in cm,</li>
+	<li>
+		TYPE_TEMPERATURE: misst die Temperatur in Grad Celsius,</li>
+	<li>
+		TYPE_PRESSURE: misst den Luftdruck in mbar.</li>
+</ul>
+<p>
+	Den jeweilgen Wert des Sensors erhalten wir in der onSensorChanged() Methode über den SensorEvent Parameter.</p>
+<p>
+	Wie immer bei Sensoren, verbrauchen die meisten viel Strom.&nbsp; Wir können darauf Einfluß nehmen, wenn wir die Sensoren nicht so häufig verwenden.&nbsp; Einstellen können wir das über den letzten Parameter der <em>registerListener()</em> Methode:</p>
+<ul>
+	<li>
+		SENSOR_DELAY_NORMAL: entspricht 200.000 Mikrosekunden,</li>
+	<li>
+		SENSOR_DELAY_GAME: entspricht 20.000 Mikrosekunden,</li>
+	<li>
+		SENSOR_DELAY_UI: entspricht 60.000 Mikrosekunden,</li>
+	<li>
+		SENSOR_DELAY_FASTEST: entspricht 0 Mikrosekunden.</li>
+</ul>
+<p>
+	Man kann aber auch einfach einen Wert von Hand übergeben, natürlich in Mikrosekunden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MotionActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Motion</h2>
+<p>
+	Kommen wir zu den Bewegungs-Sensoren.&nbsp; Es gibt da im Prinzip drei Arten:</p>
+<ul>
+	<li>
+		TYPE_ACCELEROMETER: misst Beschleunigung in m/s2,</li>
+	<li>
+		TYPE_GYROSCOPE: misst Rotationsbewegungen in rad/s,</li>
+	<li>
+		TYPE_MAGNETIC_FIELD: misst Magnetfelder in Mikrotesla.</li>
+</ul>
+<p>
+	Fast alle Android Geräte haben einen Beschleunigungssensor.&nbsp; In letzter Zeit ist der Gyroskopsensor auch fast in jedem Gerät zu finden, der Magnetfeldsensor ist allerdings eher selten.&nbsp; D.h. vor allem mit Herstellungskosten zu tun.&nbsp;</p>
+<p>
+	Die Verwendung ist komplett analog zu den Umwelt-Sensoren, der einzige Unterschied liegt darin, dass wir jetzt drei Werte erhalten:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">float[]</span> acceleration_in_m_per_s2 = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg[0] = &quot;ACCEL:&nbsp; &quot; + df.format(acceleration_in_m_per_s2[0]) + &quot;, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ df.format(acceleration_in_m_per_s2[1]) + &quot;, &quot; 
+                    + df.format(acceleration_in_m_per_s2[2])
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ &quot; m/s2\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+        ...
+    }
+</pre>
+<p>
+	Je einer für die x, die y und die z-Richtung.</p>
+<p>
+	<img alt="" src="images/Ch6_DeviceOrientation.png" style="margin-left: 10px; margin-right: 10px; width: 264px; height: 380px;" /></p>
+<p style="margin-left: 40px;">
+	Richtungen relativ zum Gerät</p>
+<p>
+	Wer gerne wissen möchte wie diese Sensoren wirklich funktionieren, findet in dem GoogleTechTalk von David Sachs eine gelungene Zusammenfassung [1].</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FilterActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Filter</h2>
+<p>
+	Bei den drei Bewegungssensoren, die wir gerade kennengelernt haben, handelt es sich um Hardwaresensoren, und was wir bekommen sind die ungefilterten Rohdaten.&nbsp; Das sieht man daran, dass die Werte, speziell beim Beschleunigungssensor, relativ wild hin- und herspringen.&nbsp; Für viele Anwendungen ist das eher störend, und man möchte die Daten <em>filtern</em>.&nbsp; Die am häufigsten verwendeten Filter sind der Tiefpass (low-pass) und der Hochpass (high-pass).</p>
+<p>
+	Der Tiefpass ist im Prinzip ein gleitender Durchschnitt.&nbsp; Beim Beschleunigungssensor bewirkt er, dass die schnellen Schwankungen verschwinden, und alles was übrig bleibt ist die konstante Beschleunigung der Schwerkraft.&nbsp; Der Name kommt daher, dass der Tiefpass niedere Frequenzen ungehindert durchlässt, während er für hohe Frequenzen, also sich schnell ändernte Werte, nahezu undurchlässig ist.&nbsp; Er lässt also <em>tief</em>e Frequenzen <em>pass</em>ieren.</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private float lowPass(float current, float average) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return average * LOW_PASS_FACTOR + current * (1- LOW_PASS_FACTOR);
+&nbsp;&nbsp;&nbsp; }</pre>
+<p>
+	Der Hochpass ist das Gegenstück dazu, und ist für niedere Frequenzen undurchlässig, dafür kommen die hohen Frequenzen nahezu ungehindert durch.&nbsp; Beim Beschleunigungssensor bedeutet das, dass die Schwerkraftkomponente herausgefiltert wird und lediglich die schnellen Hin- und Herbewegungen übrig bleiben.&nbsp; Allerdings bleibt das Rauschen (noise) erhalten, was für die meisten Anwendungen ein Problem darstellt.</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private float highPass(float current, float average) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return current - average;
+&nbsp;&nbsp;&nbsp; }</pre>
+<p>
+	Die Grenzfrequenz wird durch die beiden Konstanten bestimmt:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private final float LOW_PASS_FACTOR = 0.8f;
+&nbsp;&nbsp;&nbsp; private final int TIME_RESOLUTION = 100;</pre>
+<p>
+	Dabei hat der LOW_PASS_FACTOR einen Wert zwischen 0 und 1, während die TIME_RESOLUTION meist in Millisekunden gemessen wird.&nbsp; Im Code sieht das dann so aus:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;private long lastTime;
+&nbsp;&nbsp; &nbsp;private float[] avg_acceleration = new float[3];
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp; &nbsp;public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;long currentTime = System.currentTimeMillis();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (currentTime - lastTime &gt; TIME_RESOLUTION) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lastTime = currentTime;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] acceleration_in_m_per_s2 = event.values;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// low-pass
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;avg_acceleration[i] = lowPass(acceleration_in_m_per_s2[i], avg_acceleration[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// high-pass
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] high_pass = new float[3];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;high_pass[i] = highPass(acceleration_in_m_per_s2[i], avg_acceleration[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg[0] = &quot;no filter:&nbsp; &quot; + df.format(acceleration_in_m_per_s2[0]) + &quot;, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ df.format(acceleration_in_m_per_s2[1]) + &quot;, &quot; 
+                        + df.format(acceleration_in_m_per_s2[2]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg[0] += &quot;low-pass:&nbsp;&nbsp; &quot; + df.format(avg_acceleration[0]) 
+                        + &quot;, &quot; + df.format(avg_acceleration[1]) + &quot;, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ df.format(avg_acceleration[2]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg[0] += &quot;high-pass:&nbsp; &quot; + df.format(high_pass[0]) 
+                        + &quot;, &quot; + df.format(high_pass[1]) + &quot;, &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ df.format(high_pass[2]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SensorFusionActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Sensor Fusion</h2>
+<p>
+	Wir haben vorhin von Hardwaresensoren gesprochen.&nbsp; Das deutet an, dass es auch Softwaresensoren gibt.&nbsp; Das Problem mit den Hardwaresensoren ist, dass sie einmal ganz schön rauschen, und zum andern auch nicht besonders genau sind.&nbsp; Der Klassiker ist Indoor-Navigation basierend auf dem Beschleunigungssensor.&nbsp; Es funktioniert einfach nicht (wobei die Gründe hier eher vom Zweifachintegral stammen und weniger von der Ungenauigkeit des Sensors [1]).</p>
+<p>
+	Die Idee hinter den Softwaresensoren ist nun, die Hardwaresensoren gegeneinander auszuspielen, also aus mehreren Hardwaresensoren einen Softwaresensor zu erzeugen.&nbsp; Glücklicherweise macht Android das für uns, sonst müssten wir uns noch mit Kalman Filtern beschäftigen [2].&nbsp; Auf den meisten Android Geräten gibt es die folgenden Softwaresensoren:</p>
+<ul>
+	<li>
+		TYPE_GRAVITY</li>
+	<li>
+		TYPE_LINEAR_ACCELERATION</li>
+	<li>
+		TYPE_GAME_ROTATION_VECTOR</li>
+	<li>
+		TYPE_ROTATION_VECTOR</li>
+</ul>
+<p>
+	Die beiden ersten machen faktisch genau das Gleiche was wir gerade bei den Filtern gemacht haben: TYPE_GRAVITY enthält den Schwerkraftteil der Beschleunigung, sagt uns also wo unten ist, und TYPE_LINEAR_ACCELERATION ist das was übrig bleibt wenn man TYPE_GRAVITY von den Rohdaten (TYPE_ACCELERATION) abzieht.</p>
+<p>
+	Wenn man weiß wo die Gyroskopdaten herkommen, wundert man sich, dass man die für irgendetwas verwenden kann.&nbsp; Trotzdem gehört der Gyroskopsensor zu den besseren.&nbsp; Man kann ihn aber noch besser machen, wenn man ihn über &quot;Sensor Fusion&quot; mit dem Beschleunigungssensor kombiniert [1].&nbsp; Was dann rauskommt ist der TYPE_GAME_ROTATION_VECTOR.&nbsp; Man kann ihn relativ gut verwenden um Rotationen zu messen und auch um die Ausrichtung des Handys im Raum zu erhalten.</p>
+<p>
+	Allerdings hat der TYPE_GAME_ROTATION_VECTOR einen leichten Drift, er bleibt also nicht stabil, sondern driftet immer ein bischen (das kommt von dem Gyrosensor).&nbsp; Hat man aber das Glück in seinem Handy auch noch einen Magnetfeldsensor zu haben, kann man diesen Drift (auch wieder über Sensor Fusion) korrigieren.&nbsp; Das ist dann der TYPE_ROTATION_VECTOR.&nbsp; Die mit Abstand saubersten Daten liefert TYPE_ROTATION_VECTOR.&nbsp; D.h. wann immer dieser Sensor zur Verfügung steht, empfiehlt es sich diesen zu verwenden.</p>
+<p>
+	Verwendet werden die Softwaresensoren genauso wie die Hardwaresensoren.&nbsp; Die Werte die beim TYPE_GAME_ROTATION_VECTOR zurückkommen sind normalisiert zwischen -1 und +1, wenn man sie mit 180 multipliziert, dann erhält man Grad.</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String msg = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case Sensor.TYPE_GAME_ROTATION_VECTOR:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] angle = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg = &quot;x-axis: &quot; + df.format(angle[0] * 180) + &quot; degrees\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;y-axis: &quot; + df.format(angle[1] * 180) + &quot; degrees\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;z-axis: &quot; + df.format(angle[2] * 180) + &quot;&nbsp; degrees\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/StepCounterActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />StepCounter</h2>
+<p>
+	Ein anderes schönes Beispiel für einen Software-Sensor ist der Step-Counter Sensor.&nbsp; Wie üblich registrieren wir den Sensor in der onResume() Methode mittels:</p>
+<pre style="margin-left: 40px;">
+Sensor mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);</pre>
+<p>
+	und die gelaufenen Schritte erhalten wir dann ab und zu in der onSensorChanged() Methode:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;float steps = event.values[0];
+&nbsp;&nbsp; &nbsp;tv.setText(&quot;Nr of steps: &quot; + steps);
+}</pre>
+<p>
+	Das Schrittezählen funktioniert aber nur so lange unsere Activity im Vordergrund ist.&nbsp; Sobald die Activity nicht mehr aktiv ist, werden auch keine Schritte mehr gezählt.&nbsp; Später werden wir sehen, wie wir das mit Services, die im Hintergrund laufen, lösen können.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	So weit haben wir uns ein bisschen mit Sensoren beschäftigt.&nbsp; Mit dem LocationManager haben wir unsere Position bestimmt.&nbsp; An alle anderen Sensordaten kommen wir über den SensorManager.&nbsp; Als Beispielanwendungen haben wir uns als erstes eine Liste aller vorhandenen Sensoren geben lassen, und danach auf den Lichtsensor und den Beschleunigungssensor zugegriffen.&nbsp; Wir haben ganz kurz über Filter gesprochen, und schließlich die Softwaresensoren angesprochen.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	Was kann man mit den Sensoren denn so alles machen?&nbsp; Zunächst können wir an einer kleinen Konkurrenz von Google Maps arbeiten.&nbsp; Auch das Ostereierfinden ist natürlich mit GPS viel einfacher als ohne (speziell wenn man ein großes Grundstück hat).&nbsp; Wie man mit der Batterie Temperatur messen kann ist auch mal interessant zu wissen.&nbsp; Neben Erdbebenmessungen, können wir mit den Sensoren auch Alter und Manneskraft bestimmen.&nbsp; Ein paar Spiele sind auch unterhaltsam, z.B. unser alter Freund BrickBreaker über Lagesensor gesteuert.&nbsp; Von Zufallszahlen haben wir schon seit zwei Jahren nichts mehr gehört, wird wieder mal Zeit.&nbsp; Und ein Kompass und ein &quot;Metall&quot;-Detektor bilden dann den Abschluß.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/OpenStreetMapActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />OpenStreetMap</h2>
+<p>
+	Im ersten Kapitel haben wir ja bereits gesehen, wie man eine geografische Position in OpenStreetMap anzeigen kann, indem man&nbsp; einfach den Längen- und Breitengrad eines Ortes übergibt:</p>
+<pre style="margin-left: 40px;">
+Uri uri = Uri.parse(
+    &quot;http://www.openstreetmaps.org/?lat=49.452&amp;lon=11.082&amp;zoom=20&quot;);
+Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+startActivity(intent);</pre>
+<p>
+	Inzwischen wissen wir aber auch wie wir mit dem GPS Sensor die Position unseres Handys bestimmen können.&nbsp; Wenn wir die beiden also kombinieren, können wir ganz einfach unsere momentane Position in OpenStreetMap anzeigen.&nbsp; Zu unserem eigenen Google Maps fehlt jetzt nur noch Dijkstra...&nbsp;</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/EasterEggHuntActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Easter Egg Hunt</h2>
+<p>
+	Die &quot;Digital Natives&quot; suchen ihre Ostereier natürlich nur noch mit Handy (Karel natürlich auch).&nbsp; Die App besteht aus zwei Modi: dem OsterhasenModus und dem SuchModus.</p>
+<p>
+	Der OsterhasenModus ist für den Osterhasen: während er die Eier versteckt, clickt er auf einen Knopf &quot;Add location&quot; jedes Mal wenn er ein Osterei versteckt hat.&nbsp; Dabei wird die momentane Position in einer Liste von Locations gespeichert:</p>
+<pre style="margin-left: 40px;">
+private List&lt;Location&gt; locations = new ArrayList&lt;Location&gt;();</pre>
+<p>
+	Ist der Osterhase fertig mit dem Verstecken, clickt auf &quot;Start Easter Egg Hunt&quot; und übergibt das Handy den Kids.&nbsp; Die App wechselt dann in den SuchModus, was eigentlich nur bedeutet, dass die Buttons unsichtbar gemacht werden:</p>
+<pre style="margin-left: 40px;">
+btnAddLocation.setVisibility(View.INVISIBLE);
+btnDone.setVisibility(View.INVISIBLE);
+</pre>
+<p>
+	Im SuchModus zeigen wir die Entfernung zu den verschiedenen Locations farblich an: blau ist weit weg und rot ist ganz nah:</p>
+<pre style="margin-left: 40px;">
+hsv[0] = distanceInMeters * DISTANCE_FACTOR;
+ll.setBackgroundColor(Color.HSVToColor(hsv));</pre>
+<p>
+	Am besten verwendet man dazu den Farbton (Hue) [4] des HSV-Farbraum Modells.&nbsp; Die Werte des Farbtons gehen von 0 bis 360:</p>
+<p>
+	<img alt="" src="images/Ch6_Hue.png" style="margin-left: 10px; margin-right: 10px; width: 366px; height: 151px;" /></p>
+<p>
+	Wir können also ganz einfach die Distanz mit einer Konstanten (z.B. 6) multiplizieren, um eine Farbe zu erhalten. Das Array <em>hsv</em> ist eine Instanzvariable und wird mit den folgenden Werten initialisiert:</p>
+<pre style="margin-left: 40px;">
+private float[] hsv = { 240f, 1f, 1f };</pre>
+<p>
+	Was wir noch wissen müssen ist, wie wir die Distanz zwischen zwei Locations erhalten. Das geht am einfachsten mit der Methode <em>distanceTo()</em>:</p>
+<pre style="margin-left: 40px;">
+currentEasterEgg = 0;
+float distanceInMeters = currentLocation.<span style="color:#0000ff;">distanceTo</span>(locations.get(currentEasterEgg));</pre>
+<p>
+	Die Instanzvariable <em>currentEasterEgg</em> ist ein Zähler, den wir immer um eins erhöhen, wenn ein Osterei gefunden wurde.&nbsp; Wie wissen wir, dass ein Osterei gefunden wurde?&nbsp; Eine Möglichkeit wäre einfach zu sagen wenn die Distanz weniger als fünf Meter ist, dann ist das Osterei gefunden.&nbsp; Das ist zwar nicht ganz realistisch, aber da die Auflösung des GPS Sensors nicht viel besser als ein paar Meter ist, macht alles andere eigentlich keinen Sinn.&nbsp; Happy Easter!</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BatteryActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Battery</h2>
+<p>
+	Die Sensoren für Licht und Proximity haben wir ja schon gesehen.&nbsp; Interessant wäre natürlich noch ein Temperatursensor.&nbsp; Leider haben die wenigsten Geräte einen.&nbsp; Aber wir wären keine angehenden Ingenieure wenn wir so einfach aufgeben würden.&nbsp; Es stellt sich nämlich heraus, dass fast alle Android Geräte eine Batterie haben.&nbsp; Und nahezu alle modernen Batterien haben einen Temperatursensor zwecks Überladeschutz.&nbsp; Wäre doch cool wenn wir die Batterie nach ihrer Temperatur fragen könnten.&nbsp;</p>
+<p>
+	Den Zugriff auf die Batteriedaten erhält man über einen Intent:</p>
+<pre style="margin-left: 40px;">
+IntentFilter batteryIntentFilter = 
+    new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+Intent batteryIntent = registerReceiver(null, batteryIntentFilter);
+</pre>
+<p>
+	Dem stellt man einfach Fragen, z.B. nach der Temperatur:</p>
+<pre style="margin-left: 40px;">
+int temperature = batteryIntent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
+float celsius = ((float) temperature) / 10;
+</pre>
+<p>
+	oder der Batteriespannung:</p>
+<pre style="margin-left: 40px;">
+int voltage = batteryIntent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);</pre>
+<p>
+	Will man alles über die Batterie wissen, dann kann man durch die ganzen Extras iterieren:</p>
+<pre style="margin-left: 40px;">
+Bundle extras = batteryIntent.getExtras();
+for (String key : extras.keySet()) {
+&nbsp;&nbsp; &nbsp;sb.append(key.toUpperCase() + &quot;: &quot;);
+&nbsp;&nbsp; &nbsp;sb.append(extras.get(key) + &quot;\n&quot;);
+}</pre>
+<p>
+	Eine kleine Anmerkung, die Temperatur der Batterie ist natürlich immer etwas höher als die Umgebungstemperatur.&nbsp; Denn sowohl beim Entladen (also sobald unser Handy an ist), aber besonders auch beim Aufladen, finden ja chemische Prozesse innerhalb der Batterie statt, die für eine erhöhte Temperatur sorgen.&nbsp;</p>
+<p>
+	Eine andere Möglichkeit an Batteriedaten zu kommen ist&nbsp; über den <em>BatteryManager</em>.&nbsp; Leider ist der ziemlich nutzlos, denn außer den momentanen Ladezustand, liefert der praktisch keine nützliche Information und er funktioniert erst ab Android Version 21 so richtig:</p>
+<pre style="margin-left: 40px;">
+private String getBatteryLevel() {
+&nbsp;&nbsp; &nbsp;String msg;
+&nbsp;&nbsp; &nbsp;BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
+&nbsp;&nbsp; &nbsp;if (Build.VERSION.SDK_INT &gt;= 21) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int capacity = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg = &quot;Battery Level: &quot; + capacity + &quot;%\n&quot;;
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg = &quot;Battery Level not supported!\n&quot;;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return msg;
+}
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/EarthQuakeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Earth Quake</h2>
+<p>
+	Man kann mit Smartphones auch Erdbeben detektieren [5]. Dazu benutzt man einfach den Beschleunigungssensor und sucht nach bestimmten Mustern.&nbsp; Uns genügt aber ein ganz einfacher Erdbebendetektor: sobald die Werte des Beschleunigungssensor einen bestimmten Schwellwert überschreiten, geben wir Alarm mittels eines Toasts.</p>
+<p>
+	Als erstes definieren wir den Schwellwert für Erdbeben:</p>
+<pre style="margin-left: 40px;">
+private final double EARTHQUAKE_THRESHOLD = 0.1;</pre>
+<p>
+	Außerdem benötigen wir noch eine Instanzvariable für die letzten Werte des Beschleunigungssensors:</p>
+<pre style="margin-left: 40px;">
+private double[] accelLast = new double[3];</pre>
+<p>
+	Jetzt müssen wir lediglich in der <em>onSensorChanged()</em> Methode feststellen, um wieviel sich die Beschleunigung im Vergleich zum letzten Mal geändert hat:</p>
+<pre style="margin-left: 40px;">
+double maxDelta = 0;
+for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;double accel = event.values[i];
+&nbsp;&nbsp; &nbsp;double delta = accelLast[i] - accel;
+&nbsp;&nbsp; &nbsp;accelLast[i] = accel;
+&nbsp;&nbsp; &nbsp;if (delta &gt; maxDelta) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;maxDelta = delta;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wenn diese zu groß ist geben wir Alarm mittels eines Toasts:</p>
+<pre style="margin-left: 40px;">
+if (maxDelta &gt; EARTHQUAKE_THRESHOLD) {
+&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Earthquake detected!&quot;, Toast.LENGTH_SHORT).show();
+}</pre>
+<p>
+	Funktioniert aber nur wenn wir unser Smartphone auf festen Untergrund stellen, sonst gibt unsere App die ganze Zeit Alarm.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AgeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Age</h2>
+<p>
+	Wir wollen eine kleine App schreiben mit der man das Alter einer Person bestimmen kann.&nbsp; Oben in unserer Erdbeben App haben wir effektiv einen Hochpass verwendet, also nur hohe Frequenzen durchgelassen, da uns nur schnelle Änderungen interessiert haben.&nbsp; Für unsere Altersbestimmungs App interessiert uns aber eher das durchschnittliche Zittern, wir wollen also auf die Deltas einen Tiefpass anwenden.</p>
+<p>
+	Wir holen uns also wie oben die Beschleunigungswerte, aber uns interessiert nur deren absoluter Wert (sonst kommt beim Durchschnittbilden null raus):</p>
+<pre style="margin-left: 40px;">
+for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;double accel = event.values[i];
+&nbsp;&nbsp; &nbsp;double delta = Math.abs(accelLast[i] - accel);
+&nbsp;&nbsp; &nbsp;accelLast[i] = accel;
+    // low pass filter
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">deltaAvg[i] = (ATTENUATION * deltaAvg[i] + delta) / (ATTENUATION + 1);</span>
+&nbsp;&nbsp; &nbsp;checkForAge();
+}
+</pre>
+<p>
+	Danach schicken wir die <em>deltas</em> durch den Tiefpass-Filter.&nbsp; Ein guter Wert für ATTENUATION ist 10.&nbsp;</p>
+<p>
+	Wie machen wir jetzt aus dem Zittern das Alter?&nbsp; Wir multiplizieren einfach mit 100.&nbsp; Nicht sehr wissenschaftlich, aber ist ja nur ne App.&nbsp; Damit die Daten auf dem Display nicht wild hin- und herspringen, macht es evtl noch Sinn die Anzeige nur einmal die Sekunde upzudaten:</p>
+<pre style="margin-left: 40px;">
+private void checkForAge() {
+&nbsp;&nbsp; &nbsp;long thisTime = System.currentTimeMillis();
+&nbsp;&nbsp; &nbsp;if (thisTime - lastTime &gt; DELAY) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double maxDeltaAvg = Math.max(deltaAvg[2], Math.max(deltaAvg[1], deltaAvg[0]));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int age = (int) (maxDeltaAvg * 100);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(&quot;You are about: &quot; + age + &quot; years old!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lastTime = thisTime;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Ich bin laut meiner App 42, so fühl ich mich auch...</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HauDenLukasActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Hau den Lukas</h2>
+<p>
+	Nach einer wissenschaftlichen Analyse zum Balzgehabe baiuwarischen Ureinwohner [6], kommt man recht schnell auf die Idee für eine App, die sich in Bayern bestimmt gut verkaufen ließe, und mit der man nebenher auch noch den Handyverkauf ankurbeln könnte.&nbsp;</p>
+<p>
+	Im Gegensatz zur Erdbeben App, wo wir uns nur für die kleinsten Beschleunigungen interessiert haben, interessieren uns bei der Hau-den-Lukas App nur die größten Beschleunigungen.&nbsp; Dazu berechnen wir den Betrag der momentanen Beschleunigung:</p>
+<pre style="margin-left: 40px;">
+double accel = Math.sqrt(event.values[0] * event.values[0] 
+                       + event.values[1] * event.values[1]
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;       + event.values[2] * event.values[2]);</pre>
+<p>
+	Abhängig von der Höhe der Beschleunigung geben wir dann dem Ureinwohner Feedback.&nbsp; Dazu definieren wir zwei Arrays als Instanzvariablen (Eine TreeMap mit umgekehrter Sortierfolge wäre natürlich die bessere Datenstruktur):</p>
+<pre style="margin-left: 40px;">
+private final int[] accelRequired = { 250, 200, 150, 100, 50, 0 };
+private final String[] ranks = { &quot;Weltmeister&quot;, &quot;Weibaheld&quot;, &quot;Haderlump&quot;, 
+                         &quot;Anfänger&quot;, &quot;G&#39;schaftl Huaba&quot;, &quot;Schlappschwanz&quot; };</pre>
+<p>
+	und vergleichen die momentane Beschleunigung <em>accel</em> mit den im <em>accelRequired[]</em> Array vordefinierten Werten:</p>
+<pre style="margin-left: 40px;">
+int i = 0;
+for (; i &lt; ranks.length; i++) {
+&nbsp;&nbsp; &nbsp;if (accel &gt; accelRequired[i])
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+}
+tv.append(ranks[i]);</pre>
+<p>
+	Damit ermitteln wir dann den Titel für unseren Ureinwohner.&nbsp;</p>
+<p>
+	Ganz fertig sind wir noch nicht: das Problem ist, dass die Methode <em>onSensorChanged()</em> mehrere Male in der Sekunde aufgerufen wird.&nbsp; Deshalb wird unser Rang nur ganz kurz angezeigt, bevor er wieder überschrieben wird.&nbsp; Wir benötigen also noch eine Instanzvariable <em>oldAccel</em>, und nur wenn die neue Beschleunigung höher war als die alte, zeigen wir diese an.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BilliardsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Billiards</h2>
+<p>
+	Wir können Sensordaten natürlich auch für Spiele verwenden.&nbsp; Als Starter nehmen wir unser Billiard Programm aus dem ersten Semester. Die Idee ist, dass wir die Daten vom Beschleunigungssensor nehmen und damit den Ball bewegen.</p>
+<p>
+	Da wir in den GraphicsProgrammen die onCreate() ausgelagert haben, ist es am besten den SensorManager in unserer init() Methode zu initialisieren:</p>
+<pre style="margin-left: 40px;">
+private SensorManager mSensorManager;
+
+public void init() {
+&nbsp;&nbsp; &nbsp;mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+}
+</pre>
+<p>
+	Die Methoden onResume(), onPause() und onAccuracyChanged() sind genauso wie in den vorhergehenden Beispielen.</p>
+<p>
+	Und wie bewegt sich jetzt der Ball? Das ist überraschend einfach, wir müssen lediglich vx und vy in der onSensorChanged() Methode anpassen:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] acceleration_in_m_per_s2 = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;vx -= acceleration_in_m_per_s2[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;vy += acceleration_in_m_per_s2[1];&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BrickBreakerActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BrickBreaker</h2>
+<p>
+	Auch beim BrickBreaker lässt sich der Beschleunigungssensor verwenden, in diesem Fall als sogenannter Lagesensor.&nbsp; Basierend auf dem Beschleunigungssensor wollen wir, dass sich der Paddle bewegt. &nbsp;</p>
+<p>
+	Zunächst machen wir die gleichen Anpassungen wie beim Billiardsbeispiel was den SensorManager und die onResume(), onPause() und onAccuracyChanged() Methoden angeht.&nbsp;</p>
+<p>
+	Dann müssen wir uns überlegen wie wir das mit dem Paddle machen.&nbsp; Eine Möglichkeit ist es dem Paddle eine eigene Geschwindigkeit zu geben, und basierend auf dieser Geschwindigkeit das Paddle zu bewegen:</p>
+<pre style="margin-left: 40px;">
+private double paddleSpeed = 0;
+
+private void movePaddle() {
+&nbsp;&nbsp; &nbsp;if (paddle != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double xP = paddle.getX();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (xP &lt; 0.0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddleSpeed = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddle.setX(1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (xP &gt; getWidth() - 2 * BALL_RADIUS) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddleSpeed = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddle.setX(getWidth() - 2 * BALL_RADIUS - 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddle.move((int) paddleSpeed, 0);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Dann müssen wir lediglich noch <em>paddleSpeed</em> in der onSensorChanged() Methode anpassen:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] acceleration_in_m_per_s2 = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paddleSpeed -= acceleration_in_m_per_s2[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Es dürfte ziemlich offensichtlich sein, dass wir hiermit eine ganze Klasse von Handyspielen abgedeckt bekommen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BubbleLevelActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BubbleLevel</h2>
+<p>
+	Als letzte Anwendung für den Lagesensor schreiben wir eine Wasserwaagen App.&nbsp; Damit das Ganze hübsch aussieht implementieren wir es als GraphicsProgram.&nbsp; Unsere Bubbles sind einfach GOvals, eine für die horizontale und die andere für die vertikale Ausrichtung, die wir jeweils mittig platzieren:</p>
+<pre style="margin-left: 40px;">
+private GOval bubbleHor;
+private GOval bubbleVer;
+
+private void setup() {
+&nbsp;&nbsp; &nbsp;setBackground(Color.GREEN);
+
+&nbsp;&nbsp; &nbsp;bubbleHor = new GOval(BUBBLE_SIZE, BUBBLE_SIZE);
+&nbsp;&nbsp; &nbsp;bubbleHor.setFillColor(Color.WHITE);
+&nbsp;&nbsp; &nbsp;bubbleHor.setFilled(true);
+&nbsp;&nbsp; &nbsp;add(bubbleHor, (getWidth() - BUBBLE_SIZE) / 2, PADDING);
+
+&nbsp;&nbsp; &nbsp;bubbleVer = new GOval(BUBBLE_SIZE, BUBBLE_SIZE);
+&nbsp;&nbsp; &nbsp;bubbleVer.setFillColor(Color.WHITE);
+&nbsp;&nbsp; &nbsp;bubbleVer.setFilled(true);
+&nbsp;&nbsp; &nbsp;add(bubbleVer, PADDING, (getHeight() - BUBBLE_SIZE) / 2);
+}
+</pre>
+<p>
+	Die Positionierung der Luftblasen erfolgt in der onSensorChanged() Methode:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] acceleration_in_m_per_s2 = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (bubbleHor != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = (int) ((getWidth() - BUBBLE_SIZE) / 2 + acceleration_in_m_per_s2[0] * SENSITIVITY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bubbleHor.setX(x);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = (int) ((getHeight() - BUBBLE_SIZE) / 2 - acceleration_in_m_per_s2[1] * SENSITIVITY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bubbleVer.setY(y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wenn man will kann man noch im Hintergrund je ein GRect für das Gehäuse der Wasserwaage setzen.&nbsp; (Warum man bei x ein Plus machen muss, und bei y ein Minus ist mir auch nicht ganz klar.)</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AllAccelGyroActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AllAccelGyro</h2>
+<p>
+	Wenn man sich Gedanken zu einer neuen App macht die Sensordaten verwenden soll, ist es hilfreich, wenn man die Sensordaten vorher mal visualisiert.&nbsp; Das wollen wir jetzt tun: eine App schreiben, welche die Werte des Beschleunigungssensors und des Gyroskops visualisiert.</p>
+<p>
+	Zu Beginn registrieren wir in der onResume() Methode Beschleunigungssensor und Gyroskop:</p>
+<pre style="margin-left: 40px;">
+protected void onResume() {
+&nbsp;&nbsp; &nbsp;super.onResume();
+&nbsp;&nbsp; &nbsp;Sensor mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+&nbsp;&nbsp; &nbsp;if (mAccelerometer != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;Sensor mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+&nbsp;&nbsp; &nbsp;if (mGyroscope != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<h3>
+	GraphView</h3>
+<p>
+	Zum Visualisieren verwenden wir die Klasse <em>GraphView</em>.&nbsp; Es handelt sich dabei um einen ganz normalen View, der einen Context als Übergabeparameter im Konstruktor erwartet.&nbsp; Die Verwendung der Klasse ist so einfach wie möglich gehalten:</p>
+<pre style="margin-left: 40px;">
+GraphView gv = new GraphView(this);
+
+gv.setStyle(GraphView.GraphStyle.LINE);
+gv.setColor(Color.BLUE);
+gv.setStrokeWidth(1);
+
+gv.setMin(-0.1f);
+gv.setMax(0.1f);
+gv.addDataPoint(accelLastAvg[i]);
+
+gv.postInvalidate();</pre>
+<p>
+	Was die verschiedenen Stile angeht, kennt er HISTOGRAM, POINT und LINE.&nbsp; Die Daten werden wie bei einem Oszilloskop angezeigt, d.h. neue Datenpunkte werden von rechts kommend eingefügt.</p>
+<h3>
+	TableLayout</h3>
+<p>
+	Für diese App eignet sich das TableLayout am besten.&nbsp; Ähnlich wie Tabellen in HTML bestehen die Tabellen im TableLayout aus Reihen, TableRow, in die man dann ein oder meherere Views einfügen kann.&nbsp; Das TableLayout selbst ist ganz einfach zu definieren:</p>
+<pre style="margin-left: 40px;">
+TableLayout.LayoutParams tableParams = 
+    new TableLayout.LayoutParams(
+        TableLayout.LayoutParams.MATCH_PARENT,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TableLayout.LayoutParams.MATCH_PARENT);
+
+TableLayout tl = new TableLayout(this);
+tl.setBackgroundColor(0x200000ff);
+tl.setLayoutParams(tableParams);
+setContentView(tl);</pre>
+<p>
+	Interessanter sind die LayoutParams der TableRow, denn hier können wir die gewünschte Breite und Höhe angeben, die ausnahmsweise sogar respektiert wird:</p>
+<pre style="margin-left: 40px;">
+TableRow.LayoutParams rowParams = 
+    new TableRow.LayoutParams(
+        TableRow.LayoutParams.MATCH_PARENT,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TableRow.LayoutParams.WRAP_CONTENT);
+<span style="color:#0000ff;">rowParams.width</span> = width / NR_OF_COLUMNS;
+<span style="color:#0000ff;">rowParams.height</span> = height / NR_OF_ROWS;</pre>
+<p>
+	dabei sind <em>width</em> und <em>height</em> Instanzvariablen, die wir über die Methode <em>getScreenSize()</em> ermittelt haben (Kapitel zwei).</p>
+<p>
+	Jetzt können wir die zwei TableRows definieren, in die wir je drei GraphViews einfügen:</p>
+<pre style="margin-left: 40px;">
+gvs = new GraphView[6];
+
+TableRow tr1 = new TableRow(this);
+for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;gvs[i] = new GraphView(this);
+&nbsp;&nbsp; &nbsp;gvs[i].setLayoutParams(rowParams);
+&nbsp;&nbsp; &nbsp;tr1.addView(gvs[i]);
+}
+tl.addView(tr1);
+
+TableRow tr2 = new TableRow(this);
+for (int i = 3; i &lt; 6; i++) {
+&nbsp;&nbsp; &nbsp;gvs[i] = new GraphView(this);
+&nbsp;&nbsp; &nbsp;gvs[i].setLayoutParams(rowParams);
+&nbsp;&nbsp; &nbsp;tr2.addView(gvs[i]);
+}
+tl.addView(tr2);
+</pre>
+<h3>
+	Sensor Data</h3>
+<p>
+	Im einfachsten Fall zeigen wir einfach die Rohdaten an:</p>
+<pre style="margin-left: 40px;">
+public void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;switch (event.sensor.getType()) {
+&nbsp;&nbsp; &nbsp;case Sensor.TYPE_ACCELEROMETER:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double accel = event.values[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gvs[i].addDataPoint(accel);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gvs[i].postInvalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;case Sensor.TYPE_GYROSCOPE:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double gyro = event.values[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gvs[i + 3].addDataPoint(gyro);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gvs[i + 3].postInvalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wenn wir aber auf den dritten Beschleunigungssensor achten, stellen wir fest, dass der einen Wert von 9.8 hat, und deswegen gar nicht angezeigt wird.&nbsp; Hier gibt es zwei Möglichketen:&nbsp; entweder Minimum und Maximum im GraphView für diesen Sensor zu ändern, oder einen Hochpass als Filter einzusetzen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RandomGeneratorActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RandomGenerator</h2>
+<p>
+	Am Anfang des zweiten Buchs haben wir ein bischen was über Pseudo-Zufallszahlen gelernt und dabei auch den Lehmer Algorithmus kennen gelernt. Alle Pseudo-Zufallszahlen Algorithmen haben das gleiche Problem: kann man die Seed erraten, also den ersten Wert, dann kann man alle folgenden Zahlen berechnen.&nbsp; Da in der Regel die Uhrzeit als Seed verwendet wird, gelingt es der NSA und ähnlichen Organisationen sehr häufig die meisten Verschlüsselungen zu knacken.</p>
+<p>
+	Da wir aber inzwischen auf die Sensordaten unseres Smartphones zugreifen können, können wir der NSA ein Schnippchen schlagen: wir benutzen einfach den Beschleunigungssensor und das Gyroskop um die Seed zu generieren.&nbsp; Vorab sollten wir aber noch zwei Dinge beachten: Natürlich sollte unser Smartphone nicht starr rumliegt, sondern ein bischen bewegen sollte es sich schon.&nbsp; Und was den z-Beschleunigungssensor angeht, wird der immer mit einer &#39;9&#39; beginnen (es sei denn wir sind auf dem Mond oder Mars).</p>
+<p>
+	Für unsere Anwendung definieren wir zwei Instanzvariablen:</p>
+<pre style="margin-left: 40px;">
+private float[] acceleration_in_m_per_s2;
+private float[] rotation_in_rad_per_s;</pre>
+<p>
+	Die werden in der <em>onSensorChanged()</em> Methode immer auf die aktuellen Werte gesetzt.</p>
+<p>
+	In der onClick() Methode des &quot;Init Seed from Sensors&quot; Buttons erzeugen wir dann eine <em>seedA</em> aus den Beschleunigungsdaten</p>
+<pre style="margin-left: 40px;">
+float seedA = acceleration_in_m_per_s2[0];
+seedA += acceleration_in_m_per_s2[1];
+// gravity is to predictable:
+float gravity = acceleration_in_m_per_s2[2];
+// get rid of first 3 digits
+gravity = gravity * 100 - (int) (gravity * 100);
+seedA += gravity;</pre>
+<p>
+	und eine <em>seedB</em> aus den Gyroskopdaten</p>
+<pre style="margin-left: 40px;">
+float seedB = rotation_in_rad_per_s[0];
+seedB += rotation_in_rad_per_s[1];
+seedB += rotation_in_rad_per_s[2];</pre>
+<p>
+	Von den beiden Seeds nehmen wir dann noch den absoluten Wert</p>
+<pre style="margin-left: 40px;">
+seedA = Math.abs(seedA);
+seedB = Math.abs(seedB);</pre>
+<p>
+	Wir sollten darauf achten, dass beide Seeds größer als Null sind, denn ansonsten deutet das auf ein Problem mit den Sensordaten hin:</p>
+<pre style="margin-left: 40px;">
+if (seedA &gt; 0 &amp;&amp; seedB &gt; 0) {
+&nbsp;&nbsp; &nbsp;// get exponent:
+&nbsp;&nbsp; &nbsp;int expA = (int) Math.log10(seedA);
+&nbsp;&nbsp; &nbsp;int expB = (int) Math.log10(seedB);
+&nbsp;&nbsp; &nbsp;seedA = (float) (seedA * Math.pow(10, -expA));
+&nbsp;&nbsp; &nbsp;seedB = (float) (seedB * Math.pow(10, -expB));
+&nbsp;&nbsp; &nbsp;Log.i(&quot;seedA: &quot;, &quot;&quot; + seedA);
+&nbsp;&nbsp; &nbsp;Log.i(&quot;seedB: &quot;, &quot;&quot; + seedB);
+
+&nbsp;&nbsp; &nbsp;// now make them big
+&nbsp;&nbsp; &nbsp;long seed = (long) (seedB * 100000 * 100000) + (long) (seedA * 100000);
+
+&nbsp;&nbsp; &nbsp;rgen.setSeed((int) seed);
+&nbsp;&nbsp; &nbsp;tv.setText(&quot;&quot; + seed);
+
+} else {
+&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;Bad seeds, try again!&quot;, Toast.LENGTH_SHORT).show();
+}
+</pre>
+<p>
+	Der Trick mit dem Logarithmus führt dazu, dass führende Nullen verschwinden.&nbsp; Die enthalten keinerlei Information und sind eher schädlich.&nbsp; Dann kombinieren wir die beiden Seeds und benutzen sie als Eingangsseed für unseren Lehmeralgorithmus.</p>
+<p>
+	Man könnte jetzt der Versuchung erliegen alle Zufallszahlen mittels Sensordaten erzeugen zu lassen und auf den Lehmer Algorithmus komplett zu verzichten.&nbsp; Davon würde aber jeder abraten, der ein Studium der Mathematik hinter sich hat.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CompassActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Compass</h2>
+<p>
+	Überraschend wenige Smartphones haben einen Magnetfeldsensor, speziell im unteren Preissegment.&nbsp; Sollte unser Smartphone aber einen haben, dann können wir diesen natürlich verwenden um einen Kompass zu programmieren.&nbsp;</p>
+<p>
+	Um uns nicht allzuviel Arbeit mit der UI zu machen, setzen wir auf Reuse: für die analoge Gradanzeige verwenden wir unser Projekt <em>AnalogClock</em> aus dem ersten Semester, wo wir einfach die Uhrzeiten durch Gradangaben ersetzen:</p>
+<pre style="margin-left: 40px;">
+private void drawFace() {
+&nbsp;&nbsp; &nbsp;face = new GOval(SIZE, SIZE);
+&nbsp;&nbsp; &nbsp;add(face, 0, OFFSET);
+}
+
+private void drawAngles() {
+&nbsp;&nbsp; &nbsp;for (int i = -5; i &lt;= 6; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GLabel digit = new GLabel(&quot;&quot; + i * 30);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;digit.setFont(&quot;Times New Roman-bold-&quot; + FONT_SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double radians = 2 * Math.PI * i / 12;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double radius = SIZE - 80;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double x = -30 + SIZE / 2 + Math.sin(radians) * radius / 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double y = 10 + SIZE / 2 - Math.cos(radians) * radius / 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(digit, x, y + OFFSET);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Und für unsere Kompassnadel verwenden wir unser geliebtes <em>GSpaceShip</em>, wir machen es nur ein bisschen größer:</p>
+<pre style="margin-left: 40px;">
+private void drawSpaceShip(float degrees) {
+&nbsp;&nbsp; &nbsp;if (face != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (ship != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;remove(ship);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ship = new GSpaceShip();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ship.rotate(-degrees);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(ship, SIZE / 2, SIZE / 2 + OFFSET);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Kommen wir zum Sensor: wir könnten zwar den Hardwaresensor <em>TYPE_MAGNETIC_FIELD</em> verwenden, allerdings viel einfacher ist der TYPE_ROTATION_VECTOR Sensor.&nbsp; Das ist ein Softwaresensor, der eine Kombination aus drei Hardwaresensoren ist und den Vorteil hat, dass zum einen die Schwerkraft verwendet wird um die z-Achse festzulegen, und zum anderen kleinere Schwankungen mittels Kalmanfilter bereinigt wurden.</p>
+<p>
+	Wir registrieren also den TYPE_ROTATION_VECTOR Sensor in der onResume() Methode:</p>
+<pre style="margin-left: 40px;">
+protected void onResume() {
+&nbsp;&nbsp; &nbsp;super.onResume();
+
+&nbsp;&nbsp; &nbsp;Sensor mMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+&nbsp;&nbsp; &nbsp;if (mMagnet != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager.registerListener(this, mMagnet, SensorManager.SENSOR_DELAY_NORMAL);
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Your device has no magnetic sensors!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	und in der <em>onSensorChanged()</em> Methode zeichnen wir dann die Kompassnadel:</p>
+<pre style="margin-left: 40px;">
+public void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;float degrees = event.values[2] * 180;
+&nbsp;&nbsp; &nbsp;Log.i(&quot;degrees=&quot;, &quot;&quot; + degrees);
+&nbsp;&nbsp; &nbsp;drawSpaceShip(degrees);
+}
+</pre>
+<p>
+	Ein Kompass mit Digitalanzeige wäre natürlich viel einfacher gewesen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MetalDetectorActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />MetalDetector</h2>
+<p>
+	Eine Anwendung bei der wir den Hardwaresensor <em>TYPE_MAGNETIC_FIELD</em> direkt verwenden können ist ein Metalldetektor, genauer ein Eisendetektor (oder was sonst noch so magnetische Felder verursacht, wie z.B. Gleichstrom).&nbsp; Wir registrieren unseren Magnetfeld-Sensor in der onResume() Methode:</p>
+<pre style="margin-left: 40px;">
+protected void onResume() {
+&nbsp;&nbsp; &nbsp;super.onResume();
+
+&nbsp;&nbsp; &nbsp;Sensor mMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+&nbsp;&nbsp; &nbsp;if (mMagnet != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mSensorManager.registerListener(this, mMagnet, SensorManager.SENSOR_DELAY_NORMAL);
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Your device has no magnetic sensors!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Bei der Auswertung der Sensordaten, müssen wir das Erdmagnetfeld beachten, dass ja immer vorhanden ist.&nbsp; Um es los zu werden, können wir einen Hochpass verwenden.&nbsp; Zusätzlich interessieren uns ganz schnelle Änderungen eigentlich auch nicht, deswegen verwenden wir zusätzlich auch noch einen Tiefpass.&nbsp; Natürlich müssen wir bei der Wahl unserer beiden Konstanten etwas vorsichtig sein, denn sonst kommen gar keine Daten mehr durch.&nbsp; Aber mit den folgenden beiden Werten</p>
+<pre style="margin-left: 40px;">
+private final float LOW_PASS_FACTOR = 0.8f;
+private final int TIME_RESOLUTION = 100;
+</pre>
+<p>
+	scheint es ganz gut zu funktionieren. Die onSensorChanged() Methode sieht dann wie folgt aus:</p>
+<pre style="margin-left: 40px;">
+public final void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;long currentTime = System.currentTimeMillis();
+&nbsp;&nbsp; &nbsp;if (currentTime - lastTime &gt; TIME_RESOLUTION) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;lastTime = currentTime;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] field_strength_in_micro_tesla = event.values;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// low-pass
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;magneticBackground[i] = lowPass(field_strength_in_micro_tesla[i], magneticBackground[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// high-pass filter
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] highPass = new float[3];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;highPass[i] = highPass(field_strength_in_micro_tesla[i], magneticBackground[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg = &quot;x: &quot; + df.format(highPass[0]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;y: &quot; + df.format(highPass[1]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;z: &quot; + df.format(highPass[2]) + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TextView tv = (TextView) findViewById(R.id.textview);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(msg);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wobei <em>lastTime</em> und <em>magneticBackground</em> zwei Instanzvariablen sind.&nbsp; Stellt sich die Frage, könnte man mit einem 50 Hz Filter auch Wechselstrom nachweisen?</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SpyActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Spy</h2>
+<p>
+	Eine interessante Beobachtung ist, dass man auf die Sensordaten ohne besondere Berechtigungen zugreifen darf.&nbsp; Anders ausgedrückt, wir als Nutzer unseres Phones, können einer Anwendung nicht verbieten auf die Sensoren zu zugreifen (ausgenommen natürlich der GPS Sensor).&nbsp; Man könnte nun meinen, dass sei ja nicht weiter schlimm, was kann man denn mit den Sensordaten schon anfangen?&nbsp; Nun, Forscher der Stanford University haben gezeigt [7], dass man das Gyroskop oder den Beschleunigungssensor effektiv als Mikrofon für Frequenzen von unterhalb 200 Hz verwenden kann. Verschwörungstheoretiker würden das als Beweis werten, dass Google von NSA Mitarbeitern unterwandert ist.&nbsp; Uns ist das aber egal, wir wollen das einfach mal in Aktion sehen.</p>
+<p>
+	Zunächst sollten wir den Beschleunigungssensor registrieren:</p>
+<pre style="margin-left: 40px;">
+protected void onResume() {
+&nbsp;&nbsp; &nbsp;super.onResume();
+
+&nbsp;&nbsp; &nbsp;mSensorManager.registerListener(this, 
+        mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SensorManager.SENSOR_DELAY_FASTEST);
+}
+</pre>
+<p>
+	(auf manchen Geräten ist das Gyroskop besser geeignet).&nbsp; In der UI gibt es zwei Knöpfe, einen zum Aufnehmen und einen zum Abspielen:</p>
+<pre style="margin-left: 40px;">
+btnAccel = (Button) findViewById(R.id.btnAccel);
+btnAccel.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rawPointer = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnAccel.setEnabled(false);
+&nbsp;&nbsp; &nbsp;}
+});
+
+btnAgain = (Button) findViewById(R.id.btnAgain);
+btnAgain.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getMinMax();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short[] buffer = convertToAudio();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;playAudio(buffer);
+&nbsp;&nbsp; &nbsp;}
+});
+</pre>
+<p>
+	Die Aufnahme findet in der onSensorChanged() Methode statt:</p>
+<pre style="margin-left: 40px;">
+private int rawPointer = TIME * FREQUENCY / SCALE;
+private float[] <span style="color:#0000ff;">rawData</span> = new float[TIME * FREQUENCY / SCALE];
+
+public void onSensorChanged(SensorEvent event) {
+&nbsp;&nbsp; &nbsp;if (rawPointer &lt; TIME * FREQUENCY / SCALE) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float[] values = event.values;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float delta = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 3; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;delta += values[i] - oldValues[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oldValues[i] = values[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// we do not want the first value:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (delta &lt; 9) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">rawData</span>[rawPointer] = delta;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rawPointer++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getMinMax();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mTextView1.setText(&quot;size: &quot; + rawData.length + &quot;, min=&quot; + min + &quot; ,max=&quot; + max);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnAccel.setEnabled(true);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Die Sensordaten werden in dem Instanzarray <em>rawData</em> gespeichert.&nbsp; Der <em>rawPointer</em> ist ein Pointer in das <em>rawData</em> Array.&nbsp; Wenn wir am Ende des Arrays angelangt sind, dann hört die Aufnahme auf.&nbsp; Die Länge der Aufnahme wird durch die drei Konstanten</p>
+<pre style="margin-left: 40px;">
+private final int SCALE = 80;&nbsp;&nbsp; &nbsp;// should be a gcd of FREQUENCY
+private final int FREQUENCY = 8000;
+private final int TIME = 2; // seconds
+</pre>
+<p>
+	definiert.&nbsp; Dabei sollte FREQUENCY nicht verändert werden.&nbsp; TIME ist ungefähr die Länge der Aufnahme in Sekunden, und SCALE hat einen Wert irgendwo zwischen 10 und 100, abhängig davon wie schnell das Gerät die Sensordaten liefert.</p>
+<p>
+	Die Methode <em>getMinMax()</em> wird benötigt um die Sensordaten zu skalieren, es findet einfach den kleinsten und den größten Wert in dem Sensordatenarray:</p>
+<pre style="margin-left: 40px;">
+private float min, max;
+
+private void getMinMax() {
+&nbsp;&nbsp; &nbsp;min = Float.MAX_VALUE;
+&nbsp;&nbsp; &nbsp;max = Float.MIN_VALUE;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; rawData.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float value = rawData[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (value &gt; max) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;max = value;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (value &lt; min) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;min = value;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Damit lassen sich die Sensordaten dann in Audiodaten konvertieren,</p>
+<pre style="margin-left: 40px;">
+private short[] convertToAudio() {
+&nbsp;&nbsp; &nbsp;short[] buffer = new short[TIME * FREQUENCY];
+&nbsp;&nbsp; &nbsp;float maxMinusMin = max - min;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; TIME * FREQUENCY; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// scale between 0 and 1:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float v = (rawData[i / SCALE] - min) / maxMinusMin;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// scale to max range of short:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short vv = (short) (2 * Short.MAX_VALUE * (v - 0.5));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;buffer[i] = vv;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return buffer;
+}</pre>
+<p>
+	die wir dann ganz einfach abspielen können:</p>
+<pre style="margin-left: 40px;">
+private void playAudio(short[] buffer) {
+&nbsp;&nbsp; &nbsp;int audioLength = buffer.length;
+&nbsp;&nbsp; &nbsp;AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, FREQUENCY,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, audioLength,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;AudioTrack.MODE_STREAM);
+&nbsp;&nbsp; &nbsp;audioTrack.play();
+&nbsp;&nbsp; &nbsp;audioTrack.write(buffer, 0, audioLength);
+}</pre>
+<p>
+	Unsere App ist natürlich nicht perfekt, für Stimme oder Musik ist sie nicht geeignet.&nbsp; Wenn wir aber Morse-artig auf den Tisch klopfen (und das Gerät auf dem Tisch liegt), dann kann man das Klopfen hören.&nbsp; Wir haben also ein Mikrofon für niederfrequente Geräusche.&nbsp; Übrigens ist das auch der Grund warum man seine Festplatte nicht anschreien soll [8].</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RotationVectorDemoActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RotationVectorDemo (TYPE_GAME_ROTATION_VECTOR)</h2>
+<p>
+	Wir haben den Softwaresensor TYPE_GAME_ROTATION_VECTOR noch nicht angesprochen.&nbsp; Im Gegensatz zum Sensor TYPE_ROTATION_VECTOR kommt er ohne Magnetfeldsensor aus, funktioniert also auf viel mehr Endgeräten.&nbsp; Einen kleinen Nachteil hat er aber schon, es gibt immer einen kleinen Drift, abhängig vom Gerät.&nbsp;</p>
+<p>
+	Ein wunderschönes Beispiel von Google, die RotationVectorDemo [9] zeigt sehr schön visuell wie man den Sensor benutzt und was mit dem Drift gemeint ist.&nbsp; Als kleines Zusatzfeature sieht man auch wie man mit OpenGL in Android arbeiten kann.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	In diesem Kapitel gibt es noch zwei interessante Themen, die man noch etwas vertiefen könnte.</p>
+<p>
+	.</p>
+<h2>
+	Sensor Fusion</h2>
+<p>
+	Wir haben den Begriff &quot;Sensor Fusion&quot; ein paar mal erwähnt.&nbsp; Dazu gibt es einen sehr interessanten GoogleTechTalk von David Sachs [1], den man sich mal anschauen sollte.&nbsp; Überhaupt gibt es ne ganze Menge cooler GoogleTechTalks.</p>
+<p>
+	.</p>
+<h2>
+	Kalman Filter</h2>
+<p>
+	&quot;Sensor Fusion&quot; verwendet unter anderem Kalman Filter.&nbsp; Als angehende Ingenieurin schadet es nichts mal den Artikel in der Wikipedia zu überfliegen [2].</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Auf den meisten Android Geräten gibt es mehrere Möglichkeiten um die eigene Position (location) zu bestimmen, manche mit höherer andere mit geringerer Auflösung.&nbsp; Nennen Sie drei verschiedene Möglichkeiten.<br />
+		&nbsp;</li>
+	<li>
+		Benötigt man besondere Erlaubnisse (permissions) um auf die Positionsdaten (location) eines Gerätes zugreifen zu können, oder anders ausgedrückt, bedarf es besonderer Permissions wenn die Applikation auf dem Gerät installiert wird?<br />
+		&nbsp;</li>
+	<li>
+		Warum ist der Dalvik Debug Monitor Server (DDMS) wichtig wenn man Apps entwickelt, die den&nbsp; GPS Sensor benötigen?<br />
+		&nbsp;</li>
+	<li>
+		Welche Sensoren findet man auf den meisten normalen Android Geräten? (Nennen Sie mindestens 5)<br />
+		&nbsp;</li>
+	<li>
+		Was versteht man unter dem Begriff Sensor Fusion, und warum ist es relevant für Android Entwickler?<br />
+		&nbsp;</li>
+	<li>
+		Filter werden sehr häufig zusammen mit Sensoren verwendet, dabei kommen vor allem der Hochpass- und der Tiefpassfilter vor.&nbsp; Nennen Sie ein Beispiel wann Sie einen Hochpass- und wann Sie einen Tiefpassfilter einsetzen würden.<br />
+		&nbsp;</li>
+	<li>
+		Überlegen Sie sich eine Beispielapp die Sie mit dem Beschleunigungssensor entwickeln könnten.</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] David Sachs, GoogleTechTalks, Sensor Fusion on Android Devices: A Revolution in Motion Processing, <a href="https://www.youtube.com/watch?v=C7JQ7Rpwn2k">https://www.youtube.com/watch?v=C7JQ7Rpwn2k</a></p>
+<p>
+	[2] Kalman filter, <a href="https://en.wikipedia.org/wiki/Kalman_filter">https://en.wikipedia.org/wiki/Kalman_filter</a></p>
+<p>
+	[3] Global Positioning System, <a href="http://en.wikipedia.org/wiki/Global_Positioning_System">en.wikipedia.org/wiki/Global_Positioning_System</a></p>
+<p>
+	[4] Hue, <a href="https://en.wikipedia.org/wiki/Hue">https://en.wikipedia.org/wiki/Hue</a></p>
+<p>
+	[5] Qingkai Kong, et.al., Smartphone-based Networks for Earthquake Detection, <a href="https://pdfs.semanticscholar.org/554a/f252d80c8cefc5de0a8f511a3427f8b9bcb9.pdf">https://pdfs.semanticscholar.org/554a/f252d80c8cefc5de0a8f511a3427f8b9bcb9.pdf</a></p>
+<p>
+	[6] Hau den Lukas auf der Wiesn, <a href="https://www.youtube.com/watch?v=_AOdyo3tCwc">https://www.youtube.com/watch?v=_AOdyo3tCwc</a></p>
+<p>
+	[7] Michalevsky Y., Boneh D., and Nakibly G., Gyrophone: Recognizing Speech From Gyroscope Signals, <a href="https://crypto.stanford.edu/gyrophone/files/gyromic.pdf">https://crypto.stanford.edu/gyrophone/files/gyromic.pdf</a></p>
+<p>
+	[8] Bryan Cantrill, Shouting in the Datacenter, <a href="https://www.youtube.com/watch?v=tDacjrSCeq4">https://www.youtube.com/watch?v=tDacjrSCeq4</a></p>
+<p>
+	[9] RotationVectorDemo.java, <a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/os/RotationVectorDemo.java">https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/os/RotationVectorDemo.java</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

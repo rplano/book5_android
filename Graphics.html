@@ -1,0 +1,1125 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch3_Confetti.png" style="display: block; margin-left: auto; margin-right: auto;width: 232px; height: 359px;" /></p>
+<h1>
+	Graphics</h1>
+<p>
+	Zu Benutzeroberflächen gehören nicht nur UI-Widgets, sondern auch 2D-Grafik.&nbsp; In diesem Kapitel wollen wir uns daher vor allem mit 2D-Grafik Anwendungen beschäftigen.&nbsp; Ausserdem werden wir sehen wie Tasten- und vor allem Toucheingaben funktionieren, und auch verschiedene Gesten werden wir kennen lernen.&nbsp; Das eine oder andere Beispiel sollte uns aus dem ersten Buch bekannt sein.</p>
+<p>
+	.</p>
+<h2>
+	View</h2>
+<p>
+	Bevor wir mit unseren ersten Grafikprogrammen beginnen, müssen wir uns mit der <em>View</em> Klasse vertraut machen.&nbsp; Betrachten wir folgendes einfaches Beispiel:</p>
+<pre style="margin-left: 40px;">
+public class GraphicsActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(<span style="color:#0000ff;">new GraphicsView(this)</span>);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Der Unterschied zum letzten Kapitel ist, dass wir in der <em>setContentView()</em> Methode keine Referenz auf eine Resource geben, sondern unsere eigene Klasse, einen View übergeben.&nbsp; Einen eigenen View zu schreiben ist denkbar einfach:&nbsp; wir erben von der Android View Klasse und überschreiben die <em>onDraw()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+class GraphicsView <span style="color:#0000ff;">extends View</span> {
+
+&nbsp;&nbsp; &nbsp;public GraphicsView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void <span style="color:#0000ff;">onDraw(Canvas canvas)</span> {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Alles was mit Zeichnen zu tun hat, passiert in der <em>onDraw()</em> Methode.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GraphicsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Graphics</h2>
+<p>
+	Das Grafikmodell von Android unterscheidet sich ein wenig von dem objektorientierten Ansatz, den die ACM-Grafikbibliothek verwendet.&nbsp; Während wir im ACM-Fall GObjects, wie ein GRect oder einen GLabel, zum Zeichnen verwendet haben, verwendet Android die Canvas-Klasse mit ihren Zeichenmethoden.&nbsp; Das Canvas-Objekt wird uns als Argument in der onDraw() Methode übergeben:</p>
+<pre style="margin-left: 40px;">
+protected void onDraw(<span style="color:#0000ff;">Canvas canvas</span>) {
+&nbsp;&nbsp; &nbsp;setBackgroundColor(0x200000ff);
+
+&nbsp;&nbsp; &nbsp;Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.BLACK);
+&nbsp;&nbsp; &nbsp;paint.setTextSize(64f);
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">canvas.drawText</span>(&quot;Hello World!&quot;, getWidth() / 2 - 180, 200, paint);
+}
+</pre>
+<p>
+	Zum Beispiel, wenn wir Text auf unseren View schreiben wollen, verwenden wir die <em>drawText()</em> Methode des Canvas-Objekts.&nbsp; Dabei gibt es noch zwei Dinge zu beachten:</p>
+<ul>
+	<li>
+		das Farbmodell von Android unterscheidet sich ein wenig von dem in Standard Java: in Android sind die Farben Integers, wobei die vier Bytes für den Alpha-, Rot-, Grün- und Blauwert stehen.&nbsp; Das erklärt die lustig aussehende Zahl &quot;0x200000ff&quot;, die ein Integer in hexadezimaler Schreibweise ist.&nbsp; Es gibt auch die üblichen vordefinierten Farben, wie z.B. Color.BLACK.&nbsp; Und wir können natürlich auch unsere eigenen Farben mit der Methode Color.argb(127, 255, 0, 0) erstellen.</li>
+	<li>
+		die Klasse Paint: diese wird als Parameter an alle Zeichenmethoden übergeben.&nbsp; Es spezifiziert Dinge, die Android wissen muss, wenn es Sachen zeichnen soll, wie die Farbe oder Schriftart die es verwenden soll, welche Schriftgröße, und ob geometrische Objekte ausgefüllt werden sollen oder nicht.</li>
+</ul>
+<p>
+	Die onDraw() Methode wird von Android jedes Mal aufgerufen, wenn der Bildschirm neu gezeichnet werden muss.&nbsp; Im Allgemeinen sollte man sich angewöhnen, so wenig wie möglich in dieser Methode zu tun, dann läuft unsere Anwendung auch schnell und reibungslos.</p>
+<p>
+	.</p>
+<h2>
+	Drawing Methods</h2>
+<p>
+	Betrachten wir die verschiedenen Zeichenmethoden die die Canvas Klasse unterstützt.&nbsp; Die drawText() Methode haben wir ja bereits oben gesehen.&nbsp; Als nächstes sehen wir uns an, wie wir Linien zeichnen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.WHITE);
+&nbsp;&nbsp; &nbsp;paint.setStrokeWidth(8);
+&nbsp;&nbsp; &nbsp;canvas.drawLine(getWidth() / 2 - 200, 210, getWidth() / 2 + 200, 210, paint);
+    ...
+</pre>
+<p>
+	Mit der Methode <em>setStrokeWidth()</em> können wir die Dicke der Linie festlegen.&nbsp; Das Zeichnen von Rechtecken, Ovalen und Bögen folgt dem gleichen Muster:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;float x = 200;
+&nbsp;&nbsp; &nbsp;float y = 400;
+&nbsp;&nbsp; &nbsp;float w = 100;
+&nbsp;&nbsp; &nbsp;float h = 100;
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.BLUE);
+&nbsp;&nbsp; &nbsp;canvas.drawRect(x, y, x + w, y + h, paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;canvas.drawRect(x, y, x + w, y + h, paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.GREEN);
+&nbsp;&nbsp; &nbsp;canvas.drawOval(new RectF(x, y, x + w, y + h), paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.GREEN);
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;canvas.drawOval(new RectF(x, y, x + w, y + h), paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.CYAN);
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;RectF mRectF = new RectF(x, y, x + w, y + h);
+&nbsp;&nbsp; &nbsp;float startAngle = 45;
+&nbsp;&nbsp; &nbsp;float sweepAngle = 270;
+&nbsp;&nbsp; &nbsp;canvas.drawArc(mRectF, startAngle, sweepAngle, true, paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;mRectF = new RectF(x, y, x + w, y + h);
+&nbsp;&nbsp; &nbsp;canvas.drawArc(mRectF, startAngle, sweepAngle, true, paint);
+    ...
+</pre>
+<p>
+	Wir können diese Objekte ausfüllen, indem wir den Stil des Paint Objektes auf <em>Paint.Style.FILL</em> setzen.&nbsp; Wenn wir nur den Rand dieser Objekte zeichnen wollen, setzen wir den Stil auf <em>Paint.Style.STROKE</em>.&nbsp; Interessant ist auch, dass drawOval() und drawArc() ein RectF als Parameter benötigen.</p>
+<p>
+	Zwei interessante Methoden, die in der ACM-Grafikbibliothek keine Entsprechung haben, sind die <em>drawLines()</em> und die <em>drawPoints()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;x = 200;
+&nbsp;&nbsp; &nbsp;y += 200;
+&nbsp;&nbsp; &nbsp;float[] pts = { 200, 650, 225, 600, 275, 600, 300, 650, 275, 700, 225, 700 };
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.RED);
+&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;canvas.drawLines(pts, paint);
+
+&nbsp;&nbsp; &nbsp;x += 200;
+&nbsp;&nbsp; &nbsp;float[] pts2 = { 400, 650, 425, 600, 475, 600, 500, 650, 475, 700, 425, 700 };
+&nbsp;&nbsp; &nbsp;canvas.drawPoints(pts2, paint);
+    ...
+</pre>
+<p>
+	Die zweite macht genau das, was man von ihr erwarten würde.&nbsp; Die erste zeichnet jedoch nur Liniensegmente.&nbsp; Wenn wir nach etwas suchen, das das GPolygon nachahmt, dann ist die <em>drawPath()</em> Methode wohl am ähnlichsten:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;x = 200;
+&nbsp;&nbsp; &nbsp;y += 250;
+&nbsp;&nbsp; &nbsp;Path path = new Path();
+&nbsp;&nbsp; &nbsp;path.reset();
+&nbsp;&nbsp; &nbsp;path.moveTo(x, y);
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 7; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float x0 = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x += 100;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float y0 = y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y += ((i % 2) - 0.5) * 200;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// path.lineTo(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;path.quadTo(x, y, x0, y0);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;// path.close();
+&nbsp;&nbsp; &nbsp;paint.setColor(Color.YELLOW);
+&nbsp;&nbsp; &nbsp;canvas.drawPath(path, paint);
+    ...
+</pre>
+<p>
+	Wir beginnen mit einem leeren Pfad (Path), den wir allerdings noch mit <em>reset()</em> zurücksetzen müssen.&nbsp; Mit der <em>moveTo()</em> Methode fügen wir den Anfangspunkt zu unserem Pfad.&nbsp; Von wo aus wir dann zum nächsten Punkt und danach zu allen anderen Punkten gehen.&nbsp; Für die Verbindungen zwischen den Punkten können wir eine von drei verschiedenen Methoden verwenden:</p>
+<ul>
+	<li>
+		<strong>lineTo():</strong> verbindet zwei Punkte einfach mit einer geraden Linie.</li>
+	<li>
+		<strong>quadTo():</strong> verwendet eine quadratische Bezierkurve, um zwei Punkte zu verbinden.</li>
+	<li>
+		<strong>cubicTo():</strong> verwendet eine kubische Bezierkurve, um zwei Punkte zu verbinden.</li>
+</ul>
+<p>
+	Falls wir noch nie etwas von Bézier-Kurven[1] gehört haben, kann man in der Wikipedia nachlesen, wie die im Detail funktionieren.</p>
+<p>
+	Schließlich können wir auch Bitmaps zeichnen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;x = 200;
+&nbsp;&nbsp; &nbsp;y += 200;
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp;&nbsp;     InputStream is = getAssets().open(&quot;Mona_Lisa.jpg&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Bitmap bitmap = BitmapFactory.decodeStream(is);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawBitmap(bitmap, x, y, null);
+&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;GraphicsActivity&quot;, e.getMessage());
+&nbsp;&nbsp; &nbsp;}
+    ...
+</pre>
+<p>
+	Wir haben also für jedes unserer ACM-Grafikobjekte eine entsprechende Androids Convas Zeichnungsmethode gefunden:</p>
+<table border="1" cellpadding="1" cellspacing="1">
+	<tbody>
+		<tr>
+			<td>
+				<strong>ACM graphics object </strong></td>
+			<td>
+				<strong>Android drawing method</strong></td>
+		</tr>
+		<tr>
+			<td>
+				GLabel</td>
+			<td>
+				drawText()</td>
+		</tr>
+		<tr>
+			<td>
+				GLine</td>
+			<td>
+				drawLine()</td>
+		</tr>
+		<tr>
+			<td>
+				GRect</td>
+			<td>
+				drawRect()</td>
+		</tr>
+		<tr>
+			<td>
+				GOval</td>
+			<td>
+				drawOval()</td>
+		</tr>
+		<tr>
+			<td>
+				GArc</td>
+			<td>
+				drawArc()</td>
+		</tr>
+		<tr>
+			<td>
+				GPolygon</td>
+			<td>
+				drawPath()</td>
+		</tr>
+		<tr>
+			<td>
+				GImage</td>
+			<td>
+				drawBitmap()</td>
+		</tr>
+	</tbody>
+</table>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ConfettiActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Confetti</h2>
+<p>
+	Um ein Gefühl dafür zu bekommen, wie das Zeichnen in Android funktioniert, beginnen wir mit einem Beispiel aus dem ersten Semester, dem Konfetti-Programm. Die Activity bleibt die gleiche wie oben.&nbsp; Wir müssen uns nur um den View kümmern:</p>
+<pre style="margin-left: 40px;">
+class ConfettiView extends View {
+&nbsp;&nbsp; &nbsp;private Paint paint;
+&nbsp;&nbsp; &nbsp;private Random rgen = new Random();
+
+&nbsp;&nbsp; &nbsp;public ConfettiView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create randomly sized oval
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int w = SIZE / 2 + rgen.nextInt(SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = -SIZE + rgen.nextInt(getWidth());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = -SIZE + rgen.nextInt(getHeight());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(rgen.nextInt());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawOval(new RectF(x, y, x + w, y + w), paint);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">invalidate()</span>;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Vergleicht man den Code mit unserem vorherigen Beispiel, so sind die beiden sehr ähnlich:&nbsp; Wir zeichnen ein zufällig gefärbtes Oval an einer zufälligen Position auf dem Bildschirm mit der drawOval() Methode.&nbsp; Da wir mehr als ein Oval zeichnen wollen, pausieren wir ein wenig und rufen dann die <em>invalidate()</em> Methode auf.&nbsp; Die sagt dem Bildschirm, dass er sich neu zeichnen soll, also dass die onDraw() Methode wieder aufgerufen werden soll.</p>
+<p>
+	Wenn wir den Code ausführen sehen wir, dass er zwar Ovale zeichnet, aber immer wieder die zuvor gezeichneten Ovale löscht.&nbsp; Dies ist ein großer Unterschied zu dem was wir von der ACM Graphikbibliothek her gewohnt sind.&nbsp; Jedes Mal, wenn die onDraw()-Methode aufgerufen wird, wird der Bildschirm gelöscht.&nbsp; Für unser Confetti Programm ist das natürlich nicht sehr hilfreich.</p>
+<p>
+	.</p>
+<h3>
+	<img alt="" src="images/ConfettiBitmapActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ConfettiBitmap</h3>
+<p>
+	Eine Lösungsansatz ist sich irgendwie daran zu erinnern, was man schon gezeichnet hat.&nbsp; Eine Möglichkeit ist eine Bitmap zu verwenden.&nbsp; Statt direkt auf die Leinwand zu zeichnen, zeichnen wir in eine Bitmap.&nbsp; Zuerst definieren wir die Bitmap, und da wir sie ja wiederverwenden wollen, tun wir das als Instanzvariable:</p>
+<pre style="margin-left: 40px;">
+class ConfettiBitmapView extends View {
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">private Bitmap bitmap</span>;
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (bitmap != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap.recycle();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Canvas can = new Canvas(bitmap);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;can.drawOval(new RectF(x, y, x + w, y + w), cPaint);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawBitmap(bitmap, 0, 0, null);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Dann erstellen wir in der <em>onSizeChanged()</em> Methode eine neue Bitmap.&nbsp; Diese Methode wird immer dann aufgerufen, wenn sich die Größe des Bildschirms ändert, was beim Start der Aktivität und beim Drehen des Bildschirms geschieht.&nbsp; Der Code in der onDraw() Methode ist fast identisch, mit dem feinen Unterschied, dass wir das Oval in die Bitmap zeichnen.&nbsp; Denn aus einer Bitmap können wir einen Canvas machen, und in den können wir dann ganz normal zeichnen.&nbsp; Zum Schluß müssen wir noch die Bitmap auf den echten Canvas zeichnen.&nbsp; Funktioniert großartig.</p>
+<h3>
+	<img alt="" src="images/GConfettiActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GConfetti</h3>
+<p>
+	Ein anderer Lösungsansatz, ist es aus den Confetti Objekte zu machen, so wie die GOvals in der ACM Bibliothek.&nbsp; Für die Confetti müssen wir uns ihre Position und Farbe merken.&nbsp; Also schreiben wir eine Klasse GGOval, mit den folgenden Instanzvariablen:</p>
+<pre style="margin-left: 40px;">
+class GGOval {
+&nbsp;&nbsp; &nbsp;private int x, y, w, h;
+&nbsp;&nbsp; &nbsp;private Paint paint;
+</pre>
+<p>
+	Im Constructor initialisieren wir diese dann:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public GGOval(int x, int y, int w, int h) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.x = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.y = y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.w = w;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.h = h;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.paint.setStyle(Paint.Style.FILL);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir benötigen noch eine setColor() Methode, um die Farbe zu setzen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public void setColor(int color) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint.setColor(color);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Und schließlich wäre es noch schön, wenn die Konfetti wüssten, wie sie sich selbst zeichnen sollen, wenn sie einen Canvas bekommen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public void draw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawOval(new RectF(this.x, this.y, this.x + this.w, this.y + this.h), paint);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Das sieht schon sehr nach ACM Graphics Library aus, oder?</p>
+<p>
+	Also benutzen wir mal unsere GGOvals.&nbsp; In der GConfettiView Klasse instanziieren wir zunächst eine Liste von <em>confettis</em>.&nbsp; Dabei handelt es sich einfach um eine Liste von GGOvals:</p>
+<pre style="margin-left: 40px;">
+class GConfettiView extends View {
+&nbsp;&nbsp; &nbsp;private Random rgen = new Random();
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">private List&lt;GGOval&gt; confettis = new ArrayList&lt;GGOval&gt;();</span>
+
+&nbsp;&nbsp; &nbsp;public GConfettiView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void addNewConfetti() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create randomly sized oval
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int width = SIZE / 2 + rgen.nextInt(SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = -SIZE + rgen.nextInt(getWidth());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = -SIZE + rgen.nextInt(getHeight());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">GGOval oval = new GGOval(x, y, width, width);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// assign random color
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oval.setColor(rgen.nextInt());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// add to list
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">confettis.add(oval);</span>
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setBackgroundColor(Color.WHITE);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;addNewConfetti();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// draw all objects
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (GGOval ov : confettis) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ov.draw(canvas);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(DELAY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;invalidate();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In der onDraw() Methode erstellen wir mit der <em>addNewConfetti()</em> Methode bei jedem Aufruf ein neues Konfetti.&nbsp; In dieser Methode wird ein neues zufälliges GGOval erstellt und zu unserer Liste der Confettis hinzugefügt.&nbsp; Danach gehen wir unsere Liste von Konfettis durch und sagen jedem Konfetti, dass es sich auf unseren Canvas zeichnen soll.&nbsp; Das funktioniert auch ganz gut.</p>
+<p>
+	Wenn wir wollen, können wir auch alle anderen GObject Klassen aus der ACM-Grafikbibliothek implementieren.&nbsp; Sobald wir das Thema Threading abgehandelt haben, ist das auch der Plan: wir werden die gesamte ACM-Grafikbibliothek implementieren.&nbsp; Das bedeutet, dass fast alle unsere alten GraphicsPrograms aus dem ersten und zweiten Semester jetzt auch auf Android laufen!</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TouchActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Touch</h2>
+<p>
+	Der einfachste Weg, um Benutzer zur Interaktion mit unserer Anwendung zu bewegen, sind Touch-Events.&nbsp; Alles was wir tun müssen, ist die <em>onTouchEvent()</em> Methode zu überschreiben.&nbsp; Das kann man sowohl in der Activity als auch im View tun:</p>
+<pre style="margin-left: 40px;">
+public class TouchActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean <span style="color:#0000ff;">onTouchEvent</span>(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = (int) event.getX();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = (int) event.getY();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.getAction()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_CANCEL):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_CANCEL&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_DOWN):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_DOWN&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_MOVE):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_MOVE&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_OUTSIDE):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_OUTSIDE&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_SCROLL):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_SCROLL&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_UP):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_UP&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case (MotionEvent.ACTION_POINTER_2_DOWN):
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;ACTION_POINTER_2_DOWN&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return super.onTouchEvent(event);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Die nützlichsten Evenst sind ACTION_DOWN, ACTION_MOVE und ACTION_UP.&nbsp; Interessant ist auch der ACTION_POINTER_2_DOWN Event, der entsteht wenn man mit mehr als nur einem Finger das Display berührt.</p>
+<p>
+	Über den MotionEvent Parameter der onTouchEvent() Methode erhalten wir die x- und y-Position, an der der Nutzer den Bildschirm berührt hat, aber auch den Zeitpunkt des Ereignisses, <em>getEventTime()</em>, und bei einigen Geräten sogar den Druck, <em>getPressure()</em>.&nbsp; Normalerweise verwenden wir diese Methoden nicht direkt, aber der Gestendetektor verwendet sie bei der Erkennung von Gesten.</p>
+<p>
+	Zusätzlich zu den Touch Events gibt es auch noch die Key Events, an die wir über die <em>onKeyDown()</em> Methode rankommen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean onKeyDown(int keyCode, KeyEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;keyCode=&quot; + keyCode);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return super.onKeyDown(keyCode, event);
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Die wenigsten Smartphone haben heutzutage noch Tastaturen, aber für einige Tablets gibt es Bluetooth Tastaturen und dann macht auch der Key Event wieder Sinn.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GestureActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Gestures</h2>
+<p>
+	Wahrscheinlich die bekanntesten Gesten sind der Swipe-Left und der Swipe-Right einer bekannten Dating-App.&nbsp; Das geht sogar soweit, dass ein &quot;left swipe&quot; als Geste der Ablehnung im digitalen Zeitalter geworden ist.&nbsp; Wie erkennt man also Gesten?&nbsp; Glücklicherweise erledigt Android die meiste Arbeit für uns.&nbsp; Wir verwenden dazu die Klasse <em>GestureDetector</em>.&nbsp; In der <em>onTouchEvent()</em> Methode senden wir alle Touch Events&nbsp; zur Analyse an den GestureDetector:</p>
+<pre style="margin-left: 40px;">
+public class GestureActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private <span style="color:#0000ff;">GestureDetector</span> mDetector;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mDetector = new GestureDetector(this, new MyGestureListener());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean onTouchEvent(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">this.mDetector.onTouchEvent(event);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return super.onTouchEvent(event);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private final String TAG = &quot;MyGestureListener&quot;;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// onDown should always return true, because all gestures start with
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// onDown
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onDown(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onDown&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onFling&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onLongPress(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onLongPress&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onScroll&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onShowPress(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onShowPress&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onSingleTapUp(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onSingleTapUp&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onDoubleTap(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onDoubleTap&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onDoubleTapEvent(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onDoubleTapEvent&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onSingleTapConfirmed(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.d(TAG, &quot;onSingleTapConfirmed&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die Namen der Methoden sind ziemlich selbsterklärend, vielleicht ist der Unterschied zwischen einem Scroll und einem Fling nicht ganz klar:</p>
+<ul>
+	<li>
+		scroll: die <em>onScroll()</em> Methode wird mehrmals aufgerufen, während der Benutzer seinen Finger über den Bildschirm bewegt.</li>
+	<li>
+		fling: die <em>onFling()</em> Methode wird nur einmal am Ende eines Scrollvorgangs aufgerufen.</li>
+</ul>
+<p>
+	Ein Beispiel für sogenannte Multitouch Gesten werden wir noch in den Challenges sehen.</p>
+<p>
+	<img alt="" src="images/Ch2_Gestures.png" style="margin-left: 10px; margin-right: 10px; width: 458px; height: 192px;" /></p>
+<p>
+	.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	In diesem Kapitel haben wir uns mit 2D Graphik beschäftigt und dabei die Klassen Color, Paint und Canvas kennengelernt.&nbsp; Wir haben auch gesehen&nbsp; wofür Views gut sind und wie man sie modifiziert.&nbsp; Schließlich haben wir noch ein bisschen was zu Touch und Key Events gehört, und unsere ersten einfachen Gesten erkannt.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	In diesem Kapitel gibt es nicht allzuviele Projekte, die meisten sind alte Bekannte aus dem ersten und zweiten Semester.&nbsp; Allerdings beschätigen wir uns in den Special Topics Kapiteln &quot;Graphics Performance&quot; und &quot;Libraries&quot; noch einmal ganz ausführlich mit Graphics.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MondrianActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Mondrian</h2>
+<p>
+	Im Kapitel zu Rekursion aus dem zweiten Buch haben wir Mondrians gezeichnet.&nbsp; Die Idee war die große Leinwand (canvas) in immer kleinere aufzuteilen und dabei eine der folgenden drei Optionen zu wählen:</p>
+<ul>
+	<li>
+		wir teilen die Leinwand horizontal in zwei kleinere Leinwände oder</li>
+	<li>
+		wir teilen die Leinwand vertikal in zwei kleinere Leinwände oder</li>
+	<li>
+		wir zeichnen ein Rechteck in einer der Farben weiß, rot, blau oder gelb.</li>
+</ul>
+<p>
+	Das wiederholen wir bis die Leinwände zu klein sind.&nbsp;</p>
+<p>
+	Das Beispiel von damals lässt sich auch recht einfach auf Android übertragen.&nbsp; Wir brauchen wieder eine Activity und einen View. In der onDraw() Methode des Views rufen wir dann die rekusive <em>drawMondrian()</em> Methode auf.&nbsp; Bis auf die <em>drawRectangle()</em> können wir den Code aus dem zweiten Semester einfach übernehmen.</p>
+<p>
+	Was jetzt noch schön wäre, wenn wir durch Berühren des Displays einen neuen Mondrian zeichnen lassen.&nbsp; Das geht ganz einfach, wenn wir im Constructor des Views noch einen OnTouchListener hinzufügen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public MondrianView(Context context) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(context);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.setOnTouchListener(new View.OnTouchListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public boolean onTouch(View vw, MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.getAction()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MotionEvent.ACTION_DOWN:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">invalidate()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die <em>invalidate()</em> Methode veranlasst den View sich neu zu zeichnen.&nbsp; Das ist viel besser als die onDraw() Methode direkt aufzurufen (was übrigens auch gar nicht geht).</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GameOfLifeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GameOfLife</h2>
+<p>
+	Auch Conways Game of Life haben schon im zweiten Buch kennengelernt.&nbsp; Kurz zur Wiederholung: Das Universum des Spiel des Lebens ist ein zweidimensionales Gitter aus quadratischen Zellen (GRects), von denen jede in einer von zwei möglichen Zuständen sein kann: lebend (schwarz) oder tot (weiß).&nbsp; Jede Zelle hat acht Nachbarn, und abhängig vom Zustand der Nachbarn entscheidet sich der eigene Zustand in der nächsten Runde nach folgenden Regeln:</p>
+<ul>
+	<li>
+		jede lebende Zelle mit weniger als zwei lebenden Nachbarn stirbt (Unter-Bevölkerung)</li>
+	<li>
+		jede lebende Zelle mit zwei oder drei lebenden Nachbarn lebt</li>
+	<li>
+		jede lebende Zelle mit mehr als drei lebenden Nachbarn stirbt (Über-Bevölkerung)</li>
+	<li>
+		jede tote Zelle mit genau drei lebenden Nachbarn wird eine lebende Zelle (Fortpflanzung)</li>
+</ul>
+<p>
+	Erst einmal können wir auch wie oben einfach den Code aus dem zweiten Semester übernehmen und lediglich beim Zeichnen der kleinen Rechtecke anstelle der GRects die drawRect() Methode verwenden.</p>
+<p>
+	Für die Animation verwenden wir ähnlich wie beim GGRect Beispiel oben die <em>invalidate()</em> Methode am Ende der onDraw() Methode.&nbsp; Dann zeichnet sich das Spiel neu mit dem nächsten Schritt.&nbsp; Der Game Loop&nbsp; findet also eigentlich in der onDraw() Methode statt.</p>
+<p>
+	Wir stellen allerdings schnell fest, dass die Animation nicht besonders schnell ist.&nbsp; Hier sehen wir das erste Mal ziemlich krass den Performanceunterschied zwischen einer ARM CPU mit 1.5 GHz und einer Intel CPU mit 2.4 GHz.&nbsp; Gefühlt ist die Intel CPU zehnmal schneller.&nbsp;</p>
+<p>
+	Jammern hilft uns jetzt aber nicht weiter.&nbsp; Oben im Beispiel Confetti haben wir gesehen wie wir eine Bitmap zum malen verwendet haben.&nbsp; Das Gleiche können wir hier auch machen.&nbsp; Wir generieren eine Bitmap die genauso groß ist wie unser cell[][] Array, und verwenden dann einfach die <em>setPixel()</em> Methode der Bitmap Klasse um die Pixel schwarz oder weiß zu malen.&nbsp; Bevor wir die Bitmap dann zeichnen, können wir noch einen kleinen Trick verwenden:</p>
+<pre style="margin-left: 40px;">
+Matrix m = new Matrix();
+m.setScale((float) mCanvasWidth / SIZE_X, (float) mCanvasHeight / SIZE_Y);
+canvas.drawBitmap(bitmap, m, null);</pre>
+<p>
+	wir skalieren die Bitmap so, dass sie den gesamten Canvas ausfüllt.</p>
+<p>
+	Was ich bisher auch nicht wusste, auch Conway&#39;s Game of Life ist wie Karel eine Universal Computing Machine, dazu später mehr unter Research.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PaintActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Paint</h2>
+<p>
+	Ganz ähnlich wie das vorherigen Beispiel haben wir auch Paint schon mal gesehen, und zwar als ConnectTheClicks im ersten Semester.&nbsp; Dabei handelt es sich um ein Spiel in dem der Nutzer mit dem Finger eine Stelle berührt, und diese dann mit der vorhergehenden durch eine Linie verbunden wird.&nbsp;</p>
+<p>
+	Wenn wir das Spiel wie im ersten Semester implementieren, werden wir das gleiche Problem wie bei dem Beispiel Confetti haben: die alten Linien werden nicht mehr gezeichnet.&nbsp; Hier gibt es zwei Lösungen: entweder wir verwenden wieder eine Bitmap, oder aber, und das ist dieses Mal vielleicht geschickter, merken wir uns alle Punkte in einer Liste als Instanzvariable in der Activity:</p>
+<pre style="margin-left: 40px;">
+private ArrayList&lt;Point&gt; points = new ArrayList&lt;Point&gt;();</pre>
+<p>
+	Bei jedem onTouch Event fügen wir dann einen neuen Punkt hinzu und veranlassen einen Redraw mit invalidate():</p>
+<pre style="margin-left: 40px;">
+points.add(new Point(x, y));
+invalidate();</pre>
+<p>
+	In der onDraw() Methode zeichnen wir dann einfach Linien zwischen den Punkten:</p>
+<pre style="margin-left: 40px;">
+protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;if (points.size() &gt; 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point p0 = points.get(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 1; i &lt; points.size(); i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point p1 = points.get(i);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawLine(p0.x, p0.y, p1.x, p1.y, color);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p0 = p1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Warum haben wir die Liste von Punkten als Instanzvariable in der Activity und nicht im View gespeichert?&nbsp; Der Grund war weil wir noch etwas vor haben: wir wollen nämlich, dass wenn wir unser Gerät drehen, unsere Zeichnung nicht einfach verschwindet.&nbsp; Die beiden Methoden <em>onSaveInstanceState()</em> und <em>onRestoreInstanceState()</em>, werden nämlich von Android aufgerufen wenn unser Gerät sich dreht</p>
+<pre style="margin-left: 40px;">
+protected void onSaveInstanceState(Bundle outState) {
+&nbsp;&nbsp; &nbsp;outState.putSerializable(&quot;points&quot;, points);
+}
+
+protected void onRestoreInstanceState(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;if (savedInstanceState != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Object obj = savedInstanceState.getSerializable(&quot;points&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (obj != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;points = (ArrayList&lt;Point&gt;) obj;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	und wir können sie verwenden, um unseren Zustand kurz im <em>Bundle</em> zwischenzuspeichern und dann wiederherzustellen.&nbsp; Wie das mit dem <em>Serializable</em> genau funktioniert werden wir uns im fünften Kapitel noch einmal genauer ansehen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FingerPaintActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />FingerPaint</h2>
+<p>
+	Das Paint Beispiel schaut doch ziemlich häßlich aus, oder?&nbsp; Inzwischen sind wir ja im 6. Semester, da sollten unsere Programme schon etwas hübscher aussehen.&nbsp; Hübscher heißt aber natürlich auch komplizierter, wenigstens etwas.</p>
+<p>
+	Die Klasse Path ist hier die Lösung.&nbsp; Wir haben sie am Anfang des Kapitels schon einmal kurz gesehen.</p>
+<pre style="margin-left: 40px;">
+private class FingerPaintView extends View {
+
+&nbsp;&nbsp; &nbsp;private Paint paint;
+&nbsp;&nbsp; &nbsp;private <span style="color:#0000ff;">Path path;</span>
+
+&nbsp;&nbsp; &nbsp;private float curX, curY;
+&nbsp;&nbsp; &nbsp;private static final float TOUCH_TOLERANCE = 4;
+
+&nbsp;&nbsp; &nbsp;public FingerPaintView(Context c) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super(c);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">path = new Path();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;paint = new Paint();
+        ...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp;&nbsp; protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawPath(path, paint);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}
+</pre>
+<p>
+	In ihr speichern wir unseren Pfad.&nbsp; Die beiden Variablen curX und curY benötigen wir um uns zu merken wo der Nutzer das letzte Mal mit dem Finger war.&nbsp; Die onDraw() Methode ist gespenstisch einfach.</p>
+<p>
+	Wo es etwas komplizierter wird ist iń der onTouchEvent() Methode, wir wollen auf die drei Events ACTION_DOWN, ACTION_MOVE und ACTION_UP reagieren:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public boolean onTouchEvent(MotionEvent event) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float x = event.getX();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float y = event.getY();
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (event.getAction()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MotionEvent.ACTION_DOWN:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;touchDown(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;invalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MotionEvent.ACTION_MOVE:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;touchMove(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;invalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MotionEvent.ACTION_UP:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;touchUp();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;invalidate();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Bei ACTION_DOWN wollen wir uns merken wo der Nutzer getoucht hat, und wollen den Anfang von unserem Pfad auf diesen Punkt legen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void touchDown(float x, float y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;path.reset();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;path.moveTo(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;curX = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;curY = y;
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Bei ACTION_MOVE liegt der Hammer begraben:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void touchMove(float x, float y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dx = Math.abs(x - curX);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;float dy = Math.abs(y - curY);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (dx &gt;= TOUCH_TOLERANCE || dy &gt;= TOUCH_TOLERANCE) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;path.quadTo(curX, curY, (x + curX) / 2, (y + curY) / 2);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;curX = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;curY = y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Zunächst stellen wir fest, ob die Distanz zum vorhergehenden Punkt mindestens vier Pixel ist, nur dann fügen wir ein neues Stück zu unserem Pfad hinzu.&nbsp; Wir könnten hier einfach die Methode lineTo() verwenden, dann sieht das Ganze aber etwas eckig aus, eher wie Kindergarten.&nbsp; Wenn wir aber anstelle die Methode quadTo() verwenden, also Bézier Kurven zeichnen, dann sieht das echt cool aus.</p>
+<p>
+	Schließlich sollten wir noch bei ACTION_UP eine Linie zum letzten Punkt zeichnen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void touchUp() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;path.lineTo(curX, curY);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wenn wir noch ein Grid also Hintergrund hinzufügen,</p>
+<pre style="margin-left: 40px;">
+private void drawGrid(Canvas canvas) {
+&nbsp;&nbsp; &nbsp;Paint gridPaint = new Paint();
+&nbsp;&nbsp; &nbsp;gridPaint.setAntiAlias(true);
+&nbsp;&nbsp; &nbsp;gridPaint.setDither(true);
+&nbsp;&nbsp; &nbsp;gridPaint.setColor(GRID_COLOR);
+&nbsp;&nbsp; &nbsp;gridPaint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp; &nbsp;gridPaint.setStrokeWidth(1);
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; getWidth(); i += 50) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawLine(i, 0, i, getHeight(), gridPaint);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; getHeight(); i += 50) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;canvas.drawLine(0, i, getWidth(), i, gridPaint);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	dann fühlt sich die ganze App noch einen Tick professioneller an.&nbsp; Wenn wir jetzt noch unsere Kunstwerke speichern könnten, dann könnten wir damit sogar Geld verdienen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RandomArtActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RandomArt</h2>
+<p>
+	RandomArt war auch ein Projekt im zweites Buch wo wir aus Mathematik, in diesem Fall dem Sinus und dem Cosinus, hübsche Graphiken erzeugt haben.&nbsp; Auch dieses Projekt lässt sich einfach in ein Android Projekt umwandeln.&nbsp; Nach unseren obigen Erfahrungen, macht es wahrscheinlich Sinn gleich mit einer Bitmap als grafischer Datenstruktur anzufangen, es sei denn wir wollen wieder etwas länger warten.</p>
+<p>
+	Was wir hier aber lernen wollen, ist wie das mit den Swipe-Left und Swipe-Right Gesten funktioniert.&nbsp; Wir wollen bei einer Swipe-Left Geste das erzeugte Bild verwerfen und eine neues erzeugen.&nbsp; Bei einem Swipe-Right hat uns das Bild aber gefallen und wir würden es gerne auf unserer SD Karte speichern.</p>
+<p>
+	Bisher haben wir eigentlich nur die Fling Geste kennen gelernt, die unterscheidet aber noch nicht zwischen rechts und links, oder oben und unten.&nbsp; Mit der Klasse <em>OnSwipeListener</em> (die nicht Teil der Android API ist) geht das aber ganz einfach. Im Constructor des Views</p>
+<pre style="margin-left: 40px;">
+public RandomArtView(final Context context) {
+&nbsp;&nbsp; &nbsp;super(context);
+
+&nbsp;&nbsp; &nbsp;setOnTouchListener(<span style="color:#0000ff;">new OnSwipeListener(context)</span> {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onSwipeRight()</span> {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;saveAsPNG();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onSwipeLeft()</span> {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(context, &quot;calculating...&quot;, Toast.LENGTH_SHORT).show();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// needed for toast to become visible:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread.yield();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(100);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread.yield();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// do a redraw:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#ff0000;">postInvalidate();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+}
+</pre>
+<p>
+	setzen wir den onTouchListener auf unseren OnSwipeListener.&nbsp; Dort überschreiben wir dann die beiden Methoden die uns interessieren, in dem Fall <em>onSwipeRight()</em> und <em>onSwipeLeftt()</em>.&nbsp;</p>
+<p>
+	Interessant ist vielleicht noch, dass wir hier <em>postInvalidate()</em> anstelle von <em>invalidate()</em> verwendet haben.&nbsp; Wenn wir nur mal so zum Testen <em>invalidate()</em> verwenden, stellen wir fest, dass der Toast unsichtbar bleibt.&nbsp; Also offensichtlich funktioniert es nicht so gut hier.&nbsp; Der Grund dafür ist, dass die Methode onSwipeLeft() eigentlich in einem anderen Thread ausgeführt wird, dem Event-Thread.&nbsp; Der View lebt aber im UI-Thread, und das invalidate() gehört zum UI Thread.&nbsp; Wenn wir also aus einem anderen Thread heraus dem UI-Thread sagen wollen, dass er sich doch neu zeichnen soll, dann müssen wir die <em>postInvalidate()</em> Methode verwenden.</p>
+<p>
+	Obwohl wir noch gar nicht gelernt haben, wie man auf die SD-Karte schreibt, ist die <em>saveAsPNG()</em> Methode nur drei Zeilen lang und die sind ziemlich selbst erklärend:</p>
+<pre style="margin-left: 40px;">
+private void saveAsPNG() {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream stream = new FileOutputStream(&quot;/sdcard/RandomArt.png&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;bitmap.compress(CompressFormat.PNG, 0, stream);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;stream.close();
+&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Aber im Kapitel Persistence mehr dazu.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MultiTouch2Activity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />MultiTouch</h2>
+<p>
+	Wenn wir uns nochmal unser Beispiel zu Gesten ansehen, fällt auf, dass die Gesten Zoom und Rotate fehlen.&nbsp; Das wollen wir hier nachholen.&nbsp; Die Idee ist ein Programm zu schreiben, dass Bilder laden kann, diese dann mittels Gesten verschieben, vergrößern, verkleinern und rotieren kann, und schließlich das Ergebnis auch abspeichern kann.</p>
+<p>
+	Dazu definieren wir die folgenden Gesten:</p>
+<ul>
+	<li>
+		Ein-Finger-Geste: benutzt der Nutzer einen Finger wird das Bild hin- und her verschoben.</li>
+	<li>
+		Zwei-Finger-Geste: mit zwei Fingern kann der Nutzer rein und raus zoomen.</li>
+	<li>
+		Drei-Finger-Geste: erlaubt es dem Nutzer das Bild zu drehen.</li>
+</ul>
+<p>
+	In der Activty laden und speichern wir das Bild, getriggert über das Menu.&nbsp; Das Anzeigen des Bildes und das Verarbeiten der Gesten erfolgt im MultiTouchImageView von Jude Pereira [8].&nbsp; Der ist ein ImageView und implementiert das OnTouchListener Interface:</p>
+<pre style="margin-left: 40px;">
+// Copyright Jude Pereira
+private class MultiTouchImageView extends ImageView implements View.OnTouchListener {
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // we can be in one of these 3 states
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private static final int NONE = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private static final int DRAG = 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private static final int ZOOM = 2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private int mode = NONE;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // these matrices will be used to move and zoom image
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private Matrix matrix = new Matrix();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private Matrix savedMatrix = new Matrix();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // remember some things for zooming
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private PointF start = new PointF();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private PointF mid = new PointF();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float oldDist = 1f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float d = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float newRot = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float[] lastEvent = null;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public MultiTouchImageView(Context context) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super(context);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setBackgroundColor(Color.BLACK);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setScaleType(ImageView.ScaleType.MATRIX);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setOnTouchListener(this);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setImageResource(R.drawable.om);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void loadImageFromFile(String absolutePath) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Bitmap bitmap = BitmapFactory.decodeFile(absolutePath);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (bitmap != null) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; init();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setImageBitmap(bitmap);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private void init() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mode = NONE;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix = new Matrix();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; savedMatrix = new Matrix();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; start = new PointF();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mid = new PointF();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; oldDist = 1f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newRot = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent = null;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setImageMatrix(matrix);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public boolean onTouch(View v, MotionEvent event) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ImageView view = (ImageView) v;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch (event.getAction() &amp; MotionEvent.ACTION_MASK) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case MotionEvent.ACTION_DOWN:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; savedMatrix.set(matrix);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; start.set(event.getX(), event.getY());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mode = DRAG;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent = null;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case MotionEvent.ACTION_POINTER_DOWN:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; oldDist = spacing(event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (oldDist &gt; 10f) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; savedMatrix.set(matrix);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; midPoint(mid, event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mode = ZOOM;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent = new float[4];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent[0] = event.getX(0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent[1] = event.getX(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent[2] = event.getY(0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent[3] = event.getY(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d = rotation(event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case MotionEvent.ACTION_UP:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case MotionEvent.ACTION_POINTER_UP:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mode = NONE;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastEvent = null;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case MotionEvent.ACTION_MOVE:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (mode == DRAG) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.set(savedMatrix);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float dx = event.getX() - start.x;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float dy = event.getY() - start.y;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.postTranslate(dx, dy);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else if (mode == ZOOM) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float newDist = spacing(event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (newDist &gt; 10f) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.set(savedMatrix);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float scale = (newDist / oldDist);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.postScale(scale, scale, mid.x, mid.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (lastEvent != null &amp;&amp; event.getPointerCount() == 3) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; newRot = rotation(event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float r = newRot - d;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float[] values = new float[9];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.getValues(values);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float tx = values[2];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float ty = values[5];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float sx = values[0];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float xc = (view.getWidth() / 2) * sx;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float yc = (view.getHeight() / 2) * sx;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix.postRotate(r, tx + xc, ty + yc);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">view.setImageMatrix(matrix);</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return true;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float spacing(MotionEvent event) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float x = event.getX(0) - event.getX(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float y = event.getY(0) - event.getY(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return FloatMath.sqrt(x * x + y * y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private void midPoint(PointF point, MotionEvent event) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float x = event.getX(0) + event.getX(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float y = event.getY(0) + event.getY(1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; point.set(x / 2, y / 2);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private float rotation(MotionEvent event) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double delta_x = (event.getX(0) - event.getX(1));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double delta_y = (event.getY(0) - event.getY(1));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double radians = Math.atan2(delta_y, delta_x);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (float) Math.toDegrees(radians);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	Der zentrale Trick hier ist, dass wir mit der Methode <em>setImageMatrix()</em> eine 3x3 Transformationsmatrix auf den View anwenden können.&nbsp; Die ermöglicht eine Skalierung, Verschiebung und Drehung des Views.&nbsp; Die restlichen Details entnimmt man besser dem Code direkt.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	Auch in diesem Kapitel gibt es einige Themen die man noch durch Eigenrecherche vertiefen kann.</p>
+<p>
+	.</p>
+<h2>
+	Bézier Kurven</h2>
+<p>
+	Bézier Kurven spielen eine wichtige Rolle in Computergrafik, Animation und auch in Fonts.&nbsp; Lesen Sie nach welche Arten von Bézier Kurven es gibt und wie sie funktionieren [1].</p>
+<p>
+	.</p>
+<h2>
+	Universal Computing Machine</h2>
+<p>
+	Wie haben jetzt schon ein paar mal was von einer &quot;Universal Computing Machine&quot; gehört.&nbsp; Was ist das?&nbsp; Warum sollte uns das vielleicht interessant?&nbsp; Sind Menschen Universal-Computing-Maschinen?&nbsp; Kann eine Universal Computing Machine Bewusstsein haben?&nbsp; Wenn ja, was wären die Konsequenzen?</p>
+<p>
+	.</p>
+<h2>
+	Conway&#39;s Game of Life</h2>
+<p>
+	Conways Spiel des Lebens ist uns das erste Mal im ersten Semester über den Weg gelaufen.&nbsp; Interessant ist dazu neben dem Wikipedia Artikel [2] auch ein Interview mit Conway selbst auf Numberphile [3] und schließlich ein bemerkenswertes YouTube-Video [4].&nbsp; Conways Spiel des Lebens erscheint fast trivial, aber seine philosophischen Implikationen sind unermesslich.&nbsp; Erstens zeigt es, dass die Grundlage des Lebens, die Reproduktion, ein einfaches Regelwerk ist.&nbsp; Und zweitens zeigt es, dass dieselben Grundregeln die Basis einer Universal Computing Machines sind.&nbsp; Was Sie vielleicht in Ihrer Doktorarbeit beweisen könnten,&nbsp; dass das Spiel des Lebens auch Bewusstsein hat.</p>
+<p>
+	.</p>
+<figure style="margin-left: 10px; margin-right: 10px; width: 220px; height: 165px; float: right;">
+	<img src="images/220px-Textile_cone.jpg" /> <figcaption>
+	<p>
+		Copyright (c) 2005 Richard Ling [7].</p>
+	</figcaption></figure>
+<h2>
+	Cellular Automata</h2>
+<p>
+	Verwandt mit Comways Spiel des Lebens sind Cellular Automata.&nbsp; Eine kleine Einführung finden Sie im Wikipedia-Artikel [5].&nbsp; Insbesondere das Unterkapitel &quot;Elementare zelluläre Automaten&quot; ist wichtig.&nbsp; Stephen Wolfram hat in seinem Buch [6] diese ausführlich untersucht.&nbsp; Bei einem dieser Automaten, nämlich Regel 110, handelt es sich auch, wie das Spiel des Lebens, um eine &quot;Universal Computing Machine&quot;.</p>
+<p>
+	Wenn Sie nun nach Zeichen von Außerirdischen suchen, schauen Sie nicht weiter als nach rechts: es ist ganz klar, dass diese Kegelschnecke auf der rechten Seite die Regel 110 anzeigt.&nbsp; Offensichtlich wurde ihre DNA von Außerirdischen programmiert, um genau dieses Muster zu erzeugen und uns auf ihre Existenz hinzuweisen.&nbsp; Wenn wir die DNA dieses Tieres genauer analysieren würden, würden wir mit Sicherheit Anweisungen finden, wie wir sie erreichen können.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Erläutern Sie wofür die drei Klassen &ldquo;Color&rdquo;, &ldquo;Paint&rdquo; und &ldquo;Canvas&rdquo; gut sind, evtl mit Beispiel.<br />
+		&nbsp;</li>
+	<li>
+		Nennen Sie vier der Methoden, die verwendet werden können, um auf eine Leinwand (canvas) zu zeichnen.<br />
+		&nbsp;</li>
+	<li>
+		Welche Methode müssen Sie überschreiben um auf Touch Events reagieren zu können?<br />
+		&nbsp;</li>
+	<li>
+		Nennen Sie eine Geste die sehr einfach mit Androids GestureDetector Klasse umzusetzen ist.<br />
+		&nbsp;</li>
+	<li>
+		Beschreiben Sie bitte in Worten was der folgende Code zeichnet:<br />
+		<pre style="margin-left: 40px;">
+public class GraphicsActivity extends Activity {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onCreate(savedInstanceState);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setContentView( new GraphicsView(this) );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}
+
+class GraphicsView extends View {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public GraphicsView(Context context) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super(context);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protected void onDraw(Canvas canvas) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setBackgroundColor(Color.BLACK);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Paint cPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cPaint.setStyle(Paint.Style.STROKE);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cPaint.setColor(Color.RED);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cPaint.setStrokeWidth(2);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cPaint.setTextSize(24f);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; canvas.drawLine(40, 60, 150, 60, cPaint);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; canvas.drawText(&quot;Hi there!&quot;, 50, 50, cPaint);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}</pre>
+		.</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Bézier curve, <a href="https://en.wikipedia.org/wiki/Bézier_curve">https://en.wikipedia.org/wiki/Bézier_curve</a></p>
+<p>
+	[2] Conways Spiel des Lebens, <a href="https://de.wikipedia.org/wiki/Conways_Spiel_des_Lebens">https://de.wikipedia.org/wiki/Conways_Spiel_des_Lebens</a></p>
+<p>
+	[3] Inventing Game of Life - Numberphile, <a href="https://www.youtube.com/watch?v=R9Plq-D1gEk">https://www.youtube.com/watch?v=R9Plq-D1gEk</a></p>
+<p>
+	[4] Life in life, <a href="https://www.youtube.com/watch?v=xP5-iIeKXE8">https://www.youtube.com/watch?v=xP5-iIeKXE8</a></p>
+<p>
+	[5] Cellular automaton, <a href="https://en.wikipedia.org/wiki/Cellular_automaton">https://en.wikipedia.org/wiki/Cellular_automaton</a></p>
+<p>
+	[6] A New Kind of Science, by Stephen Wolfram, <a href="http://www.wolframscience.com/nks/">http://www.wolframscience.com/nks/</a></p>
+<p>
+	[7] Richard Ling, A Textile cone snail (Conus textile), <a href="https://commons.wikimedia.org/wiki/File:Textile_cone.JPG">https://commons.wikimedia.org/wiki/File:Textile_cone.JPG</a></p>
+<p>
+	[8] Jude Pereira, Multi Touch in Android &ndash; Translate, Scale, and Rotate, <a href="https://judepereira.com/blog/multi-touch-in-android-translate-scale-and-rotate/">https://judepereira.com/blog/multi-touch-in-android-translate-scale-and-rotate/</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2023 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

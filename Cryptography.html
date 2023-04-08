@@ -1,0 +1,810 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/ST4_DiffieHellman.png" style="display: block; margin-left: auto; margin-right: auto; width: 169px; height: 360px;" /></p>
+<h1>
+	Special Topic: Cryptography</h1>
+<p>
+	Die Ursprünge der Cryptography liegen schon bei den alten Griechen [1] und sogar davor: wie sende ich eine Nachricht an jemanden, ohne dass andere diese Nachricht lesen können.&nbsp; Schon im ersten Semester haben wir die Caesar Cipher [2] kennen gelernt, die Julius Caesar verwendet haben soll, um mit seinen Generälen zu kommunizieren.&nbsp; Zur Cryptography gehört aber noch mehr als nur Verschlüsselung.</p>
+<p>
+	Die Grundlagen dafür haben wir im zweiten Semester gelegt: Ganz wichtig sind gute Zufallszahlen, genauer Pseudo-Zufallszahlen.&nbsp; Praktisch alle modernen Verschlüsselungsverfahren beruhen auf Pseudo-Zufallszahlengeneratoren.&nbsp; Außerdem haben wir das Konzept der Hashfunktion kennengelernt als wir mit der HashMap und dem HashSet zu tun hatten.&nbsp; Auch in der Cryptography gibt es Hashfunktion, sogenannte Crypto-Hashverfahren.&nbsp; Und auch die Idee der Prüfsumme (Checksum), wie wir sie beim Luhn-Algorithmus für Creditkarten, der ISBN oder IBAN Nummern kennen gelernt haben, werden wir wieder benötigen.&nbsp; Deswegen haben wir eigentlich alle Grundlagen um uns jetzt ein bisschen mit modernen Verfahren der Cryptography zu beschäftigen.&nbsp;</p>
+<p>
+	An dieser Stelle vielleicht noch ein kleines Wort der Vorsicht: mit Java ist die Verwendung von kryptografischen Algorithemen sehr einfach geworden.&nbsp; Und auch dieses zugegebener Maßen sehr oberflächliche Kapitel gibt vielleicht den Eindruck, dass das Ganze gar nicht so kompliziert ist.&nbsp; Das ist aber ein falscher Eindruck, denn der Teufel liegt wirklich im Detail und in der richtigen Verwendung des richtigen Algorithmus für die jeweilige Anwendung.&nbsp; Wer Cryptography ernsthaft anwenden will, kommt nicht drum herum sich mit der Materie tiefer auseinanderzusetzen.&nbsp; Einen sehr schönen Einstieg liefert die Veranstaltung &quot;Online Cryptography&quot; von Dan Boneh [3].</p>
+<p>
+	.</p>
+<h2>
+	Base64</h2>
+<p>
+	Wenn wir mit kryptografischen Algorithmen arbeiten, werden wir es sehr häufig mit binären Daten, vor allem Bytearrays zu tun haben.&nbsp; Um diese binären Daten menschenlesbar zu machen, haben sich zwei Verfahren etabliert: einmal einfach die hexadezimale Schreibweise und zum anderen die Darstellung als Base64.&nbsp;</p>
+<h3>
+	Hex</h3>
+<p>
+	In der hexadezimale Schreibweise teilt man die 8-bit eines Bytes einfach in die oberen und die unteren vier Bit.&nbsp; Da man mit vier Bit Zahlen zwischen 0 und 15 darstellen kann, werden diese einfach auf die Ziffern 0-9 and die ersten sechs Buchstaben des Alphabets A-F abgebildet:</p>
+<pre style="margin-left: 40px;">
+char[] HEX_VALUES = 
+    { &#39;0&#39;, &#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;, &#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;, &#39;E&#39;, &#39;F&#39; };</pre>
+<p>
+	Wenn wir jetzt ein Byte haben nehmen wir uns erst einmal die unteren vier Bit vor, die wir erhalten indem wir eine bitweise AND Operation auf unser Byte ausführen:</p>
+<pre style="margin-left: 40px;">
+byte tmp = 153;
+byte lowerFourBits = tmp <span style="color:#0000ff;">&amp;</span> 0x0F;
+char hex1 = HEX_VALUES[ lowerFourBits ]; </pre>
+<p>
+	Dann kommen die oberen vier Bit dran: dazu verwenden wir den <em>unsigned right shift operator</em> &quot;&gt;&gt;&gt;&quot;, der einfach eine Null links einfügt und alle übrigen Bits um eins nach rechts verschiebt.&nbsp; Das unterste Bit geht dabei verloren.&nbsp; Wenn wir das vier mal machen, dann haben wir die oberen vier Bits an der Stelle der ehemaligen unteren vier Bits, und links stehen vier Nullen.&nbsp; Der Rest geht dann wie oben:</p>
+<pre style="margin-left: 40px;">
+byte tmp = 153;
+byte higherFourBits = tmp <span style="color:#0000ff;">&gt;&gt;&gt;</span> 4;
+char hex2 = HEX_VALUES[ higherFourBits ]; </pre>
+<p>
+	Das Ganze können wir dann in einer kompakten Methode zusammenfassen, die wir häufiger verwenden werden und die uns aus einem Byte-Array einen Hex-String macht:</p>
+<pre style="margin-left: 40px;">
+public static String byteArrayToHexString(byte[] buffer) {
+&nbsp;&nbsp; &nbsp;char[] hex = new char[buffer.length * 2];
+&nbsp;&nbsp; &nbsp;int tmp;
+&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; buffer.length; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tmp = buffer[j] &amp; 0xFF;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;hex[j * 2] = HEX_VALUES[tmp &gt;&gt;&gt; 4];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;hex[j * 2 + 1] = HEX_VALUES[tmp &amp; 0x0F];
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return new String(hex);
+}
+</pre>
+<p>
+	Dazu gibt es auch die umgekehrte Methode, <em>hexStringToByteArray(hexString)</em>, die aus einem Hex-String wieder ein Byte-Array macht.</p>
+<h3>
+	Base64</h3>
+<p>
+	Die Darstellung von Binärdaten als Hex-String ist nicht besonders effektiv und verschwendet eigentlich viel Platz.&nbsp; Wir haben ja noch die ganzen anderen Buchstaben, die kleinen und die großen, und auch noch einige Sonderzeichen.&nbsp; Deswegen hat sich das Base64 Verfahren etabliert [4], das relativ effektiv mit Platz umgeht und trotzdem lesbar bleibt.&nbsp; Die Details müssen wir nicht verstehen, lediglich wie man es verwendet:</p>
+<pre style="margin-left: 40px;">
+byte[] ba = new byte[8];
+String base64 = Base64.encodeToString(ba, Base64.DEFAULT);
+
+String base64 = &quot;CB1bmQgUXVhcms=&quot;;
+byte[] ba = Base64.decode(base64, Base64.DEFAULT);</pre>
+<p>
+	Vielleicht sollten man noch andeuten, dass es sich bei Base64 um eine Kodierung handelt, nicht um eine Verschlüsselung.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Hash.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Hash</h2>
+<p>
+	In Java hat jede Klasse eine <em>hashCode()</em> Methode.&nbsp; Z.B. für die Klasse String sieht diese grob so aus:</p>
+<pre style="margin-left: 40px;">
+public int hashCode(char[] value) {
+&nbsp;&nbsp; &nbsp;int h = 0;
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; value.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;h = 31 * h + value[i];
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return h;
+}</pre>
+<p>
+	Es wird also aus einem beliebig großen String eine 32-Bit Zahl gemacht.&nbsp;&nbsp; Verwendet wird die Methode in den Klassen HashMap und HashSet damit diese möglichst effektiv Daten lesen und schreiben können.&nbsp;</p>
+<p>
+	Was sind denn die Anforderung an so eine Hash-Funktion?&nbsp; Zum Einen soll sie möglichst schnell sein, und zum Andern soll es möglichst selten zu Kollisionen kommen, also dass für zwei unterschiedliche Strings der gleiche Hashwert raus kommt.&nbsp; Speziell die zweite Anforderung ist für Crypthashfunktionen ganz wichtig.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Checksum.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Checksum</h2>
+<p>
+	Kommen wir zu den Prüfsummen.&nbsp; Bei Prüfsummen geht es eigentlich weniger darum, dass sie super-schnell sind, sondern eher darum, dass sie Fehler finden.&nbsp; Z.B. beim Luhn-Algorithmus für Kreditkarten, den wir im zweiten Semester kennen gelernt haben, geht es darum Tippfehler und Zahlendreher aufzudecken.&nbsp; Ähnliches tun auch die Algorithmen für die ISBN und IBAN Nummern.&nbsp;</p>
+<p>
+	Diese Algorithmen funktionieren ganz gut für Werte fester Länge, wie z.B. Kreditkartennummern u.ä., die ja immer 16 Zahlen lang sind.&nbsp; Wenn wir es aber mit Bytearrays von unterschiedlicher Länge oder sogar mit Datenströmen zu tun haben, dann wird sehr häufig die <em>CRC-32</em> oder auch die <em>Adler-32</em> Checksum verwendet [5,6].&nbsp; Z.B. sowohl im IP-Protokoll, als auch im TCP-Protokoll wird die CRC Prüfsumme verwendet um Fehler in der Datenübertragung festzustellen [7].</p>
+<p>
+	Beide Algorithmen sind im <em>java.util.zip</em> Paket von Java implementiert und ganz einfach zu verwenden:</p>
+<pre style="margin-left: 40px;">
+byte bytes[] = &quot;Hello world&quot;.getBytes();
+Checksum checksum = new CRC32();
+checksum.update(bytes, 0, bytes.length);
+System.out.println(&quot;Check sum is: &quot; + checksum.getValue());</pre>
+<p>
+	Sie sind sehr schnell und entdecken einfache Fehler.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CryptoHash.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CryptoHash</h2>
+<p>
+	Bei kryptografischen Hashfunktionen [8] handelt es sich um spezielle Prüfsummen, die zu den normalen Eigenschaften einer Prüfsumme zusätzlich noch explizit folgende haben sollten:</p>
+<ul>
+	<li>
+		es muss praktisch unmöglich sein vom Hashwert auf den Wert der Ausgangsdaten zu schließen,</li>
+	<li>
+		kleine Änderungen in den Ausgangsdaten sollen zu großen Änderungen im Hashwert führen, und</li>
+	<li>
+		es soll quasi unmöglich sein, zwei Sätze von Ausgangsdaten zu finden, die zum gleichen Hashwert führen.</li>
+</ul>
+<p>
+	Keiner der Algorithmen die wir bisher gesehen haben hat diese Eigenschaften, aber kryptografischen Hashfunktionen haben sie.</p>
+<p>
+	Wofür verwendet man kryptografischen Hashfunktionen aber nun?&nbsp; Die drei wichtigsten sind:</p>
+<ul>
+	<li>
+		zum Speichern von Passwörtern in Datenbanken,</li>
+	<li>
+		um festzustellen ob Daten verändert wurden, oder</li>
+	<li>
+		zum Identifizieren von Dateien oder Daten.</li>
+</ul>
+<p>
+	Neuerdings mit Cryptowährungen kommt auch noch die Idee &quot;proof-of-work&quot; hinzu, dazu später mehr.</p>
+<p>
+	In der Verwendung sind die kryptografischen Hashfunktionen ganz einfach.&nbsp; Man holt sich erst den Algorithmus seiner Wahl, z.B. den <em>MD5</em>, führt ihm dann mittels <em>update()</em> die Daten zu, und verdaut das Ganze am Ende mit der <em>digest()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+MessageDigest md = MessageDigest.getInstance(<span style="color:#0000ff;">&quot;MD5&quot;</span>);
+md.update( byteArray );
+byte[] hashCode = md.digest();</pre>
+<p>
+	Der <em>hashCode</em> den man dann erhält ist je nach Algorithmus zwischen 128 Bit (MD5) und 512 Bit (SHA-512) lang. Die vier wichtigsten Cryptohash Algorithmen sind:</p>
+<ul>
+	<li>
+		MD5</li>
+	<li>
+		SHA-1</li>
+	<li>
+		SHA-2 in den Versionen SHA-256 und SHA-512 [9]</li>
+	<li>
+		bcrypt [10]</li>
+</ul>
+<p>
+	Die ersten beiden sollte man aber heutzutage nicht mehr verwenden, da sie nicht mehr als sicher gelten.</p>
+<h3>
+	Rainbow Tables</h3>
+<p>
+	Betrachten wir das Speichern von Passwörtern in Datenbanken etwas näher: Die Passwörter dort im Klartext zu speichern ist ziemlicher Unsinn, denn sollte mal jemand in unsere Datenbank hacken, dann hat er alle Passwörter.&nbsp; Passiert überraschend häufig [11].&nbsp; Deswegen speichert man den Cryptohashwert des Passwortes in der Datenbank.&nbsp; Nehmen wir an unser Passwort ist das übliche, also &quot;123456&quot;, dann ist dessen MD5 Wert der Hex-String:</p>
+<pre style="margin-left: 40px;">
+E10ADC3949BA59ABBE56E057F20F883E</pre>
+<p>
+	Wegen der oben genannten Eigenschaften der Cryptohashfunktionen kann man das Passwort nur durch Brute-Force wieder herausfinden, soll heißen, man muss alle möglichen String-Kombination ausprobieren.&nbsp; Nun würde man denken das macht doch keiner.&nbsp; Aber dem ist nicht so: angefangen damit hat die NSA, und inzwischen gibts diese sogenannten <em>Rainbow Tables</em> im Internet zum runterladen.</p>
+<p>
+	Wie können wir der NSA und anderen Hackern aber die Suppe versalzen?&nbsp; Richtig, mit Salz:</p>
+<pre style="margin-left: 40px;">
+MessageDigest md = MessageDigest.getInstance(&quot;MD5&quot;);
+md.update( byteArray );
+
+<span style="color:#0000ff;">byte[] salt = new byte[64];
+new SecureRandom().nextBytes(salt);
+md.update(salt);</span>
+
+byte[] hashCode = md.digest();</pre>
+<p>
+	Wir müssen uns natürlich unser Salz merken und an einer sicheren Stelle aufbewahren, was nicht ganz trivial ist. Aber damit sind unsere Passwörter dann auch vor Brute-Force Attacken sicher.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CaesarCipher.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CaesarCipher</h2>
+<p>
+	Das erste Verschlüsselungsverfahren stammt von den alten Griechen [1] und wird heute häufig als Caesar Cipher bezeichnet [2].&nbsp; Eigentlich ist es nichts anderes als Addition kombiniert mit unserem alter Freund dem Restwertoperator, angewendet auf Buchstaben.&nbsp; Wir haben eine einfache Version bereits im ersten Semester geschrieben, jetzt machen wir daraus eine App.&nbsp;</p>
+<p>
+	Man wählt als erstes einen Schlüssel, das ist eine Zahl zwischen 1 und 25:</p>
+<pre style="margin-left: 40px;">
+int key = 12; </pre>
+<p>
+	Zur Verschlüsselung addiert man den Schlüssel dann zu dem Buchstaben den man verschlüsseln möchte und wendet danach den Restwertoperator darauf an:</p>
+<pre style="margin-left: 40px;">
+private char encryptChar(char c, int key) {
+&nbsp;&nbsp; &nbsp;int d = c - &#39;a&#39;;
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">int e = d + key;</span>  // encryption happens here
+&nbsp;&nbsp; &nbsp;int f = e % 26;
+&nbsp;&nbsp; &nbsp;char g = (char) (f + &#39;a&#39;);
+&nbsp;&nbsp; &nbsp;return g;
+}
+</pre>
+<p>
+	Das macht man dann für alle Buchstaben (die am besten alle klein geschrieben sind).&nbsp; Für die Entschlüsselung dreht man das Ganze einfach um, man subtrahiert also den Schlüssel.</p>
+<p>
+	Damit man also Nachrichten verschlüsseln und enschlüsseln kann, benötigt man den Schlüssel.&nbsp; Hier bei Caesar ist das eine Zahl zwischen 1 und 25.&nbsp; Das ändert sich auch bei den modernen Verfahren nicht, die Zahl wird nur größer.&nbsp; Jeder der den Schlüssel hat, kann die Nachrichten entschlüsseln [12].&nbsp; Deswegen ist das Problem aller Verschlüsselungsverfahren, wie tauscht man den Schlüssel so aus, dass niemand anderes ihn zu sehen bekommt.&nbsp; Das Problem wurde erst 1976 von Diffie und Hellman gelöst.</p>
+<p>
+	Eine Anmerkung noch, die Caesar Cipher ist natürlich nicht besonders sicher, und lässt sich heute ganz einfach mit statistischen Verfahren knacken.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/XORCipher.png" style="margin-left: 10px; margin-right: 10px; width: 355px; height: 184px; float: right;" />XORCipher</h2>
+<p>
+	Kommen wir zur Mutter aller modernen Verschlüsselungsverfahren, der XOR Cipher.&nbsp; Auch die haben wir schon im ersten Semester kennen gelernt, damals haben wir die Mona Lisa mit dem Taj verheiratet (Steganographie).&nbsp; Zur Erinnerung, die Wahrheitstabellen für die drei logischen Operationen AND, OR und XOR, sehen wie folgt aus:</p>
+<p style="margin-left: 40px;">
+	<img alt="" src="images/98bce237-bbb2-4d00-adad-cfeb82d7d284.png" style="margin-left: 10px; margin-right: 10px; width: 464px; height: 167px;" /></p>
+<p>
+	Das sieht jetzt erst mal recht langweilig aus und scheint mit Verschlüsselung nicht besonders viel zu tun zu haben.&nbsp; Allerdings hat die XOR Operation eine sehr interessante Eigenschaft: Nehmen wir den Buchstaben &#39;a&#39;, dessen ASCII Wert is 97.&nbsp; Dann nehmen wir irgendeine Zufallszahl, z.B. 42, und die beiden verknüpfen wir mit der XOR Operation:</p>
+<pre style="margin-left: 40px;">
+  0110 0001 (97)
+^ 0010 1010 (42)
+-----------
+= 0100 1011 (75)</pre>
+<p>
+	Wenn wir jetzt dieses Resultat, die 75, mit der 42 noch mal per XOR verknüpfen,</p>
+<pre style="margin-left: 40px;">
+  0100 1011 (75)
+^ 0010 1010 (42)
+-----------
+= 0110 0001 (97)</pre>
+<p>
+	dann kommt da wieder unser &#39;a&#39; raus!&nbsp; Wenn wir das mit dem vergleichen was wir gerade in der Caesar Cipher gesehen haben, dann sieht das verdammt nach Verschlüsselung aus: das erste Mal haben wir verschlüsselt, das zweite Mal entschlüsselt, und der Schlüssel ist die 42.</p>
+<h3>
+	One-Time Pad</h3>
+<p>
+	Wie gut unser XOR-Verschlüsselung ist, hängt total von der Länge und der Zufälligkeit des Schlüssels ab.&nbsp; Ist der Schlüssel 8 Bit lang, wie gerade, dann ist die XOR Cipher keinen Deut besser als die Caesar Cipher. Ist die Länge des Schlüssels aber genauso lang wie die Nachricht, und ist der Schlüssel vollkommen zufällig, dann nennt man diese Art der Verschlüsselung die One-Time Pad Verschlüsselung (Einmalverschlüsselung) [13].&nbsp; Diese ist absolut sicher, d.h. kann nicht geknackt werden.&nbsp; Das Problem ist allerdings der Schlüssel, der ist nämlich ziemlich groß (mindestens genauso groß wie die Nachricht), und muss irgendwann vorher mal zwischen Sender und Empfänger ausgetauscht worden sein.</p>
+<h3>
+	Lehmer</h3>
+<p>
+	Aber mit Zufallszahlen kennen wir uns aus (wenigstens wenn wir im zweiten Semester aufgepasst haben): da gab es nämlich den Herrn Lehmer mit seinen Pseudozufallszahlen.&nbsp; Die einfache Idee: man verwendet anstelle des One-Time Pads Pseudozufallszahlen.&nbsp; Wie stellt man aber sicher, dass Sender und Empfänger die gleichen Pseudozufallszahlen verwenden?&nbsp; Wenn wir uns erinnern, sind die Pseudozufallszahlen in Lehmer&#39;s Algorithmus (und allen andern Pseudozufallszahlenalgorithmen) eindeutig durch die sogenannte <em>Seed</em> festgelegt.&nbsp; D.h., wir müssen dem Empfänger lediglich unsere Seed mitteilen, damit er die Nachricht entschlüsseln kann.&nbsp; Also ist die Seed eigentlich der Schlüssel in diesem Fall.</p>
+<p>
+	Eigentlich ist Cryptography nichts anderes als Potenzieren, mit dem Restwertoperator richtig hantieren und ein bisschen XOR.</p>
+<h3>
+	Mona Lisa</h3>
+<p>
+	Als kleine Anwendung für die XOR Cipher wollen wir die Mona Lisa verschlüsseln.&nbsp; Der Code ist eigentlich identisch mit dem aus dem ersten Semester: lediglich das zweite Bild das wir als Schlüssel verwenden ist jetzt nicht das Taj, sondern ein Bild voller Zufallszahlen:</p>
+<pre style="margin-left: 40px;">
+private GImage createRandomImage(int width, int height, int seed) {
+&nbsp;&nbsp; &nbsp;rgen.setSeed(seed);
+
+&nbsp;&nbsp; &nbsp;int[][] array = new int[width][height];
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; height; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int j = 0; j &lt; width; j++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;array[i][j] = rgen.nextInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return new GImage(array);
+}
+</pre>
+<p>
+	Wir müssen natürlich das gleiche Zufallsbild für Ver- und Entschlüsselung nehmen.&nbsp; Sonst wird das nix.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SymmetricEncryption.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SymmetricEncryption</h2>
+<p>
+	Kommen wir zu den heute gängigen symmetrischen Verschlüsselungsverfahren.&nbsp; Sie heißen symmetrisch, weil für die Verschlüsselung der gleiche Schlüssel verwendet wird wie für die Entschlüsselung.&nbsp; Praktisch alle symmetrischen Verschlüsselungsverfahren sind irgendwo Abwandlungen der XOR-Cipher.&nbsp; Es wird in der Regel ein etwas besserer Zufallszahlengenerator verwendet, die Schlüssel (<em>Seeds</em>) sind meist etwas länger, und vor allem beim Padding ist man vorsichtiger [14].</p>
+<p>
+	Bekannte symmetrische Verfahren sind</p>
+<ul>
+	<li>
+		AES</li>
+	<li>
+		IDEA</li>
+	<li>
+		Blowfish</li>
+	<li>
+		Skipjack</li>
+	<li>
+		DES</li>
+	<li>
+		TripleDES</li>
+</ul>
+<p>
+	Dabei wurden DES und TripleDES von der NSA entwickelt, und man kann sich vorstellen wie sicher die sind.&nbsp; Am häufigsten sieht man heutzutage den AES Algorithmus mit einer Schlüssellänge von 256 Bit.&nbsp; Aber auch der IDEA wird öfter verwendet.&nbsp; Blowfish ist auch nicht schlecht.&nbsp; Welche Algorithmen zur Verfügung stehen hängt stark von der Android Version und teilweise auch vom Hersteller ab und dem Land in dem man lebt.</p>
+<p>
+	Nachdem wir den Algorithmus ausgewählt haben, müssen wir noch ein Padding wählen.&nbsp; Was ist Padding?&nbsp; Bei all den Algorithmen oben handelt es sich um sogenannt <em>Block-Ciphers</em>.&nbsp; D.h. es wird immer ein Block mit x-Bytes verschlüsselt, wobei x meist die Länge des Schlüssels ist.&nbsp; Was ist aber, wenn unsere Nachricht nicht genau x-Byte lang ist, sondern etwas länger oder kürzer?&nbsp; Dann wir der Rest aufgefüllt (padded).&nbsp; Und dieses Auffüllen ist sehr problematisch.&nbsp; Füllt man z.B. mit lauter Nullen auf, dann ist das nicht sehr schlau, denn ein möglicher Attacker kann dann in den verschlüsselten Daten Regelmässigkeiten entdecken und daraus auf den Schlüssel schließen.&nbsp; Deswegen ist das Padding ganz wichtig, und man muss es richtig machen.&nbsp; Wer Details dazu wissen möchte, sollte sich die Vorlesung von Dan Boneh [16] oder Jonathan Katz [17] ansehen.</p>
+<p>
+	Beim Padding wählt man erst Mal den Modus Operandi (mode of operation), da gibt es ECB, CBC, CFB und OFB.&nbsp; ECB sollte man nicht mehr verwenden, CFB und OFB sind eher für Stream-Ciphers [15].&nbsp; Danach wählt man noch die Länge des Padding, und da gibt es vor allem PKCS5Padding und PKCS7Padding.&nbsp; Auch hier sollte man ersteren nicht verwenden, wenn möglich.</p>
+<p>
+	Sehen wir uns das Ganze mal in der Praxis an: als erstes legen wir unseren Algorithmus und das Padding fest, z.B.:</p>
+<pre style="margin-left: 40px;">
+private final String ALGORITHM = &quot;AES&quot;;
+private final String PADDING = &quot;AES/ECB/PKCS7Padding&quot;;</pre>
+<p>
+	wir haben hier ECB gewählt, weil wir nett zur NSA sein wollen.&nbsp; Sonst wär&#39;s ja unfair.</p>
+<p>
+	Dann benötigen wir einen Schlüssel, den wir mit der <em>KeyGenerator</em> Klasse erzeugen:</p>
+<pre style="margin-left: 40px;">
+KeyGenerator kgen = KeyGenerator.getInstance(<span style="color:#0000ff;">ALGORITHM</span>);
+kgen.init(256); // use a 256 bit length
+SecretKey secretKey = kgen.generateKey();
+</pre>
+<p>
+	Diesen Schlüssel verwenden wir sowohl für die Verschlüsselung als auch für die Entschlüsselung (symmetrisch), wir müssen ihn uns merken, und irgendwie unbemerkt zum Empfänger bringen.&nbsp; Da der Schlüssel eigentlich binär íst (ein Bytearray) macht man diese meist mittels HEX oder Base64 menschenlesbar, z.B.:</p>
+<pre style="margin-left: 40px;">
+String base64 = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);</pre>
+<p>
+	Das Verschlüsseln geht dann wie folgt:</p>
+<pre style="margin-left: 40px;">
+String msg = &quot;Hello World!&quot;;
+Cipher cipher = Cipher.getInstance(<span style="color:#0000ff;">PADDING</span>);
+cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+byte[] <span style="color:#ff0000;">encrypted</span> = cipher.doFinal(msg.getBytes(&quot;UTF-8&quot;));
+</pre>
+<p>
+	Wir holen uns eine Cipher mit dem richtigen Padding.&nbsp; Danach initialisieren wir die Cipher mit dem Schlüssel, und sagen ihr noch, dass sie verschlüsseln soll.&nbsp; Das Verschlüsseln selbst passiert dann in der <em>doFinal()</em> Methode.&nbsp; Der verschlüsselte Text wird in dem Bytearray <em>encrypted</em> gespeichert.</p>
+<p>
+	Der Empfänger erhält das Bytearray <em>encrypted</em> mit dem verschlüsselten Text.&nbsp; Den Schlüssel hat er früher auf einem anderen Weg irgendwie erhalten.&nbsp; Die Entschlüsselung verläuft nun vollkommen analog (obwohl es digital ist ;-):</p>
+<pre style="margin-left: 40px;">
+Cipher cipher = Cipher.getInstance(PADDING);
+cipher.init(Cipher.DECRYPT_MODE, secretKey);
+byte[] decrypted = cipher.doFinal(<span style="color:#ff0000;">encrypted</span>);
+String msg = new String(decrypted, &quot;UTF-8&quot;);
+</pre>
+<p>
+	Und mehr ist da nicht.</p>
+<p>
+	Symmetrische Verschlüsselungsverfahren sind sehr sicher und auch sehr schnell.&nbsp; Sie haben aber alle ein gemeinsames Problem: den Schlüsselaustausch.&nbsp; Wie können zwei Parteien, die sich vorher noch nie gesehen haben einen Schlüssel austauschen?</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PassPhraseEncryption.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />PassPhraseEncryption</h2>
+<p>
+	Bevor wir das Schlüsselaustauschproblem lösen, kommen wir erst noch zu einem anderen Problem:&nbsp; So ein 256 Bit AES Schlüssel sieht wenn man ihn Base64 encoded so aus:</p>
+<pre style="margin-left: 40px;">
+5iWRLweSee65JYRd6dnAkJsezKpg9kwyITRGeINfzPE=
+</pre>
+<p>
+	Das kann sich doch keiner merken.&nbsp; Deswegen gibt es die PassPhrase-Verschlüsselung: man verwendet also ein Passwort oder besser einen ganzen Satz zur Verschlüsselung.&nbsp; Denn je länger das Passwort, desto sicherer die Verschlüsselung.&nbsp;</p>
+<p>
+	Als erstes müssen wir einen Algorithmus auswählen,</p>
+<pre style="margin-left: 40px;">
+private final String ALGORITHM = &quot;PBEWithMD5AndDES&quot;;
+</pre>
+<p>
+	Auf Android Geräten ist die Auswahl an PBE Algorithmen nicht besonders groß, ausser dem zweiten, hört sich keiner von denen besonders sicher an (und ausgerechnet der zweite funktioniert auf meinem Handy nicht):</p>
+<ul>
+	<li>
+		PBEWithMD5AndDES</li>
+	<li>
+		PBKDF2WithHmacSHA1</li>
+	<li>
+		PBEWithMD5AndDES</li>
+	<li>
+		PBEWithMD5AndTripleDES</li>
+</ul>
+<p>
+	Falls man hier nach etwas sichererem sucht, dann sollte man sich mal Bouncy Castle ansehen [18].</p>
+<p>
+	Zur Verschlüsselung benötigen wir den Passphrase.&nbsp; Aus dem erzeugen wir mittels der <em>SecretKeyFactory</em> einen Schlüssel:</p>
+<pre style="margin-left: 40px;">
+String passPhrase = &quot;@ v3ry l0n9 (0mp1!(a+3d pa$$phra$3, w!+h num83r$ and $p3(!a1 (har$&quot;;
+KeySpec keySpec = new PBEKeySpec(passPhrase.toCharArray(), <span style="color:#0000ff;">salt</span>, 1024, 256);
+SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+AlgorithmParameterSpec algSpec = new PBEParameterSpec(<span style="color:#0000ff;">salt</span>, <span style="color:#0000ff;">nrOfIterations</span>);
+
+Cipher cipher = Cipher.getInstance(ALGORITHM);
+cipher.init(Cipher.ENCRYPT_MODE, secretKey, algSpec);
+byte[] encrypted = cipher.doFinal(msg.getBytes());
+</pre>
+<p>
+	Neu hier ist das <em>Salz</em>, das wir bereits bei den Rainbow-Tables gesehen haben: es versalzt der NSA die Suppe:</p>
+<pre style="margin-left: 40px;">
+salt = new byte[64];
+new SecureRandom().nextBytes(salt);</pre>
+<p>
+	Zusätzlich haben wir den Parameter <em>nrOfIterations</em>, den wir z.B. auf 19 setzen:</p>
+<pre style="margin-left: 40px;">
+int nrOfIterations = 19;</pre>
+<p>
+	Er besagt wie oft das Salz in die Suppe gestreut wird.&nbsp; Je häufiger desto salziger die Suppe, desto länger dauert es aber auch bis die Suppe fertig ist.</p>
+<p>
+	Zum Entschlüsseln benötigen wir wieder den Passphrase, aber auch das Salz und die nrOfIterations:</p>
+<pre style="margin-left: 40px;">
+String passPhrase = &quot;@ v3ry l0n9 (0mp1!(a+3d pa$$phra$3, w!+h num83r$ and $p3(!a1 (har$&quot;;
+KeySpec keySpec = new PBEKeySpec(passPhrase.toCharArray(), salt, 1024, 256);
+SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+AlgorithmParameterSpec algSpec = new PBEParameterSpec(salt, nrOfIterations);
+
+Cipher cipher = Cipher.getInstance(ALGORITHM);
+cipher.init(Cipher.DECRYPT_MODE, secretKey, algSpec);
+byte[] decrypted = cipher.doFinal(encrypted);
+String msg = new String(decrypted, &quot;UTF-8&quot;);
+</pre>
+<p>
+	Man liest nun häufig im Internet, dass man Salz und die Anzahl der Iterationen bedenkenlos mit der verschlüsselten Nachricht übermitteln kann.&nbsp; Mir persönlich scheint das aber sehr komisch. Würd ich nicht machen.</p>
+<p>
+	Allgemein muss man sagen, PassPhrase Verschlüsselung ist zwar praktisch von der Handhabbarkeit und Nutzerfreundlichkeit, aber es ist bei weitem nicht so sicher wie die normale, symmetrische Verschlüsselung die wir oben gesehen haben.</p>
+<p>
+	Eine Frage: haben Sie einen Passwortmanager auf Ihrem Handy?&nbsp; Haben Sie mal darauf geachtet von welcher Firma dieser hergestellt wurde?&nbsp; Haben Sie gecheckt ob diese Firma vielleicht eine Verbindung zur NSA hat?&nbsp; Sinn würde das schon machen, oder?&nbsp; Aber jetzt haben wir ja unseren eigenen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/DiffieHellman.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Diffie - Hellman</h2>
+<p>
+	Wir haben es schon mehrmals angesprochen: Das Problem des Schlüsselaustausches.&nbsp; Es wurde 1976 von Diffie und Hellman gelöst [19].&nbsp; Der Algorithmus ist etwas nicht trivial, aber im Grunde wissen wir schon genug, um ihn zu verstehen.</p>
+<h3>
+	Prime</h3>
+<p>
+	Wir müssen uns erst einmal an die Primzahlen aus der Schule erinnern:&nbsp; Primzahlen [20] sind Zahlen, die nur durch die Eins und durch sich selbst geteilt werden können.&nbsp; Die ersten paar Primzahlen sind:</p>
+<pre style="margin-left: 40px;">
+2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, ...</pre>
+<h3>
+	Co-Prime</h3>
+<p>
+	Zu Beginn des zweiten Semesters lernten wir den Euklid-Algorithmus kennen, um den größten gemeinsamen Teiler (gcd) zwischen zwei Zahlen zu finden.&nbsp; Für die Mathematiker ist eine Zahl &#39;a&#39; teilerfremd (coprime) mit einer Zahl &#39;n&#39;, wenn gilt [21]</p>
+<pre style="margin-left: 40px;">
+gcd(a, n) = 1</pre>
+<p>
+	Das bedeutet eigentlich &#39;a&#39; und &#39;n&#39; haben keinen größten gemeinsamen Teiler.&nbsp; Das ist es, was teilerfremd bedeutet.&nbsp; Betrachten wir zwei Beispiele: teilerfremd von n = 5 sind:</p>
+<pre style="margin-left: 40px;">
+1, 2, 3, und 4</pre>
+<p>
+	oder teilerfremd von n = 8 sind:</p>
+<pre style="margin-left: 40px;">
+1, 3, 5, und 7.</pre>
+<h3>
+	Congruent</h3>
+<p>
+	Als nächstes müssen wir lernen, was kongruent für einen Mathematiker bedeutet [22]: Zwei Zahlen &#39;a&#39; und &#39;b&#39; gelten als <em>kongruent modulo</em> &#39;n&#39;, wenn</p>
+<pre style="margin-left: 40px;">
+a = b % n</pre>
+<p>
+	wobei &#39;%&#39; unser geliebter Modulo-Operator ist.&nbsp; Als Beispiel kann man an die Uhr denken: wir sagen z.B., dass 3:00 Uhr nachmittags gleichbedeutend mit 15:00 Uhr ist, denn</p>
+<pre style="margin-left: 40px;">
+3 = 15 % 12</pre>
+<p>
+	d.h. die Zahlen 3 und 15 sind <em>kongruent modulo</em> 12.&nbsp; Ist doch gar nicht so schwer.&nbsp; Mathematiker verwenden nur lustige Worte für einfache Konzepte.</p>
+<h3>
+	Primitive Root Modulo n</h3>
+<p>
+	Nun wirds aber noch lustiger: wir sagen, dass eine Zahl &#39;g&#39; eine <em>Primitivwurzel modulo &#39;n&#39;</em> ist,</p>
+<ol>
+	<li>
+		wenn jede Zahl &#39;a&#39; die teilerfremd von &#39;n&#39; ist,</li>
+	<li>
+		auch noch <em>kongruent</em> zu &#39;g&#39; hoch &#39;k&#39; modulo &#39;n&#39; ist.</li>
+</ol>
+<p>
+	Zur Veranschaulichung wählen wir n = 5.&nbsp; Zuerst müssen wir also alle Zahlen &#39;a&#39; finden, die zu 5 teilerfremd sind.&nbsp; Das haben wir oben schon gemacht:</p>
+<pre style="margin-left: 40px;">
+1, 2, 3, und 4.</pre>
+<p>
+	Zweitens, müssen wir folgendes überprüfen: für jede von diesen Zahlen &#39;a&#39; müssen wir jetzt ein &#39;g&#39; finden, das zu irgendeiner willkürlichen Potenz &#39;k&#39; genommen und davon modulo &#39;n&#39;, wieder eines dieser &#39;a&#39; ergibt.&nbsp; Nur wenn da wieder alle &#39;a&#39; vorkommen (also keins verloren gegangen ist), dann ist &#39;g&#39; eine Primitivwurzel modulo &#39;n&#39;. Versuchen wir es also mit der Zahl g = 2 und n = 5:</p>
+<pre style="margin-left: 40px;">
+2 ^ 1 % 5 = 2
+2 ^ 2 % 5 = 4
+2 ^ 3 % 5 = 3
+2 ^ 4 % 5 = 1
+</pre>
+<p>
+	Also 2 ist auf jeden Fall eine Primitivwurzel modulo 5.&nbsp; Mal sehen, ob g = 4 eine ist:</p>
+<pre style="margin-left: 40px;">
+4 ^ 1 % 5 = 4
+4 ^ 2 % 5 = 1
+4 ^ 3 % 5 = 4
+4 ^ 4 % 5 = 1</pre>
+<p>
+	Wir sehen also, dass 4 keine Primitivwurzel modulo 5 ist.&nbsp; In der Wikipedia [23] finden wir die Liste der Primitivwurzel für die ersten hundert n:</p>
+<pre style="margin-left: 40px;">
+...
+n = 17: 3, 5, 6, 7, 10, 11, 12, 14
+n = 19: 2, 3, 10, 13, 14, 15
+n = 23: 5, 7, 10, 11, 14, 15, 17, 19, 20, 21
+...
+</pre>
+<p>
+	Aber wir könnten sie auch selbst berechnen.&nbsp; Jetzt sind wir alle bereit für Diffie-Hellman.</p>
+<h3>
+	<img alt="" src="images/ST4_DiffieHellman.png" style="margin-left: 10px; margin-right: 10px; width: 254px; height: 540px; float: right;" />Diffie and Hellman</h3>
+<p>
+	Der von Diffie und Hellman vorgeschlagene Algorithmus führt zu einem gemeinsamen Geheimnis, ohne dass das Geheimnis selbst ausgetauscht werden muss.&nbsp; Stattdessen kann man es berechnen. Dieses Geheimnis kann man dann als Schlüssel für die weitere, verschlüsselte Kommunikation verwenden.</p>
+<p>
+	Um zu sehen, wie der Algorithmus funktioniert, denken wir uns zwei Personen, Alice und Bob.&nbsp; Alice und Bob wollen geheime Nachrichten austauschen und benötigen dafür einen gemeinsamen geheimen Schlüssel.</p>
+<ol>
+	<li>
+		Als erstes müssen sich Alice und Bob auf zwei Zahlen &#39;p&#39; und &#39;g&#39; einigen, mit der Einschränkung, dass &#39;p&#39; eine Primzahl und &#39;g&#39; eine Primitivwurzel modulo &#39;p&#39; ist.&nbsp; Von dem, was wir gerade gelernt haben, könnten p = 17 und g = 7 gute Zahlen sein.&nbsp; Die Zahlen &#39;p&#39; und &#39;g&#39; sind öffentlich, d.h. jeder kann sie sehen.<br />
+		&nbsp;</li>
+	<li>
+		Als nächstes wählen Alice und Bob jeweils eine geheime Zahl. Nehmen wir an, Alice wählt a = 3 und Bob wählt b = 5. Diese geheimen Zahlen behalten sie nur für sich und teilen sie mit niemandem.<br />
+		&nbsp;</li>
+	<li>
+		Aus diesen geheimen Zahlen berechnen sie dann neue Zahlen &#39;A&#39; und &#39;B&#39;, mit der folgenden Formel<br />
+		<pre style="margin-left: 40px;">
+A = g^a % p = 7^3 % 17 = 3    und     B = g^b % p = 7^5 % 17 = 11</pre>
+		Diese beiden Zahlen teilen sie miteinander.&nbsp; Auch hier gilt, jeder kann diese beiden Zahlen sehen.<br />
+		&nbsp;</li>
+	<li>
+		Nun können beide den gemeinsamen Schlüssel berechnen: Alice benutzt ihre geheime Zahl &#39;a&#39; und Bobs öffentliche Zahl &#39;B&#39;, während Bob seine geheime Zahl &#39;b&#39; und Alices öffentliche Zahl &#39;A&#39; benutzt:<br />
+		<pre style="margin-left: 40px;">
+s = B^a % p = 11^3 % 17 = 5    und     s = A^b % p = 3^5 % 17 = 5</pre>
+		Wir sehen, dass beide Geheimnisse &#39;s&#39; gleich sind.&nbsp; &#39;s&#39; ist der gemeinsame Schlüssel zwischen Alice und Bob.&nbsp; Für einen Lauscher ist es praktisch unmöglich, dieses Geheimnis aus den gegebenen öffentlichen Informationen zu berechnen.</li>
+</ol>
+<p>
+	Warum funktioniert das?&nbsp; Der Grund dafür ist, dass für die gegebene Konstruktion stets gilt:</p>
+<pre style="margin-left: 40px;">
+(g^a % p)^b % p = (g^b % p)^a % p</pre>
+<p>
+	aber nur, wenn &#39;p&#39; eine Primzahl und &#39;g&#39; eine Primitivwurzel modulo &#39;p&#39; ist.&nbsp; Es gibt noch eine weitere Einschränkung: die Zahlen a, b und p sollten sehr große Zahlen sein, nur dann ist es sehr schwer, diesen Algorithmus mit roher Gewalt zu knacken.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AsymmetricEncryption.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AsymmetricEncryption</h2>
+<p>
+	Ein Jahr nach Diffie und Hellman fanden die drei Forscher Ron Rivest, Adi Shamir and Leonard Adleman mit dem nach ihnen benannten RSA Algorithmus den ersten Algorithmus der asymmetrischen Art [24].&nbsp; Asymmetrisch deshalb, weil es hier zwei Schlüssel gibt: einen zum Verschlüsseln, dem Public-Key und einen zum Entschlüsseln, dem Private-Key.&nbsp; Praktisch die gesamte Internetverschüsselung beruht auf diesen beiden Verfahren, Diffie-Hellman und RSA.</p>
+<p>
+	Ähnlich wie Diffie-Hellman beruht der RSA Algorithmus auf der Tatsache, dass es rechnerisch sehr aufwändig ist (d.h. lange dauert) das Produkt zweier großer Primzahlen zu faktorisieren.&nbsp; Die Details sind nicht super kompliziert, sogar einfacher als bei Diffie-Hellman, man muss halt draufkommen [25].</p>
+<p>
+	Wie verwendet man jetzt so einen asymmetrischen Verschlüsselungsalgorithmus?&nbsp; Erst einmal muss man wieder den Algorithmus und das Padding auswählen:</p>
+<pre style="margin-left: 40px;">
+private final String ALGORITHM = &quot;RSA&quot;;    // &quot;ElGamal&quot;
+private final String PADDING = &quot;RSA/ECB/PKCS1Padding&quot;; // &quot;ElGamal&quot;</pre>
+<p>
+	Weder ECB noch PKCS1Padding sind jetzt das Gelbe vom Ei, aber wenn man nichts anderes hat, nimmt man was man kriegt.&nbsp; Ausser dem RSA Algorithmus gibt es noch den <em>ElGamal</em> Algorithmus. Soll auch nicht schlecht sein.</p>
+<p>
+	Als nächstes müssen wir Schlüssel erzeugen, in diesem Fall ein Paar:</p>
+<pre style="margin-left: 40px;">
+KeyPairGenerator kpg = KeyPairGenerator.getInstance(ALGORITHM);
+kpg.initialize(2048, new SecureRandom());
+KeyPair pair = kpg.generateKeyPair();
+</pre>
+<p>
+	Das KeyPair besteht aus zwei Schlüsseln, dem public und dem private Key:</p>
+<pre style="margin-left: 40px;">
+PublicKey publicKey = keyPair.getPublic();
+PrivateKey privateKey = keyPair.getPrivate();</pre>
+<p>
+	Der public Key, darf und soll öffentlich sein, also jeder kann ihn sehen.&nbsp; Wenn also Alice an Bob eine Nachricht schicken möchte, dann benötigt sie Bob&#39;s public Key.&nbsp; Damit verschlüsselt sie ihre Nachricht an Bob:</p>
+<pre style="margin-left: 40px;">
+Cipher cipher = Cipher.getInstance(PADDING);
+cipher.init(Cipher.ENCRYPT_MODE, <span style="color:#0000ff;">publicKey</span>);
+byte[] encrypted = cipher.doFinal(msg.getBytes(&quot;UTF-8&quot;));
+</pre>
+<p>
+	Bob erhält die <em>encrypted</em> Nachricht von Alice, und entschlüsselt sie mit seinem private Key:</p>
+<pre style="margin-left: 40px;">
+Cipher cipher = Cipher.getInstance(PADDING);
+cipher.init(Cipher.DECRYPT_MODE, <span style="color:#0000ff;">privateKey</span>);
+byte[] decrypted = cipher.doFinal(encrypted);
+String msg = new String(decrypted, &quot;UTF-8&quot;);
+</pre>
+<p>
+	Den private Key darf niemand ausser Bob sehen.&nbsp; Denn nur mit ihm kann man Nachrichten entschlüsseln.&nbsp;</p>
+<p>
+	Also, mit dem public Key kann man nur Verschlüsseln und mit dem private Key nur Entschlüsseln.&nbsp; Wie schickt jetzt aber Bob Nachrichten an Alice?&nbsp; Dafür muss Alice ihr eigenes Schlüsselpaar erzeugen, und davon ihren public Key an Bob schicken.&nbsp; D.h. bevor wir an jemanden verschlüsselte Nachrichten schicken können müssen wir den public Key der Person haben mit der wir kommunizieren wollen.&nbsp; Im Internet gibt es dafür spezielle Server [26], wobei die Frage ist in wieweit man denen wirklich trauen kann.&nbsp; Denn wenn ich die NSA wäre, würde ich so einen Keyserver hosten...</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/DigitalSignature.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />DigitalSignature</h2>
+<p>
+	Ein interessantes Nebenrprodukt der asymmetrischen Verschlüsselung ist die digitale Signatur [27]. Mit einer digitalen Signatur kann man drei Dinge erreichen:</p>
+<ul>
+	<li>
+		Authentication: man kann nachweisen wer eine Nachricht gesendet hat,</li>
+	<li>
+		Non-Repudiation: der Autor kann nicht leugnen Urheber der Nachricht zu sein und</li>
+	<li>
+		Integrity: die Nachricht wurde nicht verändert.</li>
+</ul>
+<p>
+	Die Integrität einer Nachricht kann man auch mit einer Cryptohashfunktion (wie SHA-256) nachweisen, die ersteren beiden aber nicht. Das geht nur mit der digitale Signatur.</p>
+<p>
+	Es gibt zwei Algorithmen mit denen man digitale Signaturen erstellen kann, DSA [28] und RSA.&nbsp; Wir beginnen wie üblich mit der Auswahl von Algorithmus und Padding:</p>
+<pre style="margin-left: 40px;">
+private final String ALGORITHM = &quot;DSA&quot;;
+private final String PADDING = &quot;SHA1withDSA&quot;;</pre>
+<p>
+	Als nächstes benötigen wir wieder ein KeyPair:</p>
+<pre style="margin-left: 40px;">
+KeyPairGenerator kpg = KeyPairGenerator.getInstance(ALGORITHM);
+kpg.initialize(1024, new SecureRandom());
+KeyPair pair = kpg.generateKeyPair();</pre>
+<p>
+	Auch hier gilt wieder: der public Key ist öffentlich, also für jeden einsehbar, der private Key sollte nie in fremde Hände gelangen.</p>
+<p>
+	Anstelle zu Verschlüsseln, <em>signieren</em> wir die Daten um die es geht, allerdings mit unserem private Key:</p>
+<pre style="margin-left: 40px;">
+Signature dsaSign = Signature.getInstance(PADDING);
+dsaSign.initSign(<span style="color:#0000ff;">privateKey</span>);
+dsaSign.update(<span style="color:#ff0000;">msg</span>.getBytes());
+byte[] signature = dsaSign.sign();</pre>
+<p>
+	Die Signatur hat ähnlich wie ein Cryptohash eine feste Länge, und auch ansonsten hat sie die gleichen Eigenschaften, die wir auch schon bei den Cryptohashes geschätzt haben.</p>
+<p>
+	Wie verifiziert man nun eine Signatur?&nbsp; Zunächst braucht man die Originaldaten, also die <em>msg</em>. Ausserdem benötigt man den public Key.&nbsp; Der ist ja öffentlich zugänglich, also kann jeder die Signatur verifizieren:</p>
+<pre style="margin-left: 40px;">
+Signature dsaSign = Signature.getInstance(PADDING);
+dsaSign.initVerify(<span style="color:#0000ff;">publicKey</span>);
+dsaSign.update(<span style="color:#ff0000;">msg</span>.getBytes());
+boolean verifies = dsaSign.verify(signature);</pre>
+<p>
+	Wenn da <em>true</em> rauskommt, dann passt alles.&nbsp; Kommt aber <em>false</em> raus, hat entweder jemand anderes die Daten erzeugt oder die Daten sind verändert worden.&nbsp; D.h. also beim digitalen Signaturverfahren werden die Daten nicht verschlüsselt.&nbsp; Die Daten sind für jeden einsehbar.&nbsp; Alles was wir mit der Signatur sagen ist, dass wir die Daten fabriziert haben, und dass die Daten von niemandem verändert wurden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HashCash.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />HashCash</h2>
+<p>
+	Wir alle werden ständig mit Spam-Mails bombardiert.&nbsp; Wie könnte man solche E-Mails verhindern?&nbsp; Wenn sie etwas kosten würden.&nbsp; Das würde das Problem lösen, denn für die Spammer wäre es einfach zu teuer.&nbsp; Aber niemand will wirklich für das Versenden von E-Mails bezahlen.&nbsp; Aber was, wenn es ein bisschen Rechenpower braucht?&nbsp; Für den normalen Benutzer wäre es kein Problem zehn Sekunden zu warten, um eine E-Mail zu senden.&nbsp; Aber für Spammer wäre das ein Problem.&nbsp; Denn wenn man eine Millionen E-Mails versenden will, würde das 115 Jahre dauern.&nbsp;</p>
+<p>
+	Was hat das mit Kryptographie zu tun?&nbsp; Die erste Beobachtung, die wir machen müssen, ist, dass wenn wir die Zeit messen, wie lange es dauert, den Kryptohash (z.B. SHA-256) eines gegebenen Textes, zum Beispiel einer E-Mail, zu berechnen, dann geht das nicht sofort, sondern dauert ein paar hundert Millisekunden. Die zweite Beobachtung ist, dass, wenn wir ein Byte zu unserer Nachricht hinzufügen, dies den Wert des resultierenden Hash verändert.&nbsp;</p>
+<p>
+	Die Idee hinter HashCash ist nun dieses Byte so lange zu modifizieren, bis die erste Stelle des resultierenden Hashwerts eine Null ist. Wir können auch verlangen, dass die ersten beiden Ziffern Null sein sollen.&nbsp; Die Berechnung wird dann noch länger dauern.&nbsp; Je mehr Nullen wir wollen, desto länger dauert es.&nbsp; Das ist auch bekannt unter dem Begriff &quot;Proof-of-Work&quot; [30]. Auf aktueller Hardware dauert es etwa zehn Sekunden, einen Hash zu finden, der mit fünf Nullen beginnt, und genau das macht Hashcash [29]. Diese Idee des Proof-of-Work ist auch für Kryptocoins wie Bitcoin relevant [31].</p>
+<p>
+	.</p>
+<h2>
+	SSL, HTTPS: Mixed Encryption</h2>
+<p>
+	Zum Schluss sie noch angemerkt, dass asymmetrische Verschlüsselung nicht ganz so perfekt ist wie sie zu sein scheint.&nbsp; Zum Einen ist sie viel langsamer als symmetrische Verschlüsselung.&nbsp; Desweiteren stellt sich das Management der Schlüssel als etwas komplizierter heraus.&nbsp; Z.B. wenn ich eine Nachricht an mehrere Personen verschicken möchte, dann benötige ich den öffentlichen Schlüssel von jeder Person an der die Nachricht gehen soll.&nbsp; Und asymmetrische Verfahren sind anfällig für kryptographische Angriffe, insbesondere bei langen Nachrichten.</p>
+<p>
+	Deswegen verwendet man in der Praxis (z.B. ssl, ssh, https) gemischte Verfahren.&nbsp; Bei der gemischten Verschlüsselung verwenden wir zunächst eine asymmetrische Verschlüsselung, tauschen dann einen privaten Schlüssel aus und kommunizieren danach nur noch symmetrisch über den privaten Schlüssel.&nbsp; Damit haben das beste aus beiden Welten.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	Zum Thema Kryptografie gibt es wieder ganz viel zu recherchieren.</p>
+<p>
+	.</p>
+<h2>
+	Concepts</h2>
+<p>
+	Im Zusammenhang mit Verschlüsselung tauchen einige Begriffe immer wieder auf:</p>
+<ul>
+	<li>
+		Authentifizierung (authentication)</li>
+	<li>
+		Authentizität (authenticity)</li>
+	<li>
+		Verschlüsselung (encryption)</li>
+	<li>
+		Integrität einer Nachricht (integrity of a message)</li>
+	<li>
+		Vertraulichkeit (confidentiality)</li>
+	<li>
+		Unleugbarkeit (non-repudiation)</li>
+</ul>
+<p>
+	Falls Ihnen die Begriffe nicht geläufig sind, sollten Sie die vielleicht mal kurz bei Wikipedia nachschlagen.</p>
+<p>
+	.</p>
+<h2>
+	Keystore</h2>
+<p>
+	Ein riesen Problem ist das Speichern von Schlüsseln. Dazu gibt es unter Android etwas das man den <em>Keystore</em> nennt.&nbsp; Prinzipiell eine gute Idee, aber in Wirklichkeit ziemlich nutzlos.&nbsp; Lesen Sie dazu die folgenden drei Posts:</p>
+<ul>
+	<li>
+		https://developer.android.com/training/articles/keystore.html</li>
+	<li>
+		https://nelenkov.blogspot.de/2012/05/storing-application-secrets-in-androids.html</li>
+	<li>
+		https://nelenkov.blogspot.de/2012/04/using-password-based-encryption-on.html</li>
+</ul>
+<p>
+	.</p>
+<h2>
+	Zertifikate</h2>
+<p>
+	Wie weiß man wem man trauen kann?&nbsp; Im Internet wird das durch Zertifikate geregelt.&nbsp; Dazu macht es Sinn so zum Einstieg sich mal den Artikel dazu in der Wikipedia durchzulesen [33].</p>
+<p>
+	.</p>
+<h2>
+	Man-in-the-Middle</h2>
+<p>
+	Oben bei Asymmetrischer Verschlüsselung habe ich angedeutet, dass es Sinn machen würde, wenn die NSA Keyserver hosten würde.&nbsp; Um das zu verstehen sollte man mal nachlesen was unter einer Man-in-the-Middle Attacke [32] zu verstehen ist.&nbsp;</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Wofür verwendet man normalerweise einen MessageDigest wie den MD5 oder SHA-1?<br />
+		&nbsp;</li>
+	<li>
+		Was ist ein MD5?<br />
+		&nbsp;</li>
+	<li>
+		Wie könnten Sie die Caesar-Verschlüsselung knacken?<br />
+		&nbsp;</li>
+	<li>
+		Im Zusammenhang mit Verschlüsselungsverfahren ist es immer wichtig einen guten Zufallszahlengenerator zu haben.&nbsp; Warum?<br />
+		&nbsp;</li>
+	<li>
+		Was ist das Hauptproblem symmetrischer Verschlüsselungsverfahren? &nbsp;<br />
+		&nbsp;</li>
+	<li>
+		Warum könnte die NSA Interesse haben einen Keyserver zu hosten?<br />
+		&nbsp;</li>
+	<li>
+		Warum sollte man keine asymmetrische Verschlüsselung für sehr lange Nachrichten verwenden?</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Skytale, <a href="https://de.wikipedia.org/wiki/Skytale">https://de.wikipedia.org/wiki/Skytale</a></p>
+<p>
+	[2] Caesar cipher, <a href="https://en.wikipedia.org/wiki/Caesar_cipher">https://en.wikipedia.org/wiki/Caesar_cipher</a></p>
+<p>
+	[3] Online Cryptography Course, Dan Boneh, Stanford University, <a href="https://crypto.stanford.edu/~dabo/courses/OnlineCrypto/">https://crypto.stanford.edu/~dabo/courses/OnlineCrypto/</a></p>
+<p>
+	[4] Base64, <a href="https://en.wikipedia.org/wiki/Base64">https://en.wikipedia.org/wiki/Base64</a></p>
+<p>
+	[5] Cyclic redundancy check, <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">https://en.wikipedia.org/wiki/Cyclic_redundancy_check</a></p>
+<p>
+	[6] Adler-32, <a href="https://en.wikipedia.org/wiki/Adler-32">https://en.wikipedia.org/wiki/Adler-32</a></p>
+<p>
+	[7] IPv4, <a href="https://en.wikipedia.org/wiki/IPv4#Header_Checksum">https://en.wikipedia.org/wiki/IPv4#Header_Checksum</a></p>
+<p>
+	[8] Cryptographic hash function, <a href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">https://en.wikipedia.org/wiki/Cryptographic_hash_function</a></p>
+<p>
+	[9] SHA-2, <a href="https://en.wikipedia.org/wiki/SHA-2">https://en.wikipedia.org/wiki/SHA-2</a></p>
+<p>
+	[10] bcrypt, <a href="https://en.wikipedia.org/wiki/Bcrypt">https://en.wikipedia.org/wiki/Bcrypt</a></p>
+<p>
+	[11] Twitter ruft nach Sicherheitspanne zum Passwortwechsel auf, <a href="https://www.heise.de/newsticker/meldung/Twitter-ruft-nach-Sicherheitspanne-zum-Passwortwechsel-auf-4041199.html">https://www.heise.de/newsticker/meldung/Twitter-ruft-nach-Sicherheitspanne-zum-Passwortwechsel-auf-4041199.html</a></p>
+<p>
+	[12] Enigma machine, <a href="https://en.wikipedia.org/wiki/Enigma_machine">https://en.wikipedia.org/wiki/Enigma_machine</a></p>
+<p>
+	[13] One-time pad, <a href="https://en.wikipedia.org/wiki/One-time_pad">https://en.wikipedia.org/wiki/One-time_pad</a></p>
+<p>
+	[14] Padding (cryptography), <a href="https://en.wikipedia.org/wiki/Padding_(cryptography)">https://en.wikipedia.org/wiki/Padding_(cryptography)</a></p>
+<p>
+	[15] Block cipher mode of operation, <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Common_modes">https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Common_modes</a></p>
+<p>
+	[16] Online Cryptography Course, Dan Boneh, Stanford University, <a href="https://crypto.stanford.edu/~dabo/courses/OnlineCrypto/">https://crypto.stanford.edu/~dabo/courses/OnlineCrypto/</a></p>
+<p>
+	[17] Jonathan Katz Coursera: Cryptography, <a href="https://www.coursera.org/course/cryptography">https://www.coursera.org/course/cryptography</a></p>
+<p>
+	[18] Bouncy Castle (cryptography), <a href="https://en.wikipedia.org/wiki/Bouncy_Castle_(cryptography)">https://en.wikipedia.org/wiki/Bouncy_Castle_(cryptography)</a></p>
+<p>
+	[19] Diffie-Hellman key exchange, <a href="https://en.wikipedia.org/wiki/Diffie–Hellman_key_exchange">https://en.wikipedia.org/wiki/Diffie&ndash;Hellman_key_exchange</a></p>
+<p>
+	[20] Prime number, <a href="https://en.wikipedia.org/wiki/Prime_number">https://en.wikipedia.org/wiki/Prime_number</a></p>
+<p>
+	[21] Coprime integers, <a href="https://en.wikipedia.org/wiki/Coprime_integers">https://en.wikipedia.org/wiki/Coprime_integers</a></p>
+<p>
+	[22] Congruence relation, <a href="https://en.wikipedia.org/wiki/Congruence_relation">https://en.wikipedia.org/wiki/Congruence_relation</a></p>
+<p>
+	[23] Primitive root modulo n, <a href="https://en.wikipedia.org/wiki/Primitive_root_modulo_n">https://en.wikipedia.org/wiki/Primitive_root_modulo_n</a></p>
+<p>
+	[24] Public-key cryptography, <a href="https://en.wikipedia.org/wiki/Public-key_cryptography">https://en.wikipedia.org/wiki/Public-key_cryptography</a></p>
+<p>
+	[25] RSA (cryptosystem), <a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">https://en.wikipedia.org/wiki/RSA_(cryptosystem)</a></p>
+<p>
+	[26] Key server (cryptographic), <a href="https://en.wikipedia.org/wiki/Key_server_(cryptographic)">https://en.wikipedia.org/wiki/Key_server_(cryptographic)</a></p>
+<p>
+	[27] Digital signature, <a href="https://en.wikipedia.org/wiki/Digital_signature">https://en.wikipedia.org/wiki/Digital_signature</a></p>
+<p>
+	[28] Digital Signature Algorithm, <a href="https://en.wikipedia.org/wiki/Digital_Signature_Algorithm">https://en.wikipedia.org/wiki/Digital_Signature_Algorithm</a></p>
+<p>
+	[29] Hashcash, <a href="https://en.wikipedia.org/wiki/Hashcash">https://en.wikipedia.org/wiki/Hashcash</a></p>
+<p>
+	[30] Proof-of-work system, <a href="https://en.wikipedia.org/wiki/Proof-of-work_system">https://en.wikipedia.org/wiki/Proof-of-work_system</a></p>
+<p>
+	[31] Bitcoin, <a href="https://en.wikipedia.org/wiki/Bitcoin">https://en.wikipedia.org/wiki/Bitcoin</a></p>
+<p>
+	[32] Man-in-the-middle attack, <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">https://en.wikipedia.org/wiki/Man-in-the-middle_attack</a></p>
+<p>
+	[33] Public key certificate, <a href="https://en.wikipedia.org/wiki/Public_key_certificate">https://en.wikipedia.org/wiki/Public_key_certificate</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

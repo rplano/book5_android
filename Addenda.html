@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><h1>
+	Addenda</h1>
+<p>
+	Changes that happened after publication of the book.</p>
+<p>
+	.</p>
+<h3>
+	Ch 4. Persistence</h3>
+<h4>
+	External Storage</h4>
+<p>
+	Accessing external storage (sd-card) even when only reading, has become very complicated starting with Android 6, and even more so with Android 10. Hence the Ch4 Android Studio Project has been created to be compatible with version 19 of Android.&nbsp; For this when creating a new project, you should insist on backward compatbility on the first screen, then after the project has been created basically delete any references to any libraries in the settings, etc.</p>
+<p>
+	A shortcut is to request permission directly:</p>
+<pre style="margin-left: 40px;">
+ActivityCompat.requestPermissions(
+    FileServerActivity.this, 
+    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+    23
+);</pre>
+<p>
+	After the user grants the permission, sometimes the app works directly, sometimes it has to be restarted.&nbsp; There is also a way to avoid the restart, but that is a little more tricky.</p>
+<p>
+	[] The Storage Situation: External Storage, https://commonsware.com/blog/2019/10/08/storage-situation-external-storage.html<br />
+	[] Accessing getExternalStorageDirectory, https://stackoverflow.com/questions/34865206/accessing-getexternalstoragedirectory</p>
+<h4>
+	Database Navigator</h4>
+<p>
+	To see SQLite databases created on your device, you can use the Database Navigator plugin for Android Studio [1].</p>
+<p>
+	To install: from File&gt;Settings select Plugins and search for Database Navigator, and install it.&nbsp; After a restart you should see a new &quot;DB Navigator&quot;&nbsp; menu point.&nbsp; Now use the Device File Explorer to download the friends.db file to your computer.&nbsp; In the DB Browser, open a new connection by clicking on the &#39;+&#39;, select SQLite.&nbsp; Here under Database files, click on the &#39;sqlite.db&#39; and replace it by the location of friends.db file.&nbsp; Click on &#39;Test Connection&#39; to make sure it works.&nbsp; Now should see the Schemas etc.&nbsp; If you want to execute SQL commands, open a connection under Consoles.</p>
+<p>
+	[1] Browse SQLite database in Android Studio https://medium.com/@mattyskala/browse-sqlite-database-in-android-studio-4fbba6cca105</p>
+<p>
+	.</p>
+<h3>
+	Ch 5. Sensors</h3>
+<h4>
+	Location</h4>
+<p>
+	In addition to the permissions in the Android manifest, you now also need to request permission explicitely in the code:</p>
+<pre style="margin-left: 40px;">
+String[] perms = {
+    Manifest.permission.ACCESS_FINE_LOCATION, 
+    Manifest.permission.ACCESS_COARSE_LOCATION
+};
+ActivityCompat.requestPermissions(this, perms, 42);</pre>
+<p>
+	.</p>
+<h3>
+	Ch 7. Networking</h3>
+<h4>
+	Multicast</h4>
+<p>
+	For multicast to work you need to acquire a multicast lock.&nbsp; For this you need to get the following permission in the Android manifest,</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.CHANGE_WIFI_MULTICAST_STATE&quot;/&gt;</pre>
+<p>
+	and add the following code to acquire the lock:</p>
+<pre style="margin-left: 40px;">
+try {
+&nbsp;&nbsp;&nbsp; WifiManager wifi = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+&nbsp;&nbsp;&nbsp; if (wifi != null) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WifiManager.MulticastLock lock = wifi.createMulticastLock(&quot;YoActivity&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lock.acquire();
+&nbsp;&nbsp;&nbsp; }
+} catch (Exception e) {
+&nbsp;&nbsp;&nbsp; Log.d(&quot;YoActivity&quot;, &quot;&quot; + e.getMessage().toString());
+}</pre>
+<p>
+	and finally, don&#39;t forget to tell the socket to go into broadcast mode:</p>
+<pre style="margin-left: 40px;">
+theSocket.setBroadcast(true);</pre>
+<p>
+	.</p>
+<h3>
+	ST 2. Library</h3>
+<p>
+	First, we show how to create an Android Library project (aar):</p>
+<ul>
+	<li>
+		create a normal Android project</li>
+	<li>
+		follow steps &quot;Convert an app module to a library module&quot; in [1]:
+		<ul>
+			<li>
+				open the module-level build.gradle file</li>
+			<li>
+				delete the line for the applicationId</li>
+			<li>
+				at the top of the build.gradle file, you should see the following:<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apply plugin: &#39;com.android.application&#39;<br />
+				change it to the following:<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apply plugin: &#39;com.android.library&#39;</li>
+		</ul>
+	</li>
+	<li>
+		this should create the file &#39;/app/build/outputs/aar/app-debug.aar&#39;</li>
+</ul>
+<p>
+	[1] https://developer.android.com/studio/projects/android-library</p>
+<p>
+	Second, we show how to use an Android Library in our own projects.&nbsp;</p>
+<ul>
+	<li>
+		create a normal project</li>
+	<li>
+		copy the &#39;app-debug.aar&#39; file into the /app/libs/ directory</li>
+	<li>
+		in the build.gradle file, modify the fileTree line to read like this:<br />
+		&nbsp; dependencies {<br />
+		&nbsp;&nbsp;&nbsp; implementation fileTree(dir: &#39;libs&#39;, include: [&#39;*.aar&#39;, &#39;*.jar&#39;], exclude: [])<br />
+		&nbsp;&nbsp;&nbsp; ...<br />
+		&nbsp; }</li>
+</ul>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

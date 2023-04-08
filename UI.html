@@ -1,0 +1,2221 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch2_Calculator.png" style="display: block; margin-left: auto; margin-right: auto;width: 218px; height: 353px;" /></p>
+<h1>
+	User Interface</h1>
+<p>
+	Das zentrale Element fast jeder mobilen Anwendung ist das User Interface.&nbsp; Wenn wir uns an Swing erinnern, dann gab es dort z.B. einen JLabel, JButton, JTextField, JCheckBox, oder JRadioButton.&nbsp; In Android heißen die jetzt TextView, Button, EditText, CheckBox oder RadioButton.&nbsp; Auch Layouts gibt es in Android, und natürlich heißen auch die anders, aber was die Funktionalität angeht, sind sie sehr ähnlich.&nbsp; Was anders ist in Android ist die ungewöhnlich große Anzahl verschiedener Gerätegrößen.&nbsp; Auf der einen Seite gibt es Geräte mit einer Auflösung von 320x240 Pixel, auf der anderen gibt es aber auch welche mit einer 4K Auflösung.&nbsp; Um das unter einen Hut zu bringen hat man sich etwas besonderes einfallen lassen: die XML Layout Dateien.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ButtonActivity4.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ButtonActivity</h2>
+<p>
+	Betrachten wir unsere ButtonActivity aus dem ersten Kapitel.&nbsp; Jetzt allerdings wollen wir das User Interface in einer XML Layout Datei <em>button_activity.xml</em> definieren:</p>
+<pre style="margin-left: 40px;">
+&lt;<span style="color:#0000ff;">LinearLayout</span> xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">Button</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;<span style="color:#ff0000;">@+id/button</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=<span style="color:#0000ff;">&quot;Click me!&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAllCaps=&quot;false&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Wir erkennen unser LinearLayout wieder und auch unseren &quot;Click me!&quot; Knopf.&nbsp; Die Widgets selbst werden als XML Elemente dargestellt, die Eigenschaften der jeweiligen Widgets werden über XML Attribute festgelegt.&nbsp; Also für jedes XML Element gibt es eine entsprechende Klasse, und für jedes XML Attribut eine entsprechende Methode.&nbsp; Die Verschachtelung, also welche Widgets hierarchisch zu welchen anderen gehören, wird durch die XML Verschachtelung nachempfunden.&nbsp;</p>
+<p>
+	Nun müssen wir dieses XML Layout mit unserem Code verbinden:</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">setContentView(R.layout.button_activity);</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">Button btn = (Button) findViewById(</span><span style="color:#ff0000;">R.id.button</span><span style="color:#0000ff;">);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), 
+                    &quot;Button was clicked!&quot;, 
+                    Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Zunächst sagen wir mit <em>setContentView(R.layout.button_activity)</em>, dass der ContentView (also die UI) in der Datei <em>button_activity.xml</em> definiert ist.&nbsp; Dann benötigen wir eine Referenz auf unseren Button, und das macht die <em>findViewById()</em> Methode: die sucht nach einem View namens &quot;id.button&quot;.&nbsp; Den haben wir aber ja oben in der XML Datei mit dem Attribute &quot;@+id/button&quot; festgelegt.&nbsp; D.h. über das id-Attribut können wir aus unserem Code heraus auf die Elemente in der Layout Datei zugreifen.</p>
+<p>
+	Generell führt die Auslagerung der UI in eine XML Layoutdatei zu viel schlankerem Code.&nbsp; Ausserdem erlaubt es eine einfache Internationalisierung (i18n) wie wir gleich noch sehen werden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Res_PE_Layout.png" style="margin-left: 10px; margin-right: 10px; width: 124px; height: 232px; float: right;" />Resources und R.java</h2>
+<p>
+	Die XML Layout Datei ist ein Beispiel für eine Resource.&nbsp; In der Android Entwicklung wird sehr viel über Resourcen erledigt, ein schönes Beispiel für gutes Software Engineering.&nbsp; Alle Resourcen finden sich im Verzeichnis <em>/res/</em> in unserem Android Projekt. Dort finden wir in einem Unterverzeichnis /layout/ alle XML Layout Dateien.&nbsp;</p>
+<p>
+	Wir haben mithilfe der Layout Datei eine Trennung von grafischer Benutzeroberfläche und Code erreicht.&nbsp; Diese Trennung von grafischer Benutzeroberfläche und Code hat mehrere Vorteile: wir können die Anordnung der UI Widgets ändern, ohne neuen Code schreiben zu müssen.&nbsp; Wir können verschiedene UIs für verschiedene Gerätegrößen und Formen haben (z.B. Telefone oder Tablets), ohne neuen Code schreiben zu müssen.&nbsp; Und Designer und Entwickler können gleichzeitig arbeiten ohne aufeinander warten zu müssen.</p>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/Res_PE_Resources.png" style="margin-left: 10px; margin-right: 10px; width: 124px; height: 241px; float: right;" />Resourcen beinhalten aber nicht nur Layout Dateien.&nbsp; Die wichtigsten Resourcen die man im Verzeichnis <em>/res/</em> findet sind</p>
+<ul>
+	<li>
+		<strong>drawables:</strong> hier finden sich u.a. Icons und Bilddateien,</li>
+	<li>
+		<strong>layout:</strong> enthält XML Dateien, die UIs beschreiben,</li>
+	<li>
+		<strong>menu:</strong> enthält XML Dateien, die Menus beschreiben,</li>
+	<li>
+		<strong>values:</strong> enthält vor allem die <em>strings.xml</em> Datei,</li>
+	<li>
+		<strong>xml:</strong> enthält XML Dateien, z.B. für eine SettingsActivity.</li>
+</ul>
+<p>
+	Aus all diesen Resourcen erzeugt ein Precompiler (aapt) die Datei <em>R.java</em>: die befindet sich im Verzeichnis <em>/gen/</em> (für generated files) und sieht in etwa so aus:</p>
+<pre style="margin-left: 40px;">
+/* AUTO-GENERATED FILE.&nbsp; DO NOT MODIFY.
+&nbsp;*
+&nbsp;* This class was automatically generated by the
+&nbsp;* aapt tool from the resource data it found.&nbsp; It
+&nbsp;* should not be modified by hand.
+&nbsp;*/
+
+package de.variationenzumthema.android.ch2;
+
+public final class R {
+&nbsp;&nbsp;&nbsp; public static final class drawable {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int ic_launcher=0x7f020000;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int image_btn=0x7f020001;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int my_border=0x7f020002;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; public static final class id {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int about_content=0x7f080000;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int textView=0x7f080001;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int button=0x7f080002;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int editText=0x7f080003;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int linearLayout1=0x7f080004;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; public static final class layout {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int about_activity=0x7f030000;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int alarm_clock_activity=0x7f030001;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int button_activity=0x7f030002;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int calculator_activity=0x7f030003;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int dialog_activity=0x7f030004;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; public static final class menu {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int menu_main=0x7f070000;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; public static final class string {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int app_name=0x7f050000;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int hello=0x7f050001;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int action_settings=0x7f050002;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int set_alarm=0x7f050003;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; public static final class xml {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static final int settings=0x7f040000;
+&nbsp;&nbsp;&nbsp; }
+}
+</pre>
+<p>
+	Wir sehen zu jedem Unterverzeichnis in <em>/res/</em> gibt es eine separate lokale Klasse, und zusätzlich gibt es die Klasse <em>id</em>, die alle irgendwo mit</p>
+<pre style="margin-left: 40px;">
+android:id=&quot;@+id/...&quot;</pre>
+<p>
+	definierten Ids zusammenfasst.&nbsp; Jeder Resource und Id wird eine eindeutige hexadezimale Konstante zugewiesen, die etwas wie eine Adresse aussieht aber keine ist.&nbsp; Im Code werden diese Konstanten dann referenziert, z.B.:</p>
+<pre style="margin-left: 40px;">
+setContentView(<span style="color:#0000ff;">R.layout.button_activity</span>);
+Button btn = (Button) findViewById(<span style="color:#0000ff;">R.id.button</span>);</pre>
+<p>
+	und dabei ist <em>R</em> die generierte Klasse <em>R</em> aus der Datei <em>R.java</em>.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/DialogActivity3.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Dialog</h2>
+<p>
+	Weil wir gerade dabei sind: nicht selten benötigen wir von unseren Nutzern eine Entscheidung, z.B. bei TicTacToe ist die Frage ob der Mensch oder der Computer den ersten Zug machen soll.&nbsp; Für solche einfachen Abfragen verwenden wir Dialoge.&nbsp; Diese erstellt man am einfachsten mit dem <em>AlertDialog.Builder</em>:</p>
+<pre style="margin-left: 40px;">
+public class DialogActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp;&nbsp; private String[] <span style="color:#0000ff;">who_starts</span> = { &quot;Computer&quot;, &quot;Human&quot; };
+
+&nbsp;&nbsp; &nbsp;private void openNewGameDialog() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new <span style="color:#0000ff;">AlertDialog.Builder</span>(this).setTitle(&quot;Who should start?&quot;)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;.setItems(<span style="color:#0000ff;">who_starts</span>, new DialogInterface.OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(DialogInterface dialog, int <span style="color:#ff0000;">which</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(((Dialog) dialog).getContext(),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;Let&rsquo;s start the game, &quot; + <span style="color:#ff0000;">which</span> + &quot; will start.&quot;, 
+                                Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}).show();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	In dem Array <em>who_starts</em> legen wir fest welche Optionen angezeigt werden sollen.&nbsp; Über den Parameter <em>which</em> wird uns dann mitgeteilt welche Auswahl unser Nutzer getroffen hat.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AboutActivity3.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />About</h2>
+<p>
+	Ein anderes Beispiel wie einem die Layout-Datei das Leben vereinfachen kann ist die AboutActivity.&nbsp; Es geht darum dem Nutzer ein kurzes Feedback oder Hilfe zu geben.&nbsp; Die UI wird dabei in der XML Datei festgelegt:</p>
+<pre style="margin-left: 40px;">
+&lt;ScrollView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:padding=&quot;10dip&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/about_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;TicTacToe is a pencil-and-paper game for two 
+            players, X and O, who take turns marking the spaces in 
+            a 3&times;3 grid. The X player usually goes first. The player 
+            who succeeds in placing three respective marks in a 
+            horizontal, vertical, or diagonal row wins the game.&quot; /&gt;
+
+&lt;/ScrollView&gt;</pre>
+<p>
+	Wir sehen hier das erste Mal den ScrollView, der, falls der Platz für den Text nicht ausreicht, das Scrollen ermöglicht.&nbsp; Wir werden den später noch häufiger verwenden.&nbsp;</p>
+<p>
+	Die Activity selbst ist nur vier Zeilen lang:</p>
+<pre style="margin-left: 40px;">
+public class AboutActivity extends Activity {
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(<span style="color:#0000ff;">R.layout.about_activity</span>);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Hätten wir das Gleiche mit Code versucht, wäre das viel häßlicher geworden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MenuActivity3.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Menu</h2>
+<p>
+	Wenn wir ein Menu zu unserer Activity hinzufügen wollen, geht das auch wieder am einfachsten über eine XML Datei.&nbsp; In diesem Fall definieren wir eine Datei namens &quot;menu_main.xml&quot; im Verzeichnis /res/menu/ mit folgendem Inhalt:</p>
+<pre style="margin-left: 40px;">
+&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; &gt;
+&nbsp;&nbsp;&nbsp; &lt;item
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+<span style="color:#0000ff;">id/about</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:alphabeticShortcut=&quot;a&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;About&quot;/&gt;
+&nbsp;&nbsp;&nbsp; &lt;item
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+<span style="color:#0000ff;">id/calculator</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:alphabeticShortcut=&quot;c&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Calculator&quot;/&gt;
+&lt;/menu&gt;</pre>
+<p>
+	Der Inhalt erklärt sich von selbst.&nbsp; Die dazu gehörige Activity ist wieder angenehm kurz:</p>
+<pre style="margin-left: 40px;">
+public class MenuActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean onCreateOptionsMenu(Menu menu) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreateOptionsMenu(menu);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;MenuInflater inflater = getMenuInflater();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;inflater.inflate(<span style="color:#0000ff;">R.menu.menu_main</span>, menu);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public boolean onOptionsItemSelected(MenuItem item) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (item.getItemId()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case <span style="color:#0000ff;">R.id.about</span>:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(new Intent(this, AboutActivity.class));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case <span style="color:#0000ff;">R.id.calculator</span>:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(new Intent(this, CalculatorActivity.class));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return false;
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Die Verknüpfung zwischen den beiden wird wieder über die generierte Klasse <em>R</em> hergestellt.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BorderLayoutActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BorderLayout</h2>
+<p>
+	Kommen wir kurz auf die Layouts in Android zu sprechen.&nbsp; Die wichtigsten sind die folgenden fünf:</p>
+<ul>
+	<li>
+		LinearLayout</li>
+	<li>
+		RelativeLayout</li>
+	<li>
+		GridLayout</li>
+	<li>
+		FrameLayout</li>
+	<li>
+		TableLayout</li>
+</ul>
+<p>
+	Den ersten haben wir schon kennengelernt.&nbsp; Der zweite, der sogenannte RelativeLayout ist sehr mächtig, allerdings nicht ganz einfach.&nbsp; Deswegen hier ein Beispiel wie man das aus Swing bekannte BorderLayout mittels des RelativeLayout nachbilden kann:</p>
+<pre style="margin-left: 40px;">
+&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/north&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_horizontal&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;North&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAppearance=&quot;@android:style/TextAppearance.Large&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+<span style="color:#0000ff;">id/south</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentBottom=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_horizontal&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;South&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAppearance=&quot;@android:style/TextAppearance.Large&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/west&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_above=&quot;@<span style="color:#0000ff;">id/south</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentLeft=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_below=&quot;@id/north&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_vertical&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;West&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAppearance=&quot;@android:style/TextAppearance.Large&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/east&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_above=&quot;@<span style="color:#0000ff;">id/south</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentRight=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_below=&quot;@id/north&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_vertical&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;East&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAppearance=&quot;@android:style/TextAppearance.Large&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_above=&quot;@<span style="color:#0000ff;">id/south</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_below=&quot;@id/north&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_toLeftOf=&quot;@id/east&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_toRightOf=&quot;@id/west&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#100000ff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Center&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAppearance=&quot;@android:style/TextAppearance.Large&quot; /&gt;
+
+&lt;/RelativeLayout&gt;</pre>
+<p>
+	Die Elemente definieren ihre Position relativ zueinander über die Ids.&nbsp; Die dazugehörige Activity macht eigentlich gar nichts.</p>
+<pre style="margin-left: 40px;">
+public class BorderLayoutActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.border_layout_activity);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Den GridLayout werden wir im nächsten Beispiel verwenden, der FrameLayout muss noch bis zu den Fragments warten.&nbsp; Der TableLayout (mein Lieblingslayout) kommt im sechsten Kapitel dran (AllAccelGyro).</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CalculatorActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Calculator</h2>
+<p>
+	In diesem Beispiel wollen wir drei Dinge sehen: zunächst natürlich die Verwendung des GridLayout. Dann geht es aber auch darum zu zeigen, dass für manche Sachen die XML Layout Datei besser geeignet ist, andere Dinge aber besser programmatisch gelöst werden.&nbsp; Und schließlich, und das werden wir noch öfter in diesem Buch sehen, war das zweite Semester nicht ganz umsonst.</p>
+<p>
+	Wir definieren zunächst das generelle Layout der Anwendung wieder über die XML Datei:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/linearLayout1&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot;
+&nbsp;&nbsp;&nbsp; android:padding=&quot;0dip&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/textView2&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginBottom=&quot;5dip&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginLeft=&quot;5dip&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginRight=&quot;5dip&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginTop=&quot;5dip&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#ffe0e0e0&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;right&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;0&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;32dp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;GridLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/gridLayout1&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;fill_parent&quot; &gt;
+&nbsp;&nbsp;&nbsp; &lt;/GridLayout&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	LinearLayout und TextView sind damit fertig definiert.&nbsp; Allerdings der GridLayout ist noch nicht ganz fertig, da fehlt noch der Inhalt, die Knöpfe.&nbsp; Würden wir diese in der XML Datei definieren, wäre das sehr viel Copy-und-Paste.&nbsp; Besser ist es diese dynamisch zu generieren:</p>
+<pre style="margin-left: 40px;">
+public class CalculatorActivity extends Activity implements View.OnClickListener {
+
+&nbsp;&nbsp; &nbsp;private final int NR_OF_COLUMNS = 4;
+
+&nbsp;&nbsp;&nbsp; private String[] btnLabels = {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;/&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;*&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;-&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;(&quot;,&quot;0&quot;,&quot;)&quot;,&quot;+&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;C&quot;,&quot;DEL&quot;,&quot;.&quot;,&quot;=&quot;};
+
+&nbsp;&nbsp; &nbsp;private TextView tv;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.calculator_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getScreenDimensions();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv = (TextView) findViewById(R.id.textView2);
+
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GridLayout gl = (GridLayout) findViewById(R.id.gridLayout1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.removeAllViews();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.setColumnCount(NR_OF_COLUMNS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.setRowCount(5);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button[] btns = new Button[btnLabels.length];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; btnLabels.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btns[i] = new Button(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btns[i].setText(btnLabels[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btns[i].setLayoutParams(</span><span style="color:#ff0000;">getLayoutParams(width, i)</span><span style="color:#0000ff;">);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btns[i].setOnClickListener(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.addView(btns[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</span>
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Wir holen uns also eine Referenz auf das Gridlayout aus der XML Datei, setzen die Spalten- und Zeilenzahl, und fügen dann die Buttons ein. Jedem Button müssen wir noch ordentliche Layoutparameter verpassen, das machen wir über die Methode <em>getLayoutParams()</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;private GridLayout.LayoutParams getLayoutParams(int width, int i) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GridLayout.LayoutParams param = new GridLayout.LayoutParams();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// param.height = LayoutParams.WRAP_CONTENT;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// param.width = LayoutParams.WRAP_CONTENT;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// param.rightMargin = 5;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// param.topMargin = 5;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;param.width = <span style="color:#0000ff;">width</span> / NR_OF_COLUMNS;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;param.setGravity(Gravity.CENTER);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;param.columnSpec = GridLayout.spec(i % NR_OF_COLUMNS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;param.rowSpec = GridLayout.spec(i / NR_OF_COLUMNS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return param;
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Die Breite die unser GridLayout zur Verfügung hat, erhalten wir mit der <em>getScreenDimensions()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;private void getScreenDimensions() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Display display = getWindowManager().getDefaultDisplay();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point size = new Point();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;display.getSize(size);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">width</span> = size.x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;height = size.y;
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Fehlt nur noch die <em>onClick()</em> Methode: wenn eine Ziffer, ein Operator oder eine Klammer eingegeben wird, dann soll die im Display ausgegeben werden, bei einem &#39;C&#39; soll das Display gelöscht werden, bei dem Drücken von &#39;DEL&#39;, soll das letzte Zeichen gelöscht werden, und beim Drücken des &#39;=&#39; Zeichens soll die Eingabe ausgewertet werden.</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String lbl = ((Button) v).getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (&quot;0123456789()+-*/&quot;.contains(lbl)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(lbl);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (lbl.equals(&quot;C&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(&quot;&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (lbl.equals(&quot;=&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String infix = tv.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String postfix = <span style="color:#0000ff;">convertFromInfixToPostfix(infix)</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, postfix);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int result = <span style="color:#0000ff;">evaluate(postfix)</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(&quot;&quot; + result);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (lbl.equals(&quot;DEL&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String txt = tv.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(txt.substring(0, txt.length() - 1));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Die Methoden <em>convertFromInfixToPostfix()</em> und <em>evaluate()</em> kennen wir noch aus dem vierten Lab des zweiten Semester.</p>
+<p>
+	.</p>
+<h2>
+	ScreenDimensions</h2>
+<p>
+	Die Methode <em>getScreenDimensions()</em> oben ist nicht ganz korrekt.&nbsp; Denn der uns zur Verfügung stehende Screen Real Estate hängt zum einen natürlich von der Auflösung unseres Bildschirms ab.&nbsp; Aber auch davon ob Statusbar, Actionbar und/oder Navigationbar sichtbar sind.&nbsp;</p>
+<p>
+	<br />
+	<img alt="" src="images/Ch2_Bars.png" style="margin-left: 10px; margin-right: 10px; width: 340px; height: 353px;" /></p>
+<p style="margin-left: 40px;">
+	Statusbar, Actionbar und/oder Navigationbar</p>
+<p>
+	Die Auflösung unseres Bildschirms erhalten wir mit der <em>getRealSize()</em> Methode des Displays:</p>
+<pre style="margin-left: 40px;">
+    ...
+&nbsp;&nbsp; &nbsp;String msg = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;Display display = getWindowManager().getDefaultDisplay();
+&nbsp;&nbsp; &nbsp;Point size = new Point();
+&nbsp;&nbsp; &nbsp;display.getRealSize(size);
+&nbsp;&nbsp; &nbsp;msg += &quot;Real size: w=&quot; + size.x + &quot;, h=&quot; + size.y + &quot;\n&quot;;
+    ...
+</pre>
+<p>
+	Je nachdem ob Statusbar, Actionbar und/oder Navigationbar sichtbar sind, müssen wir deren Höhe noch von der Höhe des Displays abziehen:</p>
+<pre style="margin-left: 40px;">
+    ...
+&nbsp;&nbsp; &nbsp;// status bar
+&nbsp;&nbsp; &nbsp;int statusBarHeight = 0;
+&nbsp;&nbsp; &nbsp;int resourceId = getResources().getIdentifier(&quot;status_bar_height&quot;, &quot;dimen&quot;, &quot;android&quot;);
+&nbsp;&nbsp; &nbsp;if (resourceId &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;msg += &quot;Status Bar: h=&quot; + statusBarHeight + &quot;\n&quot;;
+
+&nbsp;&nbsp; &nbsp;// action bar
+&nbsp;&nbsp; &nbsp;int actionBarHeight = 0;
+&nbsp;&nbsp; &nbsp;final TypedArray styledAttributes = this.getTheme()
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;.obtainStyledAttributes(new int[] { android.R.attr.actionBarSize });
+&nbsp;&nbsp; &nbsp;actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+&nbsp;&nbsp; &nbsp;styledAttributes.recycle();
+&nbsp;&nbsp; &nbsp;msg += &quot;Action Bar: h=&quot; + actionBarHeight + &quot;\n&quot;;
+
+&nbsp;&nbsp; &nbsp;// navigation bar
+&nbsp;&nbsp; &nbsp;int navigationBarHeight = 0;
+&nbsp;&nbsp; &nbsp;resourceId = getResources().getIdentifier(&quot;navigation_bar_height&quot;, &quot;dimen&quot;, &quot;android&quot;);
+&nbsp;&nbsp; &nbsp;if (resourceId &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;msg += &quot;Navigation Bar: h=&quot; + navigationBarHeight;
+&nbsp;&nbsp; &nbsp;...
+</pre>
+<p>
+	Befindet sich unsere App allerdings im Landscape Modus, dann müssen wir die Navigationbar-Höhe von der Breite des Displays abziehen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Alarm_enActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AlarmClock (i18n)</h2>
+<p>
+	Wir haben inzwischen schon mehrere Vorzüge der Trennung von UI und Code mit Hilfe von XML Dateien gesehen.&nbsp; Ein weiterer ist die Internationalisierung (i18n), also das Anpassen einer Anwendung an verschiedene Sprachen. Die Activity macht wieder mal gar nichts:</p>
+<pre style="margin-left: 40px;">
+public class AlarmClockActivity extends Activity {
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.alarm_clock_activity);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Auch das Layout ist nichts besonderes,</p>
+<pre style="margin-left: 40px;">
+&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+&nbsp;&nbsp;&nbsp; ... &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/textView&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;0:00:00&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/button&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;<span style="color:#0000ff;">@string/set_alarm</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAllCaps=&quot;false&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;EditText
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/editText&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:inputType=&quot;number&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24dp&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/Alarm_deActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />außer, dass der Text des Buttons, &quot;@string/set_alarm&quot;,&nbsp; eine Referenz auf einen Eintrag in der Datei <em>/res/values/string.xml</em> ist:</p>
+<pre style="margin-left: 40px;">
+&lt;resources&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;app_name&quot;&gt;Alarm&lt;/string&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;<span style="color:#0000ff;">set_alarm</span>&quot;&gt;Set Alarm&lt;/string&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;action_settings&quot;&gt;Settings&lt;/string&gt;
+&lt;/resources&gt;</pre>
+<p>
+	Wenn wir jetzt unsere Activity in andere Sprachen übersetzen wollen, müssen wir lediglich diese eine Datei übersetzen, für jede unterstützte Sprache eine zusätzliche Datei.&nbsp; Gespeichert werden diese Dateien in unterschiedlichen Verzeichnissen, z.B., die deutsche Übersetzung in dem Verzeichnis <em>/res/values-de/:</em></p>
+<pre style="margin-left: 40px;">
+&lt;resources&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;app_name&quot;&gt;Wecker&lt;/string&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;set_alarm&quot;&gt;Wecker Stellen&lt;/string&gt;
+&nbsp;&nbsp;&nbsp; &lt;string name=&quot;action_settings&quot;&gt;Einstellungen&lt;/string&gt;
+&lt;/resources&gt;</pre>
+<p>
+	An den Systemeinstellungen des Handys erkennt Android welche Sprache der Nutzer eingestellt hat und verwendet diese dann automatisch.&nbsp; Wir müssen gar nichts tun.&nbsp; Wenn wir das testen wollen, müssen wir lediglich in den Systemeinstellungen des Handys eine andere Sprache einstellen.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Quotes1.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Quotes</h2>
+<p>
+	Wenn wir unsere bisherigen Anwendungen mal auf einem Tablet laufen lassen, werden wir schnell feststellen, dass die meisten etwas komisch aussehen.&nbsp; Die verschwenden so viel Platz.&nbsp; Um trotz größerer Bildschirme immer noch ästhetisch einigermaßen ansprechende Apps schreiben zu können, gibt es die Fragments.</p>
+<p>
+	Auf einem Tablet kann ich mehr Information anzeigen als auf dem kleinen Bildschirm eines Telefons. Die Idee ist einfach: nimm zwei der kleinen Telefonbildschirme und zeige die auf dem Tablet nebeneinander an.&nbsp;</p>
+<p>
+	<img alt="" src="images/Ch2_Fragments.png" style="margin-left: 10px; margin-right: 10px; width: 553px; height: 257px;" /></p>
+<p style="margin-left: 40px;">
+	Fragments</p>
+<p>
+	Als Anwendung wollen wir einen kleinen Zitatebrowser schreiben.&nbsp; Auf dem Handy soll zunächst eine Liste mit Berühmtheiten erscheinen, und wenn man einen dieser Leute anklickt, sollen auf dem nächsten Schirm ein paar Zitate angezeigt werden.&nbsp; Auf dem Tablet hingegen sollen die Berühmtheiten links und die Zitate rechts nebeneinander erscheinen.</p>
+<p>
+	Wir beginnen mit den Layouts: die Activity agiert in diesem Beispiel lediglich als Container für die Fragments.&nbsp; Dabei müssen wir zwei Fälle unterscheiden.&nbsp; Für das Tablet definieren wir das Layout in der Datei quotes_activity.xml im Verzeichnis /res/layout-land/ (<em>land</em> steht für Landscape):</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/frags&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:baselineAligned=&quot;false&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;horizontal&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;fragment
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/names_fragment&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;0dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_weight=&quot;1&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class=&quot;variationenzumthema_ch2.QuotesNamesFragment&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;fragment
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/quotes_fragment&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;0dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_weight=&quot;3&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class=&quot;variationenzumthema_ch2.QuotesQuotesFragment&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/Quotes2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Für das Telefon, definieren wir das Layout auch in einer Datei <em>quotes_activity.xml</em>, die ist aber im Verzeichnis /res/layout/ (also da wo es normalerweise immer ist):</p>
+<pre style="margin-left: 40px;">
+&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/<span style="color:#0000ff;">fragment_container</span>&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot; /&gt;</pre>
+<p>
+	Wir definieren hier nicht viel, weil wie wir weiter unten sehen werden, auf dem Telefon alles von Hand gemacht werden muss.&nbsp; Wir haben also zwei verschiedene Layoutdateien, eine für das Tablet und eine für das Telefon.</p>
+<p>
+	Kommen wir zu den Fragmenten: Für das erste Fragment gibt es keine Layoutdatei, da es sich um ein <em>ListFragment</em> handelt und dieses gar nicht verändert wird.</p>
+<p>
+	Die Layoutdatei für das zweite Fragment (<em>quotes_quotes.xml</em>), verwendet einen ScrollView, wie wir ihn von der AboutActivity her kennen, und einen TextView für die Zitate:</p>
+<pre style="margin-left: 40px;">
+&lt;ScrollView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/quotes_view&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Select a name to see quotes!&quot; /&gt;
+
+&lt;/ScrollView&gt;</pre>
+<p>
+	Was den Code angeht, beginnen wir mit der einfachsten der drei Klassen, dem QuotesQuotesFragment:</p>
+<pre style="margin-left: 40px;">
+public class QuotesQuotesFragment extends Fragment {
+
+&nbsp;&nbsp; &nbsp;private String[] quotes;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public View onCreateView(LayoutInflater inflater, 
+                             ViewGroup container, 
+                             Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return inflater.inflate(R.layout.quotes_quotes, container, false);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onActivityCreated(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onActivityCreated(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (quotes == null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;quotes = getResources().getStringArray(R.array.Quotes);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void updateFeedDisplay(int position) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TextView tv = (TextView) getView().findViewById(R.id.quotes_view);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(quotes[position]);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In der onCreateView() wird die UI aus der XML Layoutdatei geladen.&nbsp; In der onActivityCreated() füllen wir unser Zitate-Array mit den Zitaten aus der <em>strings.xml</em> Datei:</p>
+<pre style="margin-left: 40px;">
+&lt;resources&gt;
+&nbsp;&nbsp;&nbsp; &lt;string-array name=&quot;<span style="color:#0000ff;">Names</span>&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Bach&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Einstein&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Faust&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Goethe&lt;/item&gt;
+&nbsp;&nbsp;&nbsp; &lt;/string-array&gt;
+&nbsp;&nbsp;&nbsp; &lt;string-array name=&quot;<span style="color:#0000ff;">Quotes</span>&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Alles, was man tun muß, ist die richtige Taste ...&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Das Resultat ist wichtig, nicht die Mathematik, ...&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;So soll ich denn mit saurem Schweiss \nEuch lehren, ...&lt;/item&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item&gt;Wer fremde Sprachen nicht kennt, weiss nichts von ...&lt;/item&gt;
+&nbsp;&nbsp;&nbsp; &lt;/string-array&gt;
+&lt;/resources&gt;</pre>
+<p>
+	Schließlich ist da noch die updateFeedDisplay() Methode: hier wird uns mitgeteilt welche der Zitate wir anzeigen sollen.&nbsp; Mitgeteilt wird uns das von der QuotesActivity.</p>
+<p>
+	Als nächstes sehen wir uns das QuotesNamesFragment für die Liste der Berühmtheiten an.&nbsp; Wir haben ein Stringarray für die Namen, die wir auch wieder aus der <em>strings.xml</em> Datei beziehen.&nbsp; Zusätzlich verknüpfen wir noch diese Namen mit der Liste unseres Fragments (wir sind ja ein ListFragment!):</p>
+<pre style="margin-left: 40px;">
+public class QuotesNamesFragment extends ListFragment {
+
+&nbsp;&nbsp; &nbsp;private String[] <span style="color:#0000ff;">names</span>;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">names</span> = getResources().getStringArray(R.array.Names);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setListAdapter(
+            new ArrayAdapter&lt;String&gt;(getActivity(), 
+                android.R.layout.simple_list_item_activated_1, 
+<span style="color:#0000ff;">                names</span>)
+        );
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onListItemClick(ListView l, View view, int position, long id) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">...</span>
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Falls unser Nutzer jetzt auf einen der Namen klickt wird die <em>onListItemClick()</em> Methode aufgerufen, wo wir dann irgendetwas machen könnten.</p>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/Quotes4.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />Wenn das Fragment jetzt ganz für sich alleine leben würde, wären wir fertig.&nbsp; Aber wir wollen ja, dass die Zitate zu den entsprechenden Berühmtheiten im QuotesQuotesFragment angezeigt werden.&nbsp; Leider können wir mit dem QuotesQuotesFragment nicht direkt sprechen, da wir ja gar nicht wissen ob es exisitiert.&nbsp; Auf dem Tablet schon, auf dem Telefon dagegen nicht.</p>
+<p>
+	Deswegen müssen wir den Umweg über die Activity machen, die weiß nämlich Bescheid.&nbsp; Wir müssen also der Activity Bescheid geben können.&nbsp; Das heißt aber nichts anderes als dass wir eine Methode in der Activity aufrufen.&nbsp; Wie macht man sowas softwaretechnisch sauber?&nbsp; Über einen <em>Callback</em>.&nbsp;</p>
+<p>
+	Callbacks sind in der Regel Methoden, in unserem Fall die <em>onItemSelected()</em> Methode der QuotesActivity. Die rufen wir auf, wenn der Nutzer auf einen der Namen klickt.&nbsp; Dazu benötigen wir aber eine Referenz auf die Activity.&nbsp; Die erhalten wir in der <em>onAttach()</em> Methode die aufgerufen wird, wenn unser Fragment an die Activty angefügt (attached) wird.</p>
+<pre style="margin-left: 40px;">
+public class QuotesNamesFragment extends ListFragment {
+
+    ...
+
+&nbsp;&nbsp; &nbsp;private SelectionListener <span style="color:#0000ff;">callback</span>;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp;&nbsp; public void onAttach(Activity activity) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onAttach(activity);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">callback</span> = (SelectionListener) activity;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onListItemClick(ListView l, View view, int position, long id) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">callback</span>.<span style="color:#ff0000;">onItemSelected</span>(position);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wie stellen wir sicher, dass es in der QuotesActivity auch wirklich die Methode <em>onItemSelected()</em> gibt?&nbsp; Das machen wir in dem wir ein Interface definieren, z.B.</p>
+<pre style="margin-left: 40px;">
+public interface SelectionListener {
+&nbsp;&nbsp; &nbsp;public void <span style="color:#ff0000;">onItemSelected</span>(int position);
+}</pre>
+<p>
+	Es könnte auch FritzListener heißen, der Name ist egal, wichtig ist, dass es die Methode onItemSelected() fordert. Das mit dem Callback muss man nicht machen, aber es ist sauberes Softwareengineering.</p>
+<p>
+	Nach all der Vorarbeit kommen wir zum Herzen unserer Anwendung der <em>QuotesActivity</em>.&nbsp; Wie wir gesehen haben, muss sie das <em>SelectionListener</em> Interface und damit die Methode onItemSelected() implementieren.</p>
+<pre style="margin-left: 40px;">
+public class QuotesActivity extends Activity implements <span style="color:#0000ff;">SelectionListener</span> {
+
+&nbsp;&nbsp; &nbsp;private QuotesNamesFragment namesFragment;
+&nbsp;&nbsp; &nbsp;private QuotesQuotesFragment quotesFragment;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.quotes_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#ff0000;">isInSinglePaneMode</span>()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;quotesFragment = new QuotesQuotesFragment();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;namesFragment = new QuotesNamesFragment();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;FragmentManager mFragmentManager = getFragmentManager();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fragmentTransaction.<span style="color:#ff0000;">replace</span>(R.id.fragment_container, namesFragment);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fragmentTransaction.commit();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;quotesFragment = (QuotesQuotesFragment) 
+                getFragmentManager().findFragmentById(R.id.quotes_fragment);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private boolean <span style="color:#ff0000;">isInSinglePaneMode</span>() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return findViewById(R.id.fragment_container) != null;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onItemSelected</span>(int position) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#ff0000;">isInSinglePaneMode</span>()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fragmentTransaction.replace(R.id.fragment_container, quotesFragment);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fragmentTransaction.addToBackStack(null);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fragmentTransaction.commit();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getFragmentManager().executePendingTransactions();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;quotesFragment.updateQuotesDisplay(position);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die QuotesActivity ist sozusagen der Manager: über die Methode <em>isInSinglePaneMode()</em> stellt sie fest, ob sie auf einem Telefon (true) oder einem Tablet (false) läuft.</p>
+<p>
+	Tablet is easy: es werden immer beide Fragments angezeigt.&nbsp; Das führt in der onCreate() Methode dazu, dass die beiden Fragmente automatisch erzeugt werden (sind ja in der quotes_activity.xml definiert).&nbsp; Wir benötigen lediglich noch eine Referenz auf das QuotesQuotesFragment.</p>
+<p>
+	Beim Telefon ist es etwas komplizierter: da ist ja in der Layoutdatei quotes_activity.xml gar nix definiert.&nbsp; Deswegen legen wir erst einmal beide Fragmente von Hand an, und sagen dem FragmentManager, dass er anstelle von uns (replace) doch das QuotesNamesFragment anzeigen soll.&nbsp; D.h. der Nutzer sieht erst einmal nur die Namen.</p>
+<p>
+	Wählt der Nutzer jetzt einen der Namen aus, wird die onItemSelected() Methode aufgerufen.&nbsp; Beim Tablet wieder easy: wir zeigen einfach die Zitate im QuotesQuotesFragment an.&nbsp; Beim Telefon müssen wir das QuotesNamesFragment durch das QuotesQuotesFragment ersetzen.&nbsp; Das geht wieder über den FragmentManager.&nbsp; Wenn jetzt das QuotesQuotesFragment sichtbar ist, können wir dort dann, wie beim Tablet, die richtigen Zitate anzeigen.&nbsp; Das war&#39;s.</p>
+<p>
+	Nachdem wir gesehen haben, dass das mit den Fragmenten etwas komplizierter ist, verstehen wir vielleicht warum wir im Rest des Buchs selbige nicht so häufig verwenden werden.</p>
+<p>
+	Übrigens kann man das Telefon auch drehen, dann geht es in den Landscape-Modus.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TabsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Tabs</h2>
+<p>
+	Eine Möglichkeit den begrenzten Platz auf dem Telefon etwas größer zu machen sind Fragments.&nbsp; Eine andere sind Tabs. Die sind um einiges einfacher.&nbsp; Hier gibt es eine Activity und eine Layoutdatei.&nbsp; Wir sehen uns zunächst das Layout an.&nbsp; Die ist vielleicht etwas lang, aber nicht weiter kompliziert:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">TabHost</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/tabHost&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_centerHorizontal=&quot;true&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LinearLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;HorizontalScrollView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fillViewport=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:scrollbars=&quot;none&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">TabWidget</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@android:id/tabs&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/TabWidget&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/HorizontalScrollView&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">FrameLayout</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@android:id/tabcontent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;!-- Tab-0 --&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LinearLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;<span style="color:#0000ff;">@+id/tab0</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#100000ff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Tab 0&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/LinearLayout&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;!-- Tab-1 --&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LinearLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;<span style="color:#0000ff;">@+id/tab1</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#1000ff00&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Tab 1&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/LinearLayout&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/FrameLayout&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/LinearLayout&gt;
+&nbsp;&nbsp;&nbsp; &lt;/TabHost&gt;
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Der <em>TabHost</em> gibt den ganzen Rahmen vor, alles was darin definiert wird gehört zu den Tabs.&nbsp; Das nächste sind die <em>TabWidgets</em>: das sind die Reiter mit denen man die verschiedenen Tabs auswählen kann.&nbsp; Die Tabs selbst sind wieder, nacheinander, in einem FrameLayout definiert.</p>
+<p>
+	Die Activity ist auch ganz einfach.&nbsp; Zunächst basteln wir die UI automatisch aus der Layoutdatei.</p>
+<pre style="margin-left: 40px;">
+public class TabsActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.tabs_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// ui setup
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final TabHost host = (TabHost) findViewById(R.id.tabHost);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;host.setup();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Tab 0
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TabHost.TabSpec spec = host.newTabSpec(&quot;Tab Zero&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;spec.setContent(<span style="color:#0000ff;">R.id.tab0</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;spec.setIndicator(&quot;First Tab&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;host.addTab(spec);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Tab 1
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;spec = host.newTabSpec(&quot;Tab One&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;spec.setContent(<span style="color:#0000ff;">R.id.tab1</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;spec.setIndicator(&quot;Second Tab&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;host.addTab(spec);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onTabChanged(String tabId) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showToast(host.getCurrentTab());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void showToast(int currentTab) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, 
+                       &quot;Tab&quot; + currentTab + &quot; was triggered.&quot;, 
+                       Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Danach holen wir uns eine Referenz auf den Tabhost, und fügen einen Tab nach dem anderen zum Host hinzu.&nbsp; Schließlich registrieren wir noch einen OnTabChangeListener, der aufgerufen wird wenn unser Nutzer auf einen der Reiter klickt.&nbsp; Interessant ist vielleicht noch das <em>final</em> vor TabHost: das ist nötig, damit wir in der <em>onTabChanged()</em> Methode darauf zugreifen dürfen.</p>
+<p>
+	Wenn wir die Tabs mit den Fragments vergleichen, ist ziemlich eindeutig welcher von beiden einfacher ist.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	Halten wir noch einmal kurz fest was wir bisher gelernt haben.&nbsp; WIr haben gesehen wie man eine UI in Android über XML Dateien gerätespezifisch festlegen kann.&nbsp; Dabei haben wir auch das erste Mal was über Resourcen und die R.java Datei gehört.&nbsp; Des weiteren haben wir Beispiele für einen Dialog ein Menu gesehen, sowie verschiedene Layouts kennengelernt.&nbsp; Das Thema Internationalisierung (i18n) haben wir angedeutet, und mit Fragmenten habe wir uns etwas ausführlicher beschäftigt.&nbsp; Abschließend haben wir uns noch kurz die Tabs angeschaut.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	In den Projekten in diesem Kapitel werden wir viele alte Bekannte aus dem zweiten Semester treffen.&nbsp; Der Sinn dahinter ist zweifach: zum Einen wollen wir die verschiedenen Android UI Widgets kennenlernen, gleichzeitig aber vielleicht das eine oder andere wieder auffrischen.&nbsp; Ein paar neue Dinge sind aber auch dabei.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/LotteryActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Lottery</h2>
+<p>
+	Wir wollen einen kleinen Lottozahlengenerator schreiben.&nbsp; Dabei haben wir die Vorarbeit schon im zweiten Semester geleistet: mithilfe von Zufallszahlen und der Set Datenstruktur ist das ganz einfach.&nbsp; Was uns zu tun bleibt ist die Protierung nach Android.&nbsp; Dazu beginnen wir mit dem User Interface, das wir wieder in einer XML Datei definieren, einen Button und einen TextView:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/button&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Create my lucky numbers&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/result&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Im Code setzen wir den ContentView, dann holen wir uns eine Referenz auf den TextView und den Button.&nbsp; Wenn der Knopf gedrückt wurde, erzeugen wir die Lottozahlen und zeigen sie um TextView an.</p>
+<pre style="margin-left: 40px;">
+public class LotteryActivity extends Activity {
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;private TextView result;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.lottery_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;result = (TextView) findViewById(R.id.result);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnCreateLuckyNumbers = (Button) findViewById(R.id.button);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnCreateLuckyNumbers.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String numbers = generateLotteryNumbers();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;result.setText(&quot;Your lucky numbers are:\n&quot; + numbers);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}
+</pre>
+<p>
+	Da der TextView <em>result</em> nur in der Methode onCreate() verwendet wird, könnte er auch eine lokale Variable sein, müsste dann aber <em>final</em> sein.</p>
+<p>
+	Falls Sie so eine Anwendung im Google Play Store veröffentlichen wollen, sollten Sie unbedingt einen Disclaimer hinzufügen, sonst werden Sie von irgendeinem Dödl verklagt, weil er beim Lotto nix gewonnen hat.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BlackjackActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Blackjack</h2>
+<p>
+	Im Blackjack Beispiel geht es darum mal den RelativeLayout auszuprobieren.&nbsp; Wir brauchen vier TextViews und zwei Buttons.&nbsp; Die Buttons sollen nebeneinander, die Views untereinander angeordnet sein, so wie wir es im Screenshot sehen.&nbsp; Im Code holen wir uns wieder die Referenzen auf alle benötigten Widgets und fügen noch OnClickListener zu den Knöpfen hinzu.</p>
+<pre style="margin-left: 40px;">
+public class BlackjackActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private List&lt;Integer&gt; cards = new ArrayList&lt;Integer&gt;();
+
+&nbsp;&nbsp; &nbsp;private TextView tvPlayerCards;
+&nbsp;&nbsp; &nbsp;private TextView tvDealerCards;
+&nbsp;&nbsp; &nbsp;private TextView tvWinOrLoose;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.blackjack_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvPlayerCards = (TextView) findViewById(R.id.player);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvDealerCards = (TextView) findViewById(R.id.dealer);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvWinOrLoose = (TextView) findViewById(R.id.win_or_loose);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnHit = (Button) findViewById(R.id.btn_hit);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnHit.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cards.add(nextRandomInt(1, 11));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showPlayerCards();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnStand = (Button) findViewById(R.id.btn_stand);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnStand.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;checkResult();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// init player cards
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cards.add(nextRandomInt(1, 11));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cards.add(nextRandomInt(1, 11));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showPlayerCards();
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Die Logik für das Spiel haben wir ja schon im zweiten Semester geschrieben.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CreditCardActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CreditCard</h2>
+<p>
+	Kreditkarten verwenden den sogenannten Luhn Algorithmus um festzustellen, ob sich bei der eingegebenen Nummer ein Tippfehler eingeschlichen hat.&nbsp; Wir können das Ganze in eine kleine App zum checken von Kreditkarten verwandeln.&nbsp; Dazu brauchen wir zwei TextView, einen EditText und einen Button:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/label&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Enter a credit card number:&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;EditText
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/editText&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">android:inputType=&quot;number&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/button&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Check&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textAllCaps=&quot;false&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/result&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Interessant ist hier, dass wir dem EditText über <em>android:inputType=&quot;number&quot;</em> sagen können, dass er nur Zahlen akzeptieren soll.&nbsp; Probieren Sie mal ob er auch Gleitkommazahlen akzeptiert.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WordGuessActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />WordGuess</h2>
+<p>
+	Kommen wir zu Hangman 2.0. Dafür benötigen wir einen TextView, um anzuzeigen welche Buchstaben schon richtig erraten wurden, einen EditText damit der Nutzer raten kann, und einen Button um zu checken ob der Buchstabe im gesuchten Wort ist.&nbsp; Der Code ist auch wieder trivial, zwei neue Dinge können wir aber beim Layout lernen:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/word_shown&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;mother&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;LinearLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:gravity=&quot;center_horizontal&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;horizontal&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;EditText
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/char_entered&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+<span style="color:#0000ff;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:inputType=&quot;text&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:maxLength=&quot;1&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/btn_check_word&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Check&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;/LinearLayout&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Zum einen sehen wir wie man LinearLayouts ineinander verschachteln kann, z.B. einen vertikal und den anderen horizontal.&nbsp; Zum anderen sehen wir wie man die Eingabe einer EditText auf ein Zeichen beschränken kann.&nbsp; Im nächsten Kapitel lernen wir wie man denn auch das dazugehörige Galgenmännchen zeichnen kann.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FahrenheitToCelsiusActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />FahrenheitToCelsius</h2>
+<p>
+	Die <em>SeekBar</em> Klasse haben wir bisher noch nicht verwendet.&nbsp; Eine schöne Anwendung ist ein kleiner Umrechner der Fahrenheit in Celsius und umgekehrt umwandelt.&nbsp; Man sieht auch schön wieder wie man mittels der Verschachtelung verschiedener Layouts meist an sein Ziel kommt.</p>
+<p>
+	Wir wollen in der ersten Zeile links den Fahrenheit TextView und rechts den Celsius TextView haben, darunter soll dann der SeekBar über die ganze Breite der Activity gehen:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;RelativeLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;horizontal&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/celsius&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentRight=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginRight=&quot;50dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;37.8&deg;C&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/fahrenheit&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentLeft=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginLeft=&quot;50dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;100.0&deg;F&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;24sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;/RelativeLayout&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;SeekBar
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/seekbar&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:max=&quot;100&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:progress=&quot;50&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Damit das Ganze auf Inputs des Nutzers reagiert, müssen wir am SeekBar einen OnSeekBarChangeListener anbringen und dessen <em>onProgressChanged()</em> Methode überschreiben.</p>
+<pre style="margin-left: 40px;">
+public class FahrenheitToCelsiusActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private TextView tvFahrenheit;
+&nbsp;&nbsp; &nbsp;private TextView tvCelsius;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.fahrenheit_to_celsius_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvFahrenheit = (TextView) findViewById(R.id.fahrenheit);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvCelsius = (TextView) findViewById(R.id.celsius);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SeekBar seekbar = (SeekBar) findViewById(R.id.seekbar);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onStopTrackingTouch(SeekBar seekBar) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onStartTrackingTouch(SeekBar seekBar) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double f = convertProgressToFahrenheit(progress);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double c = fahrenheitToCelsius(f);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvFahrenheit.setText(String.format(&quot;%1$,.1f&quot;, f) + &quot;&deg;F&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvCelsius.setText(&quot;&quot; + String.format(&quot;%1$,.1f&quot;, c) + &quot;&deg;C&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private int convertProgressToFahrenheit(int progress) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return (4 * progress) - 100;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private double fahrenheitToCelsius(double f) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;double c = (5.0 / 9.0) * (f - 32.0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return c;
+&nbsp;&nbsp; &nbsp;}
+
+}</pre>
+<p>
+	Ursprünglich wollte ich eigentlich den NumberPicker für diese Activity verwenden, der funktioniert aber nicht für negative Zahlen! In Indien wäre das vielleicht o.k., nicht aber bei uns.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/QuizActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Quiz</h2>
+<p>
+	Wir wollen eine Anwendung für Multiplechoice Quizes erstellen.&nbsp; Im ersten Semester hatten wir uns dazu schon mal Gedanken gemacht.&nbsp; Zunächst überlegen wir uns den Logikteil der Activity. Die Fragen sollen erst einmal aus einem Stringarray kommen.&nbsp; Später könnten die auch von einem Server im Internet kommen.&nbsp; Wir parsen die Strings und laden die Fragen in eine Liste:</p>
+<pre style="margin-left: 40px;">
+public class QuizActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private final String[] QUESTIONS = {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;Correct:&nbsp; 1 + 1 = 2 ?; Yes; No; Maybe&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;What is 2 ^ 2 ?; 2; 4; 8&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;A zebra has stripes?; Yes; No&quot; };
+
+&nbsp;&nbsp; &nbsp;private List&lt;Question&gt; questions;
+&nbsp;&nbsp; &nbsp;private int currentQuestion = 0;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;loadQuestions();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(createUI());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void loadQuestions() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;questions = new ArrayList&lt;Question&gt;();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; QUESTIONS.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] words = QUESTIONS[i].split(&quot;;&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Question q = new Question(words);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;questions.add(q);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Die Klasse Question ist so einfach wie möglich, lässt deswegen aber auch einige Softwareengineeringprinzipien außer Acht:</p>
+<pre style="margin-left: 40px;">
+class Question {
+&nbsp;&nbsp; &nbsp;public String question;
+&nbsp;&nbsp; &nbsp;public String[] answers;
+
+&nbsp;&nbsp; &nbsp;public Question(String[] words) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;question = words[0];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;answers = words;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Worum es uns eigentlich geht ist die UI.&nbsp; Die Fragen ändern sich nämlich, deswegen muss mindestens dieser Teil der UI dynamisch erzeugt werden:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private LinearLayout createQuestionView(Question q) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;LinearLayout ll2 = new LinearLayout(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll2.setOrientation(LinearLayout.VERTICAL);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TextView tvQuestion = new TextView(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvQuestion.setText(q.question);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvQuestion.setGravity(Gravity.LEFT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tvQuestion.setTextSize(24);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll2.addView(tvQuestion);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;RadioGroup rg = new RadioGroup(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 1; i &lt; q.answers.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;RadioButton rb1 = new RadioButton(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rb1.setTextSize(24);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rb1.setText(q.answers[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rg.addView(rb1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ll2.addView(rg);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return ll2;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Dieses Layout fügen wir dann an entsprechender Stelle in den Rahmen ein.&nbsp; Ob der Teil aus einer XML Datei kommt oder dynamisch erzeugt wird spielt keine Rolle.&nbsp; Wenn man&nbsp; die Erzeugung der UI in eine Methode <em>createUI()</em> auslagert, dann muss der Button der zur nächsten Frage führt, folgenden OnClickListener haben:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+        btnNext.setOnClickListener(new OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;Next!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (currentQuestion &lt; questions.size() - 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentQuestion++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(<span style="color:#0000ff;">createUI()</span>);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+        ...
+</pre>
+<p>
+	und ähnlich für den &quot;Zurück&quot; Knopf.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TerminalActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Terminal</h2>
+<p>
+	Wir haben ja bereits am Anfang dieses Buchs angedeutet, dass es sich bei Android eigentlich um ein Linux Betriebssystem handelt.&nbsp; Das wollen wir jetzt auch unter Beweis stellen indem wir eine einfach Terminal Anwendung schreiben.</p>
+<p>
+	Die UI besteht aus drei Widgets, einem AutoCompleteTextView, einem Button und einem TextView mit Scrollbars.&nbsp;</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;AutoCompleteTextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/autocomplete&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#ff000000&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;monospace&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:hint=&quot;ls /system/app&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:inputType=&quot;text&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:paddingBottom=&quot;5dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:paddingTop=&quot;10dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textColor=&quot;#ffffffff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;16sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/button&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Run&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;16sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/result&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:background=&quot;#ff000000&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;monospace&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">android:scrollbars=&quot;vertical|horizontal&quot;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textColor=&quot;#ffffffff&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;16sp&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Der Code ist eigentlich auch nichts besonderes:</p>
+<pre style="margin-left: 40px;">
+public class TerminalActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.terminal_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#ff0000;">final</span> TextView tv = (TextView) findViewById(R.id.result);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">tv.setMovementMethod(new ScrollingMovementMethod());</span>
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#ff0000;">final</span> AutoCompleteTextView et = (AutoCompleteTextView) findViewById(R.id.autocomplete);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<span style="color:#0000ff;"> &nbsp;String[] commands = new String[] { &quot;ps&quot;, &quot;pwd&quot;, &quot;cat /proc/cpuinfo&quot;, &quot;ls /storage/emulated/0&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;cd /storage/emulated/0&quot;, &quot;whoami&quot; };</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ArrayAdapter&lt;String&gt; adapter = new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_spinner_item, commands);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;et.setAdapter(adapter);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = (Button) findViewById(R.id.button);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new View.OnClickListener() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View arg0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String command = et.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String output = execute(command);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(output);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Wir haben das jetzt schon zweimal gesehen, und jetzt schon wieder: das dämliche <em>final</em>! Wenn wir es weglassen kompiliert unser Code aber nicht.&nbsp; Wir haben zwei Möglichkeiten:</p>
+<ul>
+	<li>
+		wir können aus den zwei Widgets (<em>tv</em> und <em>et</em>) Instanzvariablen machen, dann ist das final nicht nötig, oder</li>
+	<li>
+		wir lassen die zwei Widgets als lokale Variablen, dann ist das final aber zwingend nötig.</li>
+</ul>
+<p>
+	Da wir die Widgets aber in keiner anderen Methode verwenden, wäre aus softwaretechnischen Gründen die Variante mit den lokalen Variablen zu bevorzugen.&nbsp; Das final ist deswegen notwendig, da die <em>onClick()</em> Methode von einem anderen Thread (dem UI Thread) aus aufgerufen wird.&nbsp; Da wir in der <em>onClick()</em> Methode aber auf die beiden Widgets zugreifen, müssen die final sein!&nbsp; Das ist auch der Grund warum der Button nicht final sein muss.&nbsp; Auf den greifen wir ja nicht aus einem anderen Thread zu.&nbsp; Mehr zu Threads in einem späteren Kapitel.</p>
+<p>
+	Nach dieser kurzen Ablenkung wollen wir uns aber der eigentlichen Magie in unserem Code widmen, die steckt in der <em>execute()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;public String execute(String command) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StringBuffer output = new StringBuffer();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Process p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p = Runtime.getRuntime().<span style="color:#0000ff;">exec</span>(command);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.waitFor();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String line = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while ((line = reader.readLine()) != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;output.append(line + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return e.toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return output.toString();
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	Über die Methode <em>exec()</em> der Klasse <em>Process</em>, die wir von der Runtime bekommen, können wir Linux Kommandos ausführen.&nbsp; Process gibt uns einen InputStream zurück, den wir dann einfach auslesen können.&nbsp; Übrigens hat Process auch einen OutputStream.&nbsp; Man kann damit alles machen, was man auch in einem Terminal oder einer Shell machen kann.&nbsp;</p>
+<p>
+	Allerdings hat man sehr eingeschränkte Rechte.&nbsp; Um wenigstens ein bischen im Dateisystem lesen zu können, müssen wir unserer Anwendung Leseberechtigung geben.&nbsp; Das macht man indem man folgende Zeile</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; /&gt;</pre>
+<p>
+	in die AndroidManifest.xml Datei einfügt.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TicTacToeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TicTacToe</h2>
+<p>
+	TicTacToe ist auch ein alter Bekannter, bereits aus dem ersten Semester.&nbsp; Damals hatten wir auch schon die Logik implementiert, es bleibt uns also nur noch die Portierung nach Android. Für das Layout macht es Sinn ein GridLayout zu verwenden:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/linearLayout1&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:gravity=&quot;center|center_horizontal|center_vertical&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot;
+&nbsp;&nbsp;&nbsp; android:padding=&quot;0dip&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;GridLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/gl_tictactoe&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;fill_parent&quot; &gt;
+&nbsp;&nbsp;&nbsp; &lt;/GridLayout&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Im Code erzeugen wir die neun Buttons, als ImageButtons:</p>
+<pre style="margin-left: 40px;">
+public class TicTacToeActivity extends Activity implements View.OnClickListener {
+&nbsp;&nbsp; &nbsp;//private static final String TAG = &quot;TicTacToeActivity&quot;;
+
+&nbsp;&nbsp; &nbsp;private final int NR_OF_COLUMNS = 3;
+&nbsp;&nbsp; &nbsp;private final int NR_OF_ROWS = 3;
+
+&nbsp;&nbsp; &nbsp;private TicTacToeLogic logic;
+&nbsp;&nbsp; &nbsp;private int currentPlayer = 1;
+&nbsp;&nbsp; &nbsp;private boolean gameOver = false;
+
+&nbsp;&nbsp; &nbsp;private int width = -1;
+&nbsp;&nbsp; &nbsp;private int height = -1;
+
+&nbsp;&nbsp; &nbsp;private ImageButton[] imgBtns;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.tictactoe_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GridLayout gl = (GridLayout) findViewById(R.id.gl_tictactoe);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.removeAllViews();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.setColumnCount(NR_OF_COLUMNS);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.setRowCount(NR_OF_ROWS);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;logic = new TicTacToeLogic();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getScreenDimensions();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Button[] btns = new Button[btnLabels.length];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns = new ImageButton[NR_OF_COLUMNS*NR_OF_ROWS];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; imgBtns.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i] = new ImageButton(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setId(i);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setAdjustViewBounds(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setMaxWidth(width / 3);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setMaxHeight(width / 3);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setImageResource(R.drawable.tictactoe_);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[i].setOnClickListener(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gl.addView(imgBtns[i]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void getScreenDimensions() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Display display = getWindowManager().getDefaultDisplay();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point size = new Point();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;display.getSize(size);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;width = size.x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;height = size.y;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!gameOver) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int id = ((ImageButton) v).getId();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = id % NR_OF_COLUMNS;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int j = id / NR_OF_COLUMNS;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//Log.i(TAG, &quot;id=&quot; + id + &quot;, i=&quot; + i + &quot;, j=&quot; + j);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (logic.isMoveAllowed(currentPlayer, i, j)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;displayPlayer(id);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (logic.isGameOver()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;displayGameOver();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;computerMakesMove();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Move not allowed!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void displayPlayer(int id) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (currentPlayer == 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[id].setImageResource(R.drawable.tictactoe_x);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[id].setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentPlayer = 2;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[id].setImageResource(R.drawable.tictactoe_o);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imgBtns[id].setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentPlayer = 1;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	Die TicTacToeLogic Klasse übernehmen wir einfach aus dem ersten Semester.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WildbienenActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Wildbienen</h2>
+<p>
+	Im zweiten Semester haben wir uns mit Bäumen und Bienen beschäftigt.&nbsp; Eine der Hausaufgaben war Bienen mit Hilfe eines <em>Decisiontrees</em> zu klassifizieren.&nbsp; Falls wir noch die Hausaufgabe aus dem zweiten Semester haben, dann können wir die jetzt in eine App umwandeln.</p>
+<p>
+	Falls nicht, können wir uns den Flyer &quot;WILDBIENEN&quot; der Initiative &quot;Deutschland summt!&quot; herunterladen [1].&nbsp; Auf Seite 5 dieses Flyers sehen wir eine Tabelle mit dem Namen &quot;Wildbienen bestimmen - leicht gemacht!&quot;.&nbsp; Daraus können wir einen Entscheidungsbaum machen.</p>
+<p>
+	Wir beginnen mit der UI, die ist ähnlich wie bei der FahrenheitToCelsius Activity:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp; android:background=&quot;#200000ff&quot;
+&nbsp;&nbsp;&nbsp; android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;TextView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/question&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:lines=&quot;3&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Wings attached?&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;20sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;RelativeLayout
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:orientation=&quot;horizontal&quot; &gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/btn_yes&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentLeft=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginLeft=&quot;50dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Yes&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;20sp&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/btn_no&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentRight=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_alignParentTop=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_marginRight=&quot;50dp&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:fontFamily=&quot;sans-serif&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;No&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:textSize=&quot;20sp&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;/RelativeLayout&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;ImageView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:scaleType=&quot;centerCrop&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:src=&quot;@drawable/wildbienen&quot; /&gt;
+
+&lt;/LinearLayout&gt;</pre>
+<p>
+	Der Code ist auch nicht so kompliziert:</p>
+<pre style="margin-left: 40px;">
+public class WildbienenActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private BinaryTree&lt;String&gt; decisions;
+&nbsp;&nbsp; &nbsp;private BinaryNode&lt;String&gt; currentNode;
+&nbsp;&nbsp; &nbsp;private TextView tv;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setContentView(R.layout.wildbienen_activity);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv = (TextView) findViewById(R.id.question);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnYes = (Button) findViewById(R.id.btn_yes);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnYes.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;walkThrough(&quot;yes&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btnNo = (Button) findViewById(R.id.btn_no);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnNo.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;walkThrough(&quot;yes&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;createDecisionTree();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentNode = (BinaryNode&lt;String&gt;) decisions.root();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(currentNode.getElement());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void walkThrough(String anwser) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (anwser.toLowerCase().equals(&quot;yes&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentNode = currentNode.getLeft();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;currentNode = currentNode.getRight();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(currentNode.getElement());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void createDecisionTree() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// create decision tree, left is yes:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BinaryNode&lt;String&gt; root = new BinaryNode&lt;String&gt;(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;Dichte Haarbüschel (\&quot;Sammelbürsten\&quot;) am 3. Beinpaar oder auf der Unterseite des Hinterleibes?&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BinaryNode&lt;String&gt; wheels = new BinaryNode&lt;String&gt;(&quot;Wheels attached?&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;root.setLeft(wheels);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;root.setRight(new BinaryNode&lt;String&gt;(&quot;Don&#39;t Fly!&quot;));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BinaryNode&lt;String&gt; water = new BinaryNode&lt;String&gt;(&quot;Water plane?&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wheels.setLeft(new BinaryNode&lt;String&gt;(&quot;Fly!&quot;));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wheels.setRight(water);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;water.setLeft(new BinaryNode&lt;String&gt;(&quot;Fly!&quot;));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;water.setRight(new BinaryNode&lt;String&gt;(&quot;Don&#39;t Fly!&quot;));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;decisions = new BinaryTree&lt;String&gt;(root);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Die Klassen BinaryNode und BinaryTree benötigen wir noch.&nbsp; Die haben wir im zweiten Semester verwendet.&nbsp; Wir importieren die einfach als JAR Bibliothek.&nbsp; Dazu müssen wir ein Verzeichnis /libs/ anlegen und die Datei <em>algorithms.jar</em> hinein kopieren. Diese müssen wir dann noch zum Buildpath hinzufügen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WidgetsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Widgets</h2>
+<p>
+	Welche UI Elemente, sogenannte Widgets, gibt es denn überhaupt?&nbsp; Ne ganze Menge.&nbsp; Hier haben wir mal eine Activity gebastelt die mal die wichtigsten zeigt:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; ...
+    TextView tv = new TextView(this);
+&nbsp;&nbsp; &nbsp;tv.setText(&quot;TextView&quot;);
+&nbsp;&nbsp; &nbsp;tv.setGravity(Gravity.CENTER);
+&nbsp;&nbsp; &nbsp;ll.addView(tv);
+
+&nbsp;&nbsp; &nbsp;EditText et = new EditText(this);
+&nbsp;&nbsp; &nbsp;et.setHint(&quot;Enter name...&quot;);
+&nbsp;&nbsp; &nbsp;ll.addView(et);
+
+&nbsp;&nbsp; &nbsp;Button btn = new Button(this);
+&nbsp;&nbsp; &nbsp;btn.setTypeface(Typeface.create(&quot;sans-serif&quot;, Typeface.NORMAL));
+&nbsp;&nbsp; &nbsp;btn.setText(&quot;Button&quot;);
+&nbsp;&nbsp; &nbsp;ll.addView(btn);
+
+&nbsp;&nbsp; &nbsp;CheckBox cb = new CheckBox(this);
+&nbsp;&nbsp; &nbsp;cb.setText(&quot;CheckBox&quot;);
+&nbsp;&nbsp; &nbsp;ll.addView(cb);
+
+&nbsp;&nbsp; &nbsp;RadioButton rb1 = new RadioButton(this);
+&nbsp;&nbsp; &nbsp;rb1.setText(&quot;Yes&quot;);
+&nbsp;&nbsp; &nbsp;RadioButton rb2 = new RadioButton(this);
+&nbsp;&nbsp; &nbsp;rb2.setText(&quot;No&quot;);
+&nbsp;&nbsp; &nbsp;RadioGroup rg = new RadioGroup(this);
+&nbsp;&nbsp; &nbsp;rg.addView(rb1);
+&nbsp;&nbsp; &nbsp;rg.addView(rb2);
+&nbsp;&nbsp; &nbsp;ll.addView(rg);
+
+&nbsp;&nbsp; &nbsp;SeekBar sb = new SeekBar(this);
+&nbsp;&nbsp; &nbsp;ll.addView(sb);
+
+&nbsp;&nbsp; &nbsp;ImageView img = new ImageView(this);
+&nbsp;&nbsp; &nbsp;img.setImageResource(R.drawable.tictactoe_x);
+&nbsp;&nbsp; &nbsp;ll.addView(img);
+
+&nbsp;&nbsp; &nbsp;ImageButton imgBtn = new ImageButton(this);
+&nbsp;&nbsp; &nbsp;imgBtn.setImageResource(R.drawable.tictactoe_o);
+&nbsp;&nbsp; &nbsp;ll.addView(imgBtn);
+
+&nbsp;&nbsp; &nbsp;List&lt;String&gt; items = new ArrayList&lt;String&gt;();
+&nbsp;&nbsp; &nbsp;items.add(&quot;Coffee&quot;);
+&nbsp;&nbsp; &nbsp;items.add(&quot;Espresso&quot;);
+&nbsp;&nbsp; &nbsp;items.add(&quot;Capuccino&quot;);
+&nbsp;&nbsp; &nbsp;items.add(&quot;Latte&quot;);
+&nbsp;&nbsp; &nbsp;items.add(&quot;Cacachino&quot;);
+&nbsp;&nbsp; &nbsp;ArrayAdapter&lt;String&gt; adapter = 
+        new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_spinner_item, items);
+&nbsp;&nbsp; &nbsp;Spinner sp = new Spinner(this);
+&nbsp;&nbsp; &nbsp;sp.setAdapter(adapter);
+&nbsp;&nbsp; &nbsp;ll.addView(sp);
+
+&nbsp;&nbsp; &nbsp;String[] commands = 
+        new String[] { &quot;Coffee&quot;, &quot;Espresso&quot;, &quot;Capuccino&quot;, &quot;Latte&quot;, &quot;Cacachino&quot; };
+&nbsp;&nbsp; &nbsp;ArrayAdapter&lt;String&gt; adapter2 = 
+        new ArrayAdapter&lt;String&gt;(this, android.R.layout.simple_spinner_item, commands);
+&nbsp;&nbsp; &nbsp;AutoCompleteTextView sp2 = new AutoCompleteTextView(this);
+&nbsp;&nbsp; &nbsp;sp2.setAdapter(adapter2);
+&nbsp;&nbsp; &nbsp;sp2.setHint(&quot;Autocomplete... (type coffee)&quot;);
+&nbsp;&nbsp; &nbsp;ll.addView(sp2);
+&nbsp;&nbsp; &nbsp;NumberPicker np = new NumberPicker(this);
+&nbsp;&nbsp; &nbsp;np.setMinValue(1);
+&nbsp;&nbsp; &nbsp;np.setMaxValue(10);
+&nbsp;&nbsp; &nbsp;np.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+&nbsp;&nbsp; &nbsp;ll.addView(np);
+
+&nbsp;&nbsp; &nbsp;TimePicker tp = new TimePicker(this);
+&nbsp;&nbsp; &nbsp;ll.addView(tp);
+
+&nbsp;&nbsp; &nbsp;DatePicker dp = new DatePicker(this);
+&nbsp;&nbsp; &nbsp;dp.setCalendarViewShown(false);
+&nbsp;&nbsp; &nbsp;ll.addView(dp);
+
+&nbsp;&nbsp; &nbsp;DatePicker dp2 = new DatePicker(this);
+&nbsp;&nbsp; &nbsp;dp2.setSpinnersShown(false);
+    ...
+</pre>
+<p>
+	Ganz schön viele, oder?&nbsp; Und es gibt noch viel mehr...</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/IconMenuActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />IconMenu</h2>
+<p>
+	Wir haben ja schon gesehen wie wir ein Menu zu unserer Activty hinzufügen können.&nbsp; Wenn unser Menu nicht zu viele Einträge hat, und wenn genügend Platz zur Verfügung steht (&quot;ifRoom&quot;), dann kann man in der menu.xml Datei auch Icons angeben, die dann in der Titelzeile eingefügt werden.</p>
+<pre style="margin-left: 40px;">
+&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;item
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/action_rotate_image&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:icon=&quot;@drawable/<span style="color:#0000ff;">ic_replay_black_24dp</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:showAsAction=&quot;ifRoom&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Rotate&quot;/&gt;
+&nbsp;&nbsp;&nbsp; &lt;item
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/action_previous_image&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:icon=&quot;@drawable/<span style="color:#0000ff;">ic_skip_previous_black_24dp</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:showAsAction=&quot;ifRoom&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Previous&quot;/&gt;
+&nbsp;&nbsp;&nbsp; &lt;item
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/action_next_image&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:icon=&quot;@drawable/<span style="color:#0000ff;">ic_skip_next_black_24dp</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:showAsAction=&quot;ifRoom&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Next&quot;/&gt;
+
+&lt;/menu&gt;</pre>
+<p>
+	Diese Bilder müssen im Verzeichnis /res/drawable/ zu finden sein.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SettingsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Settings</h2>
+<p>
+	Fast jede Anwendung hat irgendwelche Settings die der Nutzer einstellen kann.&nbsp; Z.B. ob die Hintergrundmusik spielen soll oder nicht, und ähnliches.&nbsp; Hierfür gibt es in Android die <em>SharedPreferences</em> wo solche Sachen zentral gespeichert werden können, ohne dass man sich da viel drum kümmern müsste.&nbsp; Es handelt sich um einen einfachen Key-Value Store (also eigentlich eine Map).</p>
+<p>
+	Interessant ist in diesem Zusammenhang die sogenannte <em>PreferenceActivity</em>:&nbsp; die macht das Anzeigen und Bearbeiten dieser Preferences ziemlich einfach.&nbsp; Denn die Inhalte definiert man einfach in der <em>settings.xml</em> Datei im Verzeichnis /res/xml/:</p>
+<pre style="margin-left: 40px;">
+&lt;PreferenceScreen xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;PreferenceCategory
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:key=&quot;game_settings&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Game Settings&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;CheckBoxPreference
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:defaultValue=&quot;true&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:key=&quot;music&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:summary=&quot;Play music&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Background Music&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;variationenzumthema_pr2.NumberPickerPreference
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:defaultValue=&quot;5&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:key=&quot;difficulty&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Difficulty&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;EditTextPreference
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:defaultValue=&quot;Ralph&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:dialogTitle=&quot;Enter players name&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:key=&quot;name&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:title=&quot;Name&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;/PreferenceCategory&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Preference android:title=&quot;Visit Home Page&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;intent
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:action=&quot;android.intent.action.VIEW&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:data=&quot;http://www.variationenzumthema.de&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;/Preference&gt;
+
+&lt;/PreferenceScreen&gt;</pre>
+<p>
+	Die erinnert so ein bischen an eine Layout Datei.&nbsp;</p>
+<p>
+	Leider ist die PreferenceActivity etwas blöde, deswegen muss man sie erweitern, damit sie wirklich nützlich wird:</p>
+<pre style="margin-left: 40px;">
+public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;addPreferencesFromResource(R.xml.settings);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// nasty trick to change background color:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;View root = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;root.setBackgroundColor(0x200000ff);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;initSummary(getPreferenceScreen());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// how to read preferences:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Map&lt;String, ?&gt; allPreferences = sharedPreferences.getAll();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (String key : allPreferences.keySet()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;SettingsActivity&quot;, &quot;key:&quot; + key + &quot;, value=&quot; + allPreferences.get(key));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onResume() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onResume();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Set up a listener whenever a key changes
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onPause() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onPause();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Unregister the listener whenever a key changes
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;updatePrefSummary(findPreference(key));
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void initSummary(Preference p) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (p instanceof PreferenceGroup) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PreferenceGroup pGrp = (PreferenceGroup) p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; pGrp.getPreferenceCount(); i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;initSummary(pGrp.getPreference(i));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;updatePrefSummary(p);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void updatePrefSummary(Preference p) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (p instanceof ListPreference) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ListPreference listPref = (ListPreference) p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.setSummary(listPref.getEntry());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (p instanceof EditTextPreference) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;EditTextPreference editTextPref = (EditTextPreference) p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (p.getTitle().toString().toLowerCase().contains(&quot;password&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.setSummary(&quot;******&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.setSummary(editTextPref.getText());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (p instanceof MultiSelectListPreference) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;EditTextPreference editTextPref = (EditTextPreference) p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.setSummary(editTextPref.getText());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (p instanceof NumberPickerPreference) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;NumberPickerPreference listPref = (NumberPickerPreference) p;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;p.setSummary(&quot;&quot; + listPref.getValue());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In der Form ist sie aber wirklich hilfreich.&nbsp; Es sei noch angemerkt, dass die Klasse <em>NumberPickerPreference</em> ein Beispiel dafür ist, dass man auch seine eigenen DialogPreferences schreiben kann.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FileExplorer1.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />FileExplorer</h2>
+<p>
+	Basierend auf der Quotes Activity wollen wir einen einfachen FileExplorer schreiben.&nbsp; Was das Userinterface angeht, sind die beiden faktisch identisch.&nbsp; Auch das Codegerüst ist gleich.&nbsp;</p>
+<p>
+	Etwas anpassen müssen wir den SelectionListener, da jetzt ein Verzeichnis als Ergebnis von dem ListFragment an die Activity übergeben werden soll:</p>
+<pre style="margin-left: 40px;">
+public interface SelectionListener {
+&nbsp;&nbsp; &nbsp;public void onDirSelected(File dirName);
+}</pre>
+<p>
+	Was das ListFragment angeht, hält es beim FileExplorer die Verzeichnisse:</p>
+<pre style="margin-left: 40px;">
+public class FileExplorerDirectoryFragment extends ListFragment {
+
+&nbsp;&nbsp; &nbsp;private SelectionListener callback;
+&nbsp;&nbsp; &nbsp;private File[] dirs;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dirs = getDirs(new File(&quot;/storage/emulated/0&quot;));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] fileNames = new String[dirs.length];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; fileNames.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fileNames[i] = dirs[i].getName();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (fileNames != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Arrays.sort(fileNames);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setListAdapter(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;new ArrayAdapter&lt;String&gt;(getActivity(), android.R.layout.simple_list_item_activated_1, fileNames));
+&nbsp;&nbsp; &nbsp;}
+    ...
+}
+</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/FileExplorer2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Wir könnten den ArrayAdapter auch das Array von Verzeichnissen direkt übergeben, nur das sieht dann nicht so hübsch aus.&nbsp; Deswegen der Umweg über das Stringarray mit den Dateinamen.</p>
+<p>
+	Beim FileExplorerFileFragment zeigen wir in der Methode <em>updateFilesDisplay()</em> die Dateien des gewünschten Verzeichnis in einem TextView an:</p>
+<pre style="margin-left: 40px;">
+public class FileExplorerFileFragment extends Fragment {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return inflater.inflate(R.layout.fileexplorer_files, container, false);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void updateFilesDisplay(File dirName) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TextView mTextView = (TextView) getView().findViewById(R.id.fileexplorer_files_tv);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] files = getAllFilesAndDirs(dirName);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StringBuffer sb = new StringBuffer();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// sb.append(&quot;..&quot; + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (files != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (String file : files) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sb.append(file + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mTextView.setText(sb.toString());
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private String[] getAllFilesAndDirs(File file) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] filesAndDirs = file.list();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (filesAndDirs != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Arrays.sort(filesAndDirs);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return filesAndDirs;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	.</p>
+<p>
+	<img alt="" src="images/FileExplorer4.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />Die FileExplorerActivity ist eins-zu-eins identisch mit der QuotesActivity.&nbsp;</p>
+<p>
+	Da wir wieder ein bischen im Dateisystem lesen wollen, müssen wir unserem FileExplorer Leseberechtigung geben.&nbsp; Wir fügen also wieder die Zeile</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; /&gt;</pre>
+<p>
+	in unsere AndroidManifest.xml Datei ein.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CrosswordPuzzleActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CrosswordPuzzle</h2>
+<p>
+	Im zweiten Semester haben wir gesehen wie man mit Hilfe der Trie Datenstruktur automatisch Kreuzworträtsel generieren kann.&nbsp; Der Challenge liegt darin, wie man das so auf ein Smartphone portiert, dass es intuitiv benutzbar ist.</p>
+<p>
+	Als erstes bietet es sich an, die Wortfelder farblich zu hinterlegen.&nbsp; Klickt man auf eines dieser farbig hinterlegten Felder, dann erscheint in einem Toast der Lösungshinweis für das jeweilige Feld.&nbsp; Ein kleines Problem mit dem farblichen Hinterlegen ist, dass sich ein heilloses Durcheinander ergibt, wenn man nicht zwischen horizontalen und vertikalen Feldern trennt.&nbsp; Deswegen macht es Sinn zwischen einem horizontalen und einem vertikalen Modus zu unterscheiden.&nbsp; Das Umschalten zwischen dem einen und dem anderen kann man durch ein Menu oder einen Extraknopf erreichen.&nbsp; Man kann es aber auch durch das Klicken in ein leeres Feld erreichen.&nbsp;</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	In diesem Kapitel gibt es ein paar Themen die man noch durch Eigenrecherche vertiefen kann.</p>
+<p>
+	.</p>
+<h2>
+	Resolutions</h2>
+<p>
+	Android Geräte kommen in allen möglichen Größen und Formen, die unter anderem auch mit Kürzeln wie ldpi, mdpi, hdpi, xhdpi, usw. bezeichnet werden.&nbsp; Referenz [4] gibt hier etwas Hintergrundinformationen.&nbsp; In der gleichen Referenz wird auch kurz auf den Unterschied zwischen <em>sp</em> und <em>dp</em> eingegangen.</p>
+<p>
+	.</p>
+<h2>
+	Styles and Themes</h2>
+<p>
+	Zu Styles und Themes kann man ein eigenes Buch schreiben.&nbsp; Einen ersten Einstieg liefern aber Referenzen [2] und [3].&nbsp; Wir werden uns in diesem Buch allerdings auf einen sehr minimalistischen Stil beschränken.</p>
+<p>
+	.</p>
+<h2>
+	Fragments</h2>
+<p>
+	Dass Fragments nicht ganz trivial sind, dürfte aus der ungewöhnlichen Codefülle hervorgehen bei den beiden Beispielen die wir betrachtet haben.&nbsp; Es macht daher vielleicht Sinn herauszufinden warum es Fragments überhaupt gibt [5].</p>
+<p>
+	.</p>
+<h2>
+	Final</h2>
+<p>
+	Finden Sie heraus warum im Tabs Beispiel der TabHost als <em>final</em> deklariert sein muss? Auch bei der Lottery hatten wir eine ähnliche Wahl.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Erklären Sie wofür die Datei &#39;R.java&#39; gut ist.<br />
+		&nbsp;</li>
+	<li>
+		Zeichnen Sie bitte die UI die von folgender &#39;main.xml&#39; Datei erzeugt wird.<br />
+		<pre style="margin-left: 40px;">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;<span style="color: rgb(255, 0, 0);">LinearLayout</span> xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:layout_width=&quot;fill_parent&quot;
+    android:layout_height=&quot;fill_parent&quot;
+    android:orientation=&quot;vertical&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;Button
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/btn_OK&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;fill_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;wrap_content&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:text=&quot;Open Browser&quot; /&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+		<p>
+			&nbsp;</p>
+	</li>
+	<li>
+		<p>
+			Betrachten Sie den foglenden Code:</p>
+		<pre style="margin-left: 40px;">
+public class ButtonActivity extends Activity {
+     
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+      	super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        // add an event handler to the button:
+        View aboutButton = this.findViewById(R.id.btn_OK);
+         
+    } 
+}</pre>
+		<p>
+			Welche Änderungen müssen Sie vornehmen, damit beim Klicken auf den Knopf eine Nachricht in die Log Datei geschrieben wird?</p>
+	</li>
+	<li>
+		<p>
+			Warum verwendet man in Android XML Dateien um die UI zu beschreiben?</p>
+	</li>
+	<li>
+		<p>
+			Nennen Sie drei verschiedene Layouts, die es in Android gibt.</p>
+	</li>
+	<li>
+		<p>
+			Wofür wird die Datei &ldquo;AndroidManifest.xml&rdquo; verwendet?&nbsp; Geben Sie mindestens zwei Beispiele.</p>
+	</li>
+	<li>
+		<p>
+			Für die folgende UI für einen Login Screen:</p>
+		<p style="margin-left: 40px;">
+			<img alt="" src="images/Q3.13.png" style="width: 240px; height: 148px;" /></p>
+		<p>
+			Schreiben Sie die &#39;main.xml&#39; Datei, die eine UI erzeugen würde, die der obigen Skizze möglichst ähnlich sieht.</p>
+	</li>
+	<li>
+		<p>
+			Würden Sie sagen, dass Internationalisierung (i18n) in Android leicht oder schwer ist?&nbsp; Begründen Sie bitte Ihre Aussage.</p>
+	</li>
+	<li>
+		<p style="margin-bottom: 0in">
+			Warum wurden Fragmente mit Android 3 eingeführt? Wofür sind sie gut?</p>
+		<style type="text/css">
+p { margin-bottom: 0.08in; }		</style>
+	</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] <em>WILDBIENEN</em>, Initiative &quot;Deutschland summt!&quot;, <a href="http://www.deutschland-summt.de/?file=files/media_ds/pdfs/2017/Wildbienen_Folder_23-03-2017.pdf">http://www.deutschland-summt.de/?file=files/media_ds/pdfs/2017/Wildbienen_Folder_23-03-2017.pdf</a></p>
+<p>
+	[2] Android - Styles and Themes, <a href="http://www.tutorialspoint.com/android/android_styles_and_themes.htm">www.tutorialspoint.com/android/android_styles_and_themes.htm</a></p>
+<p>
+	[3] Styles and Themes, <a href="https://developer.android.com/guide/topics/ui/look-and-feel/themes">https://developer.android.com/guide/topics/ui/look-and-feel/themes</a></p>
+<p>
+	[4] Support different pixel densities, <a href="https://developer.android.com/training/multiscreen/screendensities">https://developer.android.com/training/multiscreen/screendensities</a></p>
+<p>
+	[5] Fragments, <a href="https://developer.android.com/guide/components/fragments">https://developer.android.com/guide/components/fragments</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch5_Paint.png" style="display: block; margin-left: auto; margin-right: auto;width: 229px; height: 365px;" /></p>
+<h1>
+	Persistence</h1>
+<p>
+	Dieses Kapitel befasst sich mit der Datenpersistenz, d.h. dem Lesen und Schreiben von Daten in einen persistenten Speicher, normalerweise der SD-Karte.&nbsp; Abhängig von unseren Bedürfnissen gibt es verschiedene Möglichkeiten dies zu tun.&nbsp; Das können Dateien sein, die wir nur lesen wollen und die mit der App verpackt ausgeliefert werden sollen.&nbsp; Oder wir wollen kleinere oder größere Datenmengen auf die SD-Karte schreiben.&nbsp; Manchmal wollen wir aber auch mit strukturierten Daten arbeiten, in der Regel Datenbanken.&nbsp; Und schließlich gibt es auf Android noch die sogenannten &quot;Content Provider&quot;: dabei handelt es sich um bereits bestehenden Datenbanken, die beispielsweise Kalender- und Kontaktinformationen des Nutzers speichern.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ResourceActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Resources</h2>
+<p>
+	Wenn wir für unsere App ein paar Bilder oder kleinere Textdateien benötigen, also Dateien die wir nur lesen wollen, dann bietet sich das /res/raw/ Verzeichnis dafür an.&nbsp; Das Verzeichnis kann jede Art von Datei enthalten.&nbsp; Diese Dateien werden mit in der apk-Datei verpackt, d.h. sie werden mit unserer Anwendung ausgeliefert.&nbsp; Das ist zwar praktisch, bedeutet aber auch, dass die Größe unserer apk-Datei mit der Anzahl und Größe der Dateien die wir einbinden auch zunimmt.<br />
+	<br />
+	Als kleine Anwendung wollen wir aus einer Textdatei names &quot;test.txt&quot; lesen:</p>
+<pre style="margin-left: 40px;">
+InputStream is = getResources().openRawResource(<span style="color:#0000ff;">R.raw.text</span>);
+BufferedReader r = new BufferedReader(new InputStreamReader(is));
+StringBuilder total = new StringBuilder();
+String line;
+while ((line = r.readLine()) != null) {
+&nbsp;&nbsp; &nbsp;total.append(line).append(&#39;\n&#39;);
+}</pre>
+<p>
+	Auch auf binäre Dateien können wir so zugreifen:</p>
+<pre style="margin-left: 40px;">
+InputStream is2 = getResources().openRawResource(<span style="color:#0000ff;">R.raw.mona_lisa</span>);
+Drawable d = Drawable.createFromStream(is2, null);
+ImageView img = new ImageView(this);
+img.setImageDrawable(d);
+img.getLayoutParams().height = 800;</pre>
+<p>
+	Ein kleiner Nachteil bei der Verwendung von Ressourcen ist, dass Dateien im Verzeichnis /raw/ keine Großbuchstaben oder Leerzeichen enthalten dürfen.&nbsp; Ein Vorteil ist hingegen, dass die Namen der Ressourcen bei der Kompilierung überprüft werden, so dass Tippfehler ausgeschlossen sind.</p>
+<p>
+	<img alt="" src="images/Res_PE_Layout.png" style="margin-left: 10px; margin-right: 10px; width: 124px; height: 232px;" /></p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AssetActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Assets</h2>
+<p>
+	Assets sind den Ressourcen sehr ähnlich, sie werden auch zum Lesen von schreibgeschützten Daten verwendet, die sich aber in dem Verzeichnis /assets/ befinden.&nbsp; Sie werden auch in der apk-Datei verpackt.&nbsp; Das Asset Verzeichnis ist mehr wie ein Dateisystem und erlaubt eine Verzeichnisstruktur, was hilfreich ist, wenn wir viele Dateien haben.&nbsp; Außerdem folgen die Dateinamen den üblichen Namenskonventionen.<br />
+	<br />
+	Der Zugriff auf Dateien im Asset-Verzeichnis ist fast gleich wie bei den Ressourcen:</p>
+<pre style="margin-left: 40px;">
+InputStream is = getAssets().open(<span style="color:#0000ff;">&quot;text.txt&quot;</span>);
+...
+InputStream is2 = getAssets().open(<span style="color:#0000ff;">&quot;Mona_Lisa.jpg&quot;</span>);
+...
+</pre>
+<p>
+	Der feine Unterschied ist, dass wir Strings statt Konstanten verwenden, um auf die Dateien zuzugreifen.&nbsp; Das bedeutet, dass der Compiler nicht mehr auf Tippfehler prüfen kann, aber es gibt uns mehr Flexibilität.</p>
+<p>
+	Der Vorteil von Ressourcen und Assets ist, dass sie zusammen mit dem apk verpackt und verteilt werden.&nbsp; Das ist aber auch der größte Nachteil.&nbsp; Und wir können nur aus ihnen lesen, schreiben ist nicht möglich.</p>
+<p>
+	<img alt="" src="images/Res_PE_Layout.png" style="margin-left: 10px; margin-right: 10px; width: 124px; height: 232px;" /></p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SharedPreferencesActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Shared Preferences</h2>
+<p>
+	Häufig müssen wir in unseren Apps einfach nur ein paar Schlüssel-Wert-Paare speichern.&nbsp; Z.B. Einstellungen in unserer App oder einen Highscore in einem Spiel.&nbsp; Dafür kann man die Klasse SharedPreferences verwenden.&nbsp; Mit ihr kann man primitive Datentypen wie booleans, floats, ints, longs und Strings speichern.</p>
+<p>
+	Im Prinzip sind die SharedPreferences nichts anderes wie eine HashMap in der wir ja auch nur Key-Value Paare speichern.&nbsp; Als kleines Beispiel lesen wir einen String zu Beginn unserer Anwendung in der <em>onCreate()</em> Methode.&nbsp; Bevor unsere Anwendung beendet wird, also in der <em>onStop()</em> Methode speichern wir dann den evtl neuen Wert wieder ab.</p>
+<pre style="margin-left: 40px;">
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;SharedPreferences prefs = <span style="color:#0000ff;">getPreferences</span>(MODE_PRIVATE);
+&nbsp;&nbsp; &nbsp;String txt = prefs.getString(&quot;KEY&quot;, &quot;default&quot;);
+&nbsp;&nbsp; &nbsp;...
+}
+
+@Override
+protected void onStop() {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;SharedPreferences prefs = <span style="color:#0000ff;">getPreferences</span>(MODE_PRIVATE);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;SharedPreferences.Editor editor = prefs.edit();
+&nbsp;&nbsp; &nbsp;editor.putString(&quot;KEY&quot;, et.getText().toString());
+&nbsp;&nbsp; &nbsp;editor.commit();
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Natürlich sollten SharedPreferences nur für kleinere Datenmengen verwendet werden.</p>
+<p>
+	Man kann auch im <em>Bundle</em> kleine Datenmengen speichern, gesehen haben wir das im Paint Beispiel des zweiten Kapitels.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/InternalStorageActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Internal Storage</h2>
+<p>
+	In Android hat jede Anwendung ein spezielles privates Verzeichnis (/data/data/packagename), das bei der Installation erstellt wird.&nbsp; Dieses befindet sich auf der internen SD Karte.&nbsp; Man kann da alles mögliche dauerhaft speichern.&nbsp; Als kleines Beispiel wollen wir die Zahl 42 in die Datei &quot;test.data&quot; schreiben und lesen:</p>
+<pre style="margin-left: 40px;">
+FileOutputStream fos = <span style="color:#0000ff;">openFileOutput</span>(&quot;test.data&quot;, MODE_PRIVATE);
+fos.write( 42 );
+fos.close();
+
+FileInputStream fis = <span style="color:#0000ff;">openFileInput</span>(&quot;test.data&quot;);
+int i = fis.read();
+et.setText(&quot;&quot;+i);
+fis.close();</pre>
+<p>
+	.</p>
+<p>
+	Für den Zugriff auf das private Verzeichnis stehen zwei weitere interessante Methoden zur Verfügung.&nbsp; Mit <em>fileList()</em> können wir alle Dateien und Unterverzeichnisse auflisten und mit <em>deleteFile()</em> können wir Dateien löschen.&nbsp; Da der interne Speicher auf den meisten Geräten etwas eingeschränkt ist, sollten wir keine sehr großen Dateien in den internen Speicher ablegen.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ExternalStorageActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />External Storage</h2>
+<p>
+	Wenn wir größere Datenmengen haben, oder wenn unsere Daten nicht privat sind, also z.B. wenn wir unsere Daten mit anderen Anwendungen teilen möchten, dann können wir die externe SD-Karte verwenden.&nbsp; Am Code ändert sich fast nichts:</p>
+<pre style="margin-left: 40px;">
+FileOutputStream fos = new FileOutputStream(&quot;/sdcard/test.data&quot;);
+</pre>
+<p>
+	Und analog für den InputStream.</p>
+<p>
+	Ein Unterschied besteht allerdings: unsere Anwendung muss um Erlaubnis fragen, damit sie auf die externe SD-Karte zugreifen kann.&nbsp; In der AndroidManifest.xml&nbsp; Datei müssen wir folgende Zeile einfügen:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; /&gt;
+</pre>
+<p>
+	Normalerweise verwendet man das private Verzeichnis für Daten, die kleiner als ein oder zwei Megabyte sind.&nbsp; Für größere Datenmengen sollte man die externe SD-Karte verwenden.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/PaintingActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Serialization</h2>
+<p>
+	Im zweiten Kapitel haben wir schon mal mit den Thema <em>Serialization</em> zu tun gehabt.&nbsp; Kurz gesagt geht es darum Objekte zu speichern, z.B. auf der Festplatte.&nbsp; Das Gegenstück dazu heißt <em>deserialisieren</em>, also ein Objekt wieder von der Festplatte zu laden.&nbsp; Das geht überraschend einfach mit den ObjectOutput- und ObjectInputStream Klassen.&nbsp;</p>
+<p>
+	Als Beispiel wollen wir unsere Kunstwerke (PaintingActivity) aus Kapitel drei serialisieren.&nbsp; Die Kunstwerke sind als Punkte in einer Liste gespeichert:</p>
+<pre style="margin-left: 40px;">
+public class PaintingActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private <span style="color:#0000ff;">List&lt;Point&gt; points</span> = new ArrayList&lt;Point&gt;();
+
+    ...
+}
+</pre>
+<p>
+	also müssen wir lediglich die Liste speichern, und das geht überraschend einfach:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; FileOutputStream <span style="color:#0000ff;">fos</span> = openFileOutput(FILE_NAME, MODE_PRIVATE);
+&nbsp;&nbsp; &nbsp;ObjectOutputStream oos = new ObjectOutputStream(<span style="color:#0000ff;">fos</span>);
+&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">oos.writeObject(points);</span>
+&nbsp;&nbsp; &nbsp;oos.close();
+&nbsp;&nbsp; &nbsp;fos.close();</pre>
+<p>
+	Wir benötigen einen OutputStream, z.B. einen FileOutputStream. Diesen übergeben wir an einen ObjectOutputStream als Parameter.&nbsp; Das Speichern selbst geht dann über den Aufruf der Methode <em>writeObject()</em>.&nbsp; Wenn wir diese Zeilen in die onPause() Methode integrieren, werden unsere Kunstwerke jedesmal gespeichert wenn wir unsere Activity beenden.</p>
+<p>
+	Der umgekehrte Vorgang, also das Deserialisieren, geht komplett analog:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; FileInputStream fis = openFileInput(FILE_NAME);
+&nbsp;&nbsp; &nbsp;ObjectInputStream ois = new ObjectInputStream(fis);
+&nbsp;&nbsp; &nbsp;Object obj = <span style="color:#0000ff;">ois.readObject();</span>
+&nbsp;&nbsp; &nbsp;points = <span style="color:#0000ff;">(List&lt;Point&gt;)</span> obj;
+&nbsp;&nbsp; &nbsp;ois.close();
+&nbsp;&nbsp; &nbsp;fis.close();
+</pre>
+<p>
+	Hier benötigen wir also einen InputStream den wir an den ObjectInputStream übergeben, und per <em>readObject()</em> lesen wir dann unser Objekt wieder ein.&nbsp; Da der ObjectInputStream nicht wissen kann um was für ein Objekt es sich handelt, müssen wir ihm das noch sagen, deswegen der Cast.&nbsp; Wenn wir diese Zeilen in die onResume() Methode integrieren werden unsere Kunstwerke jedesmal geladen wenn die Activity neu startet.</p>
+<p>
+	Sind alle Klassen serialisierbar?&nbsp; Interessanterweise nein.&nbsp; Z.B. die Android Klasse &quot;android.graphics.Point&quot; die wir in der ursprünglichen Version der PaintingActivity verwendet haben ist nicht serialisierbar.&nbsp; D.h. damit das mit dem Serialisieren funktioniert, müssen wir unsere eigene Point Klasse schreiben.&nbsp; Das hört sich komplizierter an als es ist.&nbsp; Unsere Klasse muss lediglich das <em>Serializable</em> Interface implementiert:</p>
+<pre style="margin-left: 40px;">
+class Point <span style="color:#0000ff;">implements Serializable</span> {
+&nbsp;&nbsp; &nbsp;public int x;
+&nbsp;&nbsp; &nbsp;public int y;
+
+&nbsp;&nbsp; &nbsp;public Point(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.x = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.y = y;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Interessanterweise muss man beim Serializable Interface gar keine Methode überschreiben.&nbsp; Ist ein bisschen wie Magie!</p>
+<p>
+	Eine Anmerkung noch: innere Klassen kann man nicht serialisieren, bzw. man kann sie nur zusammen mit ihren äusseren Klassen serialisieren.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/DatabaseActivity.png" style="width: 184px; height: 355px; float: right; margin-right: 10px; margin-left: 10px;" />Database</h2>
+<p>
+	Obwohl viele Leute höllischen Respekt vor Datenbanken haben, sind die eigentlich gar nicht so schwer.&nbsp; Für uns ist eine Datenbank erst einmal ein paar Excel Tabellen.&nbsp; Als Beispiel beginnen wir mit einer Tabelle für Nutzer, wir nennen sie mal &quot;User&quot;.&nbsp; Ein User hat einen Nachnamen, einen Vornamen und eine Email Adresse.&nbsp; In der Tabelle werden daraus Spalten (Columns).&nbsp; Die einzelnen Einträge für die Leute sind dann die Reihen (Rows).&nbsp; Bei Datenbank Tabellen fügt man dann meist noch eine Spalte für die &quot;Id&quot; ein: eine Id ist einfach ein Zähler, der bei 1 anfängt und für jeden neuen Eintrag um eins erhöht wird.&nbsp; Damit hat jeder Eintrag eine eigene Id und es kann nie doppelte Ids geben.&nbsp; Was aber passieren könnte, dass es zwei Leute mit dem gleichen Namen gibt.&nbsp; Gibt&#39;s ja auch in echt.</p>
+<p>
+	<img alt="" src="images/UserDatabase.png" style="margin-left: 10px; margin-right: 10px; width: 200px; height: 150px;" /></p>
+<p>
+	.</p>
+<h3>
+	SQL</h3>
+<p>
+	Die &quot;Structured Query Language&quot;, kurz SQL [1], ist die Sprache die die meisten Datenbanken sprechen.&nbsp; Es ist eine etwas ältere Sprache (so wie Altgriechisch, sieht man daran, dass alles groß geschrieben ist und die Befehle immer weniger als acht Buchstaben haben), aber sie funktioniert immer noch recht gut.</p>
+<p>
+	Als erstes ist es immer eine gute Idee evtl. existierende Tabellen zu löschen.&nbsp; Das geht mit</p>
+<pre style="margin-left: 40px;">
+<span style="color:#0000ff;">DROP TABLE</span> Users;</pre>
+<p>
+	ganz einfach.&nbsp; Sollte man natürlich nur machen, wenn da keine wichtigen Daten drin waren, die sind nämlich sonst futsch.</p>
+<p>
+	Danach legen wir eine neue Tabelle an.&nbsp; Hierfür gibt es das &quot;CREATE TABLE&quot; Kommando:</p>
+<pre style="margin-left: 40px;">
+<span style="color:#0000ff;">CREATE TABLE</span> Users (
+&nbsp;&nbsp;&nbsp; Id INTEGER not null,
+&nbsp;&nbsp;&nbsp; LastName VARCHAR(255) not null,
+&nbsp;&nbsp;&nbsp; FirstName VARCHAR(255), &nbsp;
+&nbsp;&nbsp;&nbsp; Email VARCHAR(255),
+&nbsp;&nbsp;&nbsp; PRIMARY KEY (Id)
+);</pre>
+<p>
+	Wir sagen also, dass die Tabelle &quot;Users&quot; heißen soll, dass es eine Spalte Id geben soll die eine Ganzzahl sein soll und die immer einen Wert haben muss (not null).&nbsp; Dann deklarieren wir noch die anderen Spalten.&nbsp; Dabei heißt &quot;VARCHAR(255)&quot; soviel wie ein String der Länge 255 auf Altgriechisch.&nbsp; Am Ende sagen wir noch, dass &quot;Id&quot; der Primary Key sein soll.&nbsp;</p>
+<p>
+	Nachdem wir die Tabelle angelegt haben, wollen wir auch ein paar Daten einfügen, und das geht folgendermaßen:</p>
+<pre style="margin-left: 40px;">
+<span style="color:#0000ff;">INSERT INTO</span> Users (Id, LastName, FirstName, Email)
+    VALUES (1,&#39;Lano&#39;,&#39;Ralph&#39;,&#39;ralph@lano.de&#39;);</pre>
+<p>
+	Ganz wichtig sind die Apostrophen, auch <em>Single Quotes</em> genannt.&nbsp; Das sind also die geraden Striche die von oben nach unten gehen, und sich weder leicht nach links, noch leicht nach rechts lehnen.&nbsp; Hört sich lustig an, ist aber wichtig: besonders beim Kopieren aus PDF Dateien passiert es nicht selten, dass die Apostrophen sich leicht zu neigen beginnen.</p>
+<p>
+	Und schließlich wollen wir mal schauen was inzwischen in unserer Tabelle alles drin steht, und das geht mit:</p>
+<pre style="margin-left: 40px;">
+<span style="color:#0000ff;">SELECT</span> * FROM Users;</pre>
+<p>
+	Es gibt dann noch ein DELETE und ein UPDATE Kommando, aber im Prinzip war&#39;s das schon.</p>
+<p>
+	.</p>
+<h2>
+	SQLite</h2>
+<p>
+	Teil von Android ist eine Datenbank namens SQLite [2].&nbsp; Sie ist relativ einfach zu bedienen: Für jede Tabelle, die wir in unserer Datenbank haben wollen, erstellen wir eine Klasse, zum Beispiel die <em>FriendsTable</em>:</p>
+<pre style="margin-left: 40px;">
+import static android.provider.BaseColumns.<span style="color: rgb(0, 0, 255);">_ID</span>;
+...
+
+public class <span style="color:#0000ff;">FriendsTable</span> extends SQLiteOpenHelper {
+
+	public static final String TABLE_NAME = &quot;friends&quot;;
+	public static final String LAST_NAME = &quot;lastName&quot;;
+	public static final String FIRST_NAME = &quot;firstName&quot;;
+	public static final String EMAIL = &quot;email&quot;;
+
+	public FriendsTable(Context context, String name, CursorFactory factory,
+			int version) {
+		super(context, name, factory, version);
+	}
+	...
+
+}
+</pre>
+<p>
+	Die Klasse erweitert die SQLiteOpenHelper Klasse, was uns den Zugriff auf die SQLite Datenbank erleichtert, d.h. um die Low-Level Details müssen wir uns nicht kümmern.&nbsp; Es macht Sinn, Tabellen- und Spaltennamen als Konstanten zu deklarieren, das vermeidet Typos.</p>
+<p>
+	Was wir noch tun müssen, ist die beiden Methoden <em>onCreate()</em> und <em>onUpdate()</em> zu überschreiben.&nbsp; Die erste wird benötigt, da wir beim ersten Start unseres Programms alle Tabellen in der Datenbank anlegen müssen.&nbsp; Die zweite wird benötigt, wenn wir unsere Tabellen ändern, d.h. eine neue Spalte hinzufügen, eine entfernen oder ihre Eigenschaften ändern wollen.&nbsp; Normalerweise will man bei einem Update nicht alle vorhandenen Daten löschen, aber in unserem einfachen Fall ist es genau das, was wir tun:</p>
+<pre>
+	@Override
+	public void <span style="color:#0000ff;">onCreate</span>(SQLiteDatabase db) {
+		db.execSQL(&quot;CREATE TABLE &quot; + TABLE_NAME + &quot; (&quot; 
+				+ <span style="color: rgb(0, 0, 255);">_ID</span> + &quot; INTEGER PRIMARY KEY AUTOINCREMENT, &quot; 
+				+ LAST_NAME + &quot; TEXT NOT NULL,&quot; 
+				+ FIRST_NAME + &quot; TEXT NOT NULL,&quot;
+				+ EMAIL + &quot; TEXT NOT NULL);&quot;);
+	}
+
+	@Override
+	public void <span style="color:#0000ff;">onUpgrade</span>(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL(&quot;DROP TABLE IF EXISTS &quot; + TABLE_NAME);
+		onCreate(db);
+	}
+</pre>
+<p>
+	Wenn wir genau hinsehen, erkennen wir unsere SQL Kommandos CREATE und DROP.</p>
+<h3>
+	<img alt="" height="129" src="images/Android_FileExplorer.png" style="float: right;" width="230" />Creating the Database</h3>
+<p>
+	Als erstes müssen wir eine Datenbank erstellen.&nbsp; Das machen wir am besten in der onCreate() Methode unserer Activity:</p>
+<pre style="margin-left: 40px;">
+public class DatabaseActivity extends Activity {
+
+	private static final String DATABASE_NAME = &quot;<span style="color:#0000ff;">friends.db</span>&quot;;
+	private static final int DATABASE_VERSION = <span style="color:#0000ff;">6</span>;
+	
+	private FriendsTable <span style="color:#0000ff;">friends</span>;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		<span style="color:#0000ff;">friends</span> = new FriendsTable(this, DATABASE_NAME, null, DATABASE_VERSION);
+
+		...
+	}
+}
+</pre>
+<p>
+	Wenn wir eine neue FriendsTable erstellen, prüft das System, ob die Datenbank &quot;friends&quot; bereits existiert.&nbsp; Wenn das der Fall ist, dann wird es diese einfach öffnen.&nbsp; Ist das nicht der Fall, wird eine neue Datei namens &quot;friends.db&quot; im Verzeichnis &quot;/data/data/package_name/databases&quot; erstellt.&nbsp; Die gesamte Datenbank wird in dieser einen Datei gespeichert, was natürlich bedeutet, dass die Größe unserer Datenbank durch die Größe die maximale Dateigröße begrenzt ist.&nbsp; Man kann sich die Datenbankdatei in der FileExplorer Ansicht ansehen.</p>
+<p>
+	Noch etwas: Jedes Mal, wenn wir eine unserer Tabellen ändern, müssen wir eine neue Datenbankversion anlegen, d.h. die Konstante&#39;DATABASE_VERSION&#39; sollte um Eins erhöht werden.</p>
+<h3>
+	Inserting Data</h3>
+<p>
+	Sobald die Datenbank fertiggestellt ist, können wir Daten einfügen.&nbsp; Da unsere FriendsTable Klasse die SQLiteOpenHelper Klasse erweitert, gibt es die <em>getWriteableDatabase()</em> Methode.&nbsp; Diese gibt uns ein SQLiteDatabase Objekt zurück, mit dem wir dann Daten in unsere Tabelle einfügen können:</p>
+<pre>
+	private void addFriend(String lastName, String firstName, String email) {
+		SQLiteDatabase db = friends.<span style="color:#0000ff;">getWritableDatabase</span>();
+		ContentValues values = new ContentValues();
+		values.put(FriendsTable.LAST_NAME, lastName);
+		values.put(FriendsTable.FIRST_NAME, firstName);
+		values.put(FriendsTable.EMAIL, email);
+		db.<span style="color:#0000ff;">insert</span>(FriendsTable.TABLE_NAME, null, values);
+	}
+</pre>
+<p>
+	Falls etwas schief geht, wird eine Exception ausgelöst.</p>
+<h3>
+	Reading Data</h3>
+<p>
+	Schließlich müssen wir in der Lage sein, aus unserer Datenbanktabelle zu lesen.&nbsp; Auch hier verwenden wir das SQLiteDatabase Objekt, allerdings in der read-only Version.&nbsp; Die Syntax bezieht sich auf die Syntax der SQL SELECT-Anweisung:</p>
+<pre>
+	private Cursor getFriends() {
+		SQLiteDatabase db = friends.<span style="color:#0000ff;">getReadableDatabase</span>();
+		String[] FROM = { _ID, FriendsTable.LAST_NAME, 
+				FriendsTable.FIRST_NAME, FriendsTable.EMAIL, };
+		Cursor cursor = db.<span style="color:#0000ff;">query</span>(FriendsTable.TABLE_NAME, FROM, 
+				null, null, null, null, 
+				FriendsTable.LAST_NAME + &quot; DESC&quot;);
+		startManagingCursor(cursor);
+		return cursor;
+	}
+</pre>
+<p>
+	DIe Methode <em>query()</em> hat dabei Platz für folgende Parameter: den Tabellennamen, die Selection, die Selection Argumente, GroupBy, Having, und OrderBy Argumente.&nbsp;</p>
+<p>
+	Die Methode <em>getFriends()</em> gibt uns einen Cursor zurück, der das Ergebnis der Abfrage enthält.&nbsp; Der Cursor ist ein Iterator, mit dem wir über die zurückgegebenen Werte iterieren können:</p>
+<pre>
+	private void showFriends(Cursor cursor) {
+		StringBuffer sb = new StringBuffer();
+		while (cursor.<span style="color:#0000ff;">moveToNext</span>()) {
+			long id = cursor.getLong(0);
+			sb.append(id).append(&quot;: &quot;);
+			sb.append(cursor.getString(1)).append(&quot;, &quot;);
+			sb.append(cursor.getString(2)).append(&quot;, &quot;);
+			sb.append(cursor.getString(3)).append(&quot;\n&quot;);
+		}
+		textView1.setText( sb.toString() );
+	}
+</pre>
+<p>
+	Das war&#39;s.</p>
+<h3>
+	Updating and Deleting</h3>
+<p>
+	Zwei weitere Operationen, die wir ausführen können, sind das Aktualisieren und Löschen vorhandener Einträge.&nbsp; Die folgenden zwei Methoden zeigen, wie man das macht:</p>
+<pre>
+	private void deleteFriend(int rowID) {
+		SQLiteDatabase db = friends.<span style="color:#0000ff;">getWritableDatabase</span>();
+		String where = _ID + &quot;=&quot; + rowID;
+		db.<span style="color:#0000ff;">delete</span>(FriendsTable.TABLE_NAME, where, null);
+	}
+
+	private void updateFriend(int rowID, String lastName, String firstName, String email) {
+		SQLiteDatabase db = friends.<span style="color:#0000ff;">getWritableDatabase</span>();
+		ContentValues values = new ContentValues();
+		values.put(FriendsTable.LAST_NAME, lastName);
+		values.put(FriendsTable.FIRST_NAME, firstName);
+		values.put(FriendsTable.EMAIL, email);
+		String where = _ID + &quot;=&quot; + rowID;
+		db.<span style="color:#0000ff;">update</span>(FriendsTable.TABLE_NAME, values, where, null);
+	}
+</pre>
+<p>
+	.</p>
+<h3>
+	Raw Queries</h3>
+<p>
+	Falls wir die Sprache SQL beherrschen, können wir auch reines SQL mit der Methode <em>rawQuery()</em> ausführen:</p>
+<pre style="margin-left: 40px;">
+private long getNumberOfFriendsWithRawQuery() {
+	SQLiteDatabase db = friends.getReadableDatabase();
+	String[] FROM = { _ID, FriendsTable.LAST_NAME, FriendsTable.FIRST_NAME, FriendsTable.EMAIL, };
+	Cursor cursor = db.rawQuery(String.format(<span style="color:#0000ff;">&quot;select count(*) from %s&quot;</span>, FriendsTable.TABLE_NAME), null);
+	cursor.moveToFirst();
+	long count = cursor.getLong(0);
+	cursor.close();
+	return count;
+}</pre>
+<p>
+	Dies ist nicht unbedingt empfehlenswert, aber eine Option.</p>
+<p>
+	.</p>
+<h2>
+	Content Provider</h2>
+<p>
+	Kommen wir kurz zu den Content-Provider: Bei den Content-Provider handelt es sich um bereits vorgefertigte Datenbanken die mit Android kommen.&nbsp; Man kann natürlich auch seinen eigenen Content-Provider schreiben, aber normalerweise verwendet man die bereits existierenden, als da sind:</p>
+<ul>
+	<li>
+		<b>ContactsContract:</b> erlaubt Zugriff auf die Kontakte.</li>
+	<li>
+		<b>CalendarContract:</b> erlaubt Zugriff auf den Kalender.</li>
+	<li>
+		<b>MediaStore:</b> listet alle Mediendateien auf dem Gerät.</li>
+	<li>
+		<b>Browser:</b> erlaubt Zugriff auf Lesezeichen, Browserverlauf und Suchanfragen.</li>
+	<li>
+		<b>CallLog:</b> enthält Informationen über die Anrufhistorie.</li>
+	<li>
+		<b>UserDictionary:</b> erlaubt Zugriff auf benutzerdefinierte Wörter.</li>
+	<li>
+		<b>Settings:</b> erlaubt Zugriff auf die Geräteeinstellungen.</li>
+</ul>
+<p>
+	Wir werden uns die ersten drei in den Projekten näher ansehen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ORMActivity.png" style="width: 184px; height: 355px; float: right; margin-right: 10px; margin-left: 10px;" />ORM</h2>
+<p>
+	Wir sind inzwischen im 21. Jahrhundert und leben in einer objekt-orientierten Welt.&nbsp; Auf eine Datenbank mittels SQL zuzugreifen ist vielleicht aus historischen Gründen noch interessant (oder falls Sie pro Zeile Code bezahlt werden), aber normalerweise würde man versuchen, ein Objekt-Relational Framework (ORM) zu verwenden.&nbsp; Das erledigt für uns den größten Teil der Fußarbeit und wir können uns auf die Kopfarbeit konzentrieren.&nbsp;</p>
+<p>
+	Als Beispiel, werfen wir kurz einen Blick auf das Sugar ORM Framework [3].&nbsp; Es ist ziemlich einfach einzurichten und es ist Open Source. Um das Sugar ORM Framework nutzen zu können, müssen wir zwei Bibliotheken, sugar-1.4.jar und guava-19.0.jar, zu unserem Projekt hinzufügen. Als zugrundeliegende Datenbank wird SQLite verwendet.</p>
+<h3>
+	Configuration</h3>
+<p>
+	Bevor wir Sugar ORM verwenden können, müssen wir noch die folgenden Zeilen zur AndroidManifest Datei hinzufügen:</p>
+<pre style="margin-left: 40px;">
+        ...
+        &lt;activity
+            android:name=&quot;variationenzumthema_ch5.ORMActivity&quot;
+            android:label=&quot;ORMActivity&quot; &gt;
+        &lt;/activity&gt;
+        &lt;meta-data
+            android:name=&quot;DATABASE&quot;
+            android:value=&quot;orm_sugar_example.db&quot; /&gt;
+        &lt;meta-data
+            android:name=&quot;VERSION&quot;
+            android:value=&quot;2&quot; /&gt;
+        &lt;meta-data
+            android:name=&quot;QUERY_LOG&quot;
+            android:value=&quot;true&quot; /&gt;
+        &lt;meta-data
+            android:name=&quot;DOMAIN_PACKAGE_NAME&quot;
+            android:value=&quot;variationenzumthema_ch5&quot; /&gt;
+        ...
+</pre>
+<p>
+	Das Paket sollte dasjenige sein, in dem sich unsere ORMActivity befindet.</p>
+<h3>
+	POJO</h3>
+<p>
+	Zuerst müssen wir die Klasse deklarieren, die wir in der Datenbank speichern wollen, hier die Klasse <em>Book</em>:</p>
+<pre style="margin-left: 40px;">
+public class Book extends <span style="color:#0000ff;">SugarRecord</span> {
+&nbsp;&nbsp; &nbsp;@Unique
+&nbsp;&nbsp; &nbsp;String isbn;
+&nbsp;&nbsp; &nbsp;String title;
+&nbsp;&nbsp; &nbsp;String author;
+
+&nbsp;&nbsp; &nbsp;// Default constructor is necessary for SugarRecord
+&nbsp;&nbsp; &nbsp;public Book() {
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public Book(String isbn, String title, String author) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.isbn = isbn;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.title = title;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.author = author;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Sugar ORM erstellt daraus eine Datenbanktabelle namens BOOK mit einer Spalte für jede Instanzvariable.&nbsp; Sugar verwendet Reflection, deswegen müssen wir einen Standardkonstruktor zur Verfügung stellen, auch wenn er nichts tut.</p>
+<h3>
+	Writing and Reading</h3>
+<p>
+	Schreiben und Lesen mit Sugar ORM ist sehr einfach: wir müssen lediglich unseren Code mit den Methoden <em>SugarContext.init()</em> und <em>SugarContext.terminate()</em> umgeben:</p>
+<pre style="margin-left: 40px;">
+<span style="color:#0000ff;">SugarContext.init(this);</span>
+
+// create new book:
+Book book1 = new Book(&quot;1530651840&quot;, &quot;Java&quot;, &quot;Ralph Lano&quot;);
+book1.<span style="color:#0000ff;">save</span>();
+
+// load entity:
+Book book2 = Book.<span style="color:#0000ff;">findById</span>(Book.class, 1);
+
+<span style="color:#0000ff;">SugarContext.terminate();</span></pre>
+<p>
+	Der Rest ist ganz einfach: Wir sagen unserem Buch einfach, dass es sich mit <em>save()</em> speichern soll, und wenn wir nach einem Buch suchen, verwenden wir die <em>findById()</em> Methode.<br />
+	<br />
+	Sugar ORM ermöglicht auch komplexere Abfragen:</p>
+<pre style="margin-left: 40px;">
+List&lt;Book&gt; books = Book.findWithQuery(
+                     Book.class, 
+                     &quot;SELECT * FROM Book WHERE isbn LIKE ?&quot;, 
+                     &quot;153%&quot;);</pre>
+<p>
+	Wenn dies an Stored Procedures erinnert, dann ist es nicht verwunderlich, denn das ist es auch.</p>
+<p>
+	Wir können auch Bücher löschen,</p>
+<pre style="margin-left: 40px;">
+Book book2 = Book.findById(Book.class, 1);
+book2.delete();</pre>
+<p>
+	und updaten,</p>
+<pre style="margin-left: 40px;">
+Book bookOne = new Book(&quot;1530651840&quot;, &quot;Java&quot;, &quot;Ralph P. Lano&quot;);
+bookOne.update();</pre>
+<p>
+	Wenn wir alle Bücher brauchen, dann gibt es dafür die <em>findAll()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+Iterator&lt;Book&gt; booksIt = Book.findAll(Book.class);</pre>
+<p>
+	Auch das Einfügen von mehreren Büchern in Einem ist möglich:</p>
+<pre style="margin-left: 40px;">
+List&lt;Book&gt; books = new ArrayList&lt;&gt;();
+books.add(new Book(&quot;1530651840&quot;, &quot;Java&quot;, &quot;Ralph Lano&quot;));
+books.add(new Book(&quot;1545467463&quot;, &quot;Algorithmen&quot;, &quot;Ralph Lano&quot;));
+books.add(new Book(&quot;1537765469&quot;, &quot;Internet&quot;, &quot;Ralph Lano&quot;));
+SugarRecord.saveInTx(books);</pre>
+<p>
+	Sugar ORM ist nicht ganz so leistungsfähig wie Hibernate oder JDO, aber es unterstützt One-To-One und One-To-Many Beziehungen.&nbsp; Also für die meisten unserer täglichen Bedürfnisse, ist es gut genug.&nbsp; Wenn wir etwas Ausgefalleneres brauchen, dann gibt es z.B. Room von Google [4] oder auch greenDAO [5] ist einen Blick wert.</p>
+<p>
+	.</p>
+<h2>
+	Online Storage</h2>
+<p>
+	Eine weitere Möglichkeit, um unsere Daten zu speichern, ist online.&nbsp; Natürlich kann man sich da selbst was überlegen, z.B. mit einem RESTful Webservice.&nbsp;&nbsp; Aber es gibt auch andere interessante Lösungen.&nbsp; Da ist z.B. Firebase von Google [6], das im Grunde eine Datenbank in der Cloud ist.&nbsp; Ein kleines Problem mit den Online-Speichern ist, was passiert, wenn wir offline sind?&nbsp; Nun, die Realm-Datenbank [7] versucht, dieses Problem zu lösen.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	In diesem Kapitel haben wir gelernt wie wir Daten permanent speichern können.&nbsp; Dabei haben wir gesehen wie man mit Resourcen und Assets Dateien als Teil der App ausliefern können.&nbsp; Wir haben SharedPreferences kennen gelernt und auch gesehen wie man auf die interne und externe SD Karte zugreifen kann.&nbsp; Schließlich haben wir gesehen wie man mit der eingebauten Datenbank strukturierte Daten bearbeiten können.&nbsp; Wir haben Content-Provider kurz angesprochen und auch bei ORM haben wir uns kurz aufgehalten.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	In den Projekten wollen wir zunächst Resourcen und Assets vertiefen, dazu erinnern wir uns an ein paar Beispielen aus dem zweiten Buch, wie z.B. einen SpellChecker oder ein Wörterbuch.&nbsp; Als anspruchsvolleres Beispiel sehen wir uns auch noch einmal den UBahnnavigator an.&nbsp; Ein einfacher Texteditor demonstriert das Lesen und Schreiben auf die externe SD Karte.&nbsp; Und danach folgen noch ein paar Beispiele zu ContentProvidern wo wir auf den Kalendar, die Kontakte und die Musik Provider zugreifen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SpellCheckerActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SpellChecker</h2>
+<p>
+	Die UI des SpellChecker besteht aus einem EditText und einem Button.&nbsp; Nachdem der Nutzer ein Wort eingegeben hat und auf den &quot;Spell Check&quot; gedrückt hat, checken wir ob das eingegebene Wort in unserem Wörterbuch zu finden ist.&nbsp; Über einem Toast geben wir dem Nutzer dann Rückmeldung.&nbsp;</p>
+<p>
+	Wenn wir noch mal kurz im zweiten Semester nachsehen, dort haben wir dafür ein HashSet verwendet.&nbsp; Das HashSet&nbsp; befüllen wir mit allen Wörter der englischen Sprache,</p>
+<pre style="margin-left: 40px;">
+Set&lt;String&gt; words = buildIndexFromFile(&quot;dictionary_en_de.txt&quot;);
+</pre>
+<p>
+	und verwenden dann die <em>contains()</em> Methode um festzustellen ob das Wort richtig geschrieben wurde:</p>
+<pre style="margin-left: 40px;">
+String word = readLine(&quot;Enter word to check: &quot;);
+if (words.<span style="color:#0000ff;">contains</span>(word.toLowerCase())) {
+&nbsp;&nbsp; &nbsp;println(&quot;Spelling is correct.&quot;);
+} else {
+&nbsp;&nbsp; &nbsp;println(&quot;Spelling is NOT correct.&quot;);
+}</pre>
+<p>
+	Das Wörterbuch könnten wir entweder als Resource oder als Asset speichern.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RhymeHelperActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RhymeHelper</h2>
+<p>
+	Ganz analog zum SpellChecker können wir auch unsere Reim-Anwendung aus dem zweiten Semester auf Android portieren.&nbsp; Für die UI benötigen wir einen EditText, einen Button und einen TextView.&nbsp; Die Logik können wir eins-zu-eins aus dem zweiten Semester übernehmen.</p>
+<p>
+	Die Datenstruktur die wir damals verwendet haben war der <em>Trie</em>.&nbsp; Wenn wir also Worte suchen die sich auf &quot;cool&quot; reimen, dann suchen wir nach allen Worten die auf &quot;ool&quot; enden.&nbsp; Der Trick ist die Worte falsch herum in einen Trie zu speichern.</p>
+<p>
+	Wir instanziieren den <em>Trie</em>:</p>
+<pre style="margin-left: 40px;">
+private SimpleTrie trie = new SimpleTrie();</pre>
+<p>
+	und in den Trie schreiben wir einfach unser gesamtes Wörterbuch</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;loadLexiconFromFile(&quot;dictionary_en_de.txt&quot;);</pre>
+<p>
+	Beim Einfügen in den Trie</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;trie.add( reverseString(en.toLowerCase()) );</pre>
+<p>
+	achten wir aber darauf, dass wir alle Worter falsch herum einfügen. Wenn wir dann nach Reimen suchen, ist das ganz einfach:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;String word = readLine(&quot;Enter word to rhyme: &quot;);
+&nbsp;&nbsp; &nbsp;for (String s : trie.nodesWithPrefix( reverseString(word) )) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;println( reverseString(s) );
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Ganz perfekt ist die Anwendung nicht, denn sie findet nur exakte Reime.&nbsp; Besser wäre es wahrscheinlich einen abgewandelten SoundEx oder Metaphone Algorithmus zu verwenden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/LanguagesActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Languages</h2>
+<p>
+	Wir wollen unser Übersetzungsprogramm aus dem zweiten Semester aufs Handy portieren.&nbsp; Die UI besteht wieder aus einem EditText und einem Button.&nbsp; Für die Anzeige der Übersetzungen bietet sich die Möglichkeit einen ListView zu verwenden, um alle Übersetzung gleichzeitig anzuzeigen.&nbsp;</p>
+<p>
+	Wir verwenden eine Map die einen String als Key hat (das englische Wort) und als Value eine List von Strings (die Übersetzungen).&nbsp; Das Wörterbuch können wir entweder als Resource oder als Asset speichern.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/UniversalTranslatorActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />UniversalTranslator</h2>
+<p>
+	Die Idee hinter dem UniversalTranslator ist es, einen Satz aus dem Englischen in eine (fast) beliebige andere Sprache zu übersetzen.&nbsp; Allerdings nur Wort für Wort.&nbsp; Wir nehmen den Logik Code vom obigen Beispiel.&nbsp; Auch die UI ist ganz ähnlich: einen EditText zum Eingeben, einen Spinner mit dem wir die Sprache auswählen und einen TextView um die Übersetzung anzuzeigen.&nbsp; Das Wörterbuch können wir entweder als Resource oder als Asset speichern.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SubwayActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Subway</h2>
+<p>
+	Die Subway Activity besteht aus zwei Spinnern, einen Button und einem TextView.&nbsp; Der Nutzer wählt den Abfahrts- und Zielbahnhof über die beiden Spinner aus.&nbsp; Über den Button wird dann die Suche nach der kürzesten Strecke ausgelöst.&nbsp; Das Ergebnis wird dann im TextView angezeigt.&nbsp; Die Datei mit den Verbindungsdaten können wir entweder als Resource oder als Asset speichern.</p>
+<p>
+	Bzgl der Logik bedienen wir uns wieder dem Beispiel aus dem zweiten Semester.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SynonymsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Synonyms</h2>
+<p>
+	Beim Synonymbrowser geht es darum ausgehend von einem Wort dessen Synonyme in einer Liste anzuzeigen.&nbsp; Klickt der Nutzer dann auf eines dieser Synonyme, wird dieses Wort als Ausgangswort genommen.&nbsp; Auf diese Art kann man ganz interessante Reisen durch den&nbsp; Synonymgraphen machen.</p>
+<p>
+	Die UI ist identisch zu der in der Languages Activity: ein EditText, ein Button und ein ListView.&nbsp; Die Logik wie man durch den Synonymgraphen navigiert kommt wieder aus dem zweiten Semester. Die Datei mit den Synonympaaren können wir entweder als Resource oder als Asset speichern.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HelpPagesActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />HelpPages</h2>
+<p>
+	Jede App benötigt ein Impressum, evtl. sogar eine Datenschutzerklärung, u.U. vielleicht auch noch Hilfeseiten.&nbsp; Hier gibt es verschiedene Möglichkeiten das umzusetzen.&nbsp; Man könnte eine eigene UI schreiben.&nbsp; Der Nachteil ist, dass das bei Änderungen nicht einfach zu pflegen ist.&nbsp; Man könnte die Seiten als HTML Seiten im Internet hosten.&nbsp; Der Nachteil hier ist, dass die Seiten offline dann nicht zur Verfügung stehen.&nbsp;</p>
+<p>
+	Eine dritte Möglichkeit ist, das WebView Widget zu verwenden.&nbsp; Der Vorteil dieser Variante ist, dass wir für unseren Website und für unsere App die gleichen Inhalte pflegen können.&nbsp; Das WebView Widget, das auch Androids hauseigenem Browser verwendet, kann HTML und CSS darstellen.&nbsp; Die Webseiten selbst, inklusive Stylesheets und Bilder, laden wir aus dem Resource Verzeichnis (/res/raw/).</p>
+<p>
+	Damit auch Links funktionieren, müssen wir unsere HTML Seiten ein klein wenig modifizieren.&nbsp; Z.B. die index.html, sieht wie folgt aus:</p>
+<pre style="margin-left: 40px;">
+&lt;html&gt;
+  ...
+  &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;style.css&quot;&gt;
+  ...
+  &lt;img alt=&quot;&quot; src=&quot;img0.jpg&quot; style=&quot;width: 96px; height: 125px&quot; /&gt;
+  ...
+  &lt;a href=&quot;<span style="color:#0000ff;">int:0</span>&quot;&gt;Impressum&lt;/a&gt;
+  &lt;a href=&quot;<span style="color:#0000ff;">int:1</span>&quot;&gt;Privacy Statement&lt;/a&gt;
+  &lt;a href=&quot;<span style="color:#0000ff;">int:2</span>&quot;&gt;License&lt;/a&gt;
+  ...
+&lt;/html&gt;</pre>
+<p>
+	Also Links zu Stylesheets und Bildern sind einfach relative Links.&nbsp; Allerdings Links zu anderen lokalen Seiten, ändern wir in &quot;int:0&quot; um.&nbsp; Dabei sind die Seiten einfach mit 0, 1, 2, ... durchnumeriert, und &quot;int&quot; steht für intern.&nbsp;</p>
+<p>
+	In der onCreate() Methode unserer <em>HelpPagesActivity</em> initialisieren wir den WebView:</p>
+<pre style="margin-left: 40px;">
+public class HelpPagesActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		this.setTitle(&quot;Help&quot;);
+		WebView webView = new WebView(this);
+		webView.setWebViewClient(new <span style="color:#0000ff;">HelpPagesWebViewClient</span>());
+		String html = <span style="color:#0000ff;">readFile</span>(&quot;&quot;);
+		webView.loadDataWithBaseURL(&quot;file:///android_res/raw/&quot;, html, &quot;text/html&quot;, &quot;UTF-8&quot;, null);
+		webView.getSettings().setBuiltInZoomControls(true);
+		webView.getSettings().setSupportZoom(true);
+		setContentView(webView);
+	}</pre>
+<p>
+	Die <em>readFile()</em> Methode liest eine gewünschte Datei aus dem Resource Verzeichnis:</p>
+<pre style="margin-left: 40px;">
+	private String readFile(String pageNr) {
+		Field f = null;
+		...
+		f = R.raw.class.getField(&quot;index&quot; + pageNr);
+		
+		StringBuffer sb = new StringBuffer();
+		InputStream htmlStream = getResources().openRawResource(f.getInt(null));
+		BufferedReader is = new BufferedReader(new InputStreamReader(htmlStream, &quot;UTF8&quot;));
+		String line;
+		while ((line = is.readLine()) != null) {
+			sb.append(line);
+		}
+		is.close();
+		...
+
+		return sb.toString();
+	}</pre>
+<p>
+	Interessant ist noch die HelpPagesWebViewClient Klasse: sie sorgt dafür, dass die internen Links funktionieren, indem sie die Methode shouldOverrideUrlLoading() überschreibt:</p>
+<pre style="margin-left: 40px;">
+	private class HelpPagesWebViewClient extends WebViewClient {
+	@Override
+	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		if (url.startsWith(&quot;int:&quot;)) {
+			String html = readFile(url.substring(4));
+			view.loadDataWithBaseURL(&quot;file:///android_res/raw/&quot;, html, &quot;text/html&quot;, &quot;UTF-8&quot;, null);
+			view.getSettings().setBuiltInZoomControls(true);
+			view.getSettings().setSupportZoom(true);
+		}
+		return true;
+	}
+}
+
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/EditorActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Editor</h2>
+<p>
+	Wie schwer ist es denn einen kleine Texteditor zu schreiben?&nbsp; Im Prinzip besteht doch ein Texteditor nur aus einem EditText und zwei Knöpfen zum Öffnen und Speichern.&nbsp; Beim EditText müssen wir ein paar Attribute setzen, damit er das macht was er soll:</p>
+<pre style="margin-left: 40px;">
+    &lt;EditText
+        android:id=&quot;@+id/editText&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;match_parent&quot;
+        android:fontFamily=&quot;monospace&quot;
+        android:gravity=&quot;top|left&quot;
+        android:inputType=&quot;textMultiLine&quot;
+        android:scrollHorizontally=&quot;false&quot;
+        android:scrollbars=&quot;vertical&quot;
+        android:text=&quot;&quot;
+        android:textSize=&quot;16sp&quot; /&gt;
+</pre>
+<p>
+	Die beiden Knöpfe kann man am einfachsten über ein IconMenu wie wir es im zweiten Kapitel gemacht haben implementieren.</p>
+<p>
+	Um Dateien zu suchen verwenden wir am besten die Klasse <em>FileChooser</em> die der Autor Roger Keays freundlicherweise unter die Public Domain Lizenz gestellt hat [8].&nbsp; Diese müssen wir in der onCreate() initialisieren:</p>
+<pre style="margin-left: 40px;">
+public class EditorActivity extends Activity implements <span style="color:#0000ff;">FileSelectedListener</span> {
+
+	private EditText et;
+	private FileChooser fc;
+	private File currentFile;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.editor_activity);
+
+		et = (EditText) findViewById(R.id.editText);
+
+		currentFile = <span style="color:#0000ff;">android.os.Environment.getExternalStorageDirectory();</span>
+		fc = new <span style="color:#0000ff;">FileChooser</span>(this, currentFile.getAbsolutePath());
+		fc.setFileListener(this);
+	}
+	...
+}</pre>
+<p>
+	Interessant ist auch der kleine Trick, wie wir das Android Betriebssystem fragen können wo denn genau bitte der External Storage ist.&nbsp; Der ist nämlich nicht bei allen Geräten an der gleichen Stelle, wenn er denn überhaupt vorhanden ist.&nbsp; Mit der <em>showDialog()</em> Methode können wir den FileChooser dann anzeigen lassen,</p>
+<pre style="margin-left: 40px;">
+	fc.showDialog();</pre>
+<p>
+	die dann, wenn der Nutzer eine Datei ausgewählt hat, die Methode <em>fileSelected()</em> aufruft (hat damit zu tun, dass wir oben das <em>FileSelectedListener</em> Interface implementiert haben):</p>
+<pre style="margin-left: 40px;">
+	public void fileSelected(File file) {
+		currentFile = file;
+		try {
+			StringBuffer sb = new StringBuffer();
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			while (true) {
+				String line = br.readLine();
+				if (line == null)
+					break;
+				sb.append(line + &quot;\n&quot;);
+			}
+			br.close();
+			et.setText(sb);
+
+		} catch (Exception e) {
+			Log.e(&quot;EditorActivity&quot;, e.getMessage());
+		}
+	}</pre>
+<p>
+	Kommen wir zum Speichern: dafür lässt sich der <em>AlertDialog.Builder</em> gut verwenden.&nbsp; Wir haben ihn schon mal in er DialogActivity im zweiten Kapitel gesehen.&nbsp; Jetzt geben wir ihm aber einen EditText, was wir mit dem Aufruf von <em>dialog.setView()</em> bewirken:</p>
+<pre style="margin-left: 40px;">
+	private void openSaveFileDialog() {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setTitle(&quot;Save&quot;);
+
+		final EditText input = new EditText(this);
+		input.setText(currentFile.getAbsolutePath());
+		<span style="color:#0000ff;">dialog.setView(input);</span>
+
+		dialog.setPositiveButton(&quot;Save&quot;, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				String fileName = input.getText().toString();
+				saveFile(fileName);
+			}
+		});
+		dialog.setNegativeButton(&quot;Cancel&quot;, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		});
+		dialog.show();
+	}
+</pre>
+<p>
+	Der Rest ist ziemlich selbsterklärend, wir sind ja schon im 6. Semester, oder?</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CalendarSearchActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CalendarSearch</h2>
+<p>
+	Um uns ein bisschen mit den ContentProvidern anzufreunden wollen wir eine kleine Calendarsuche implementieren.&nbsp; Aus Sicht von Android sind ContentProvider nichts anderes als Datenbanken.&nbsp; Das ist auch beim Calendar nicht anders.&nbsp; Wir verwenden also die ganz normale <em>query()</em> Methode wie wir sie bei der Datenbank kennen gelernt haben.&nbsp; Die Query gibt uns dann einen Cursor zurück, über den wir dann iterieren, und das war&#39;s auch schon:</p>
+<pre style="margin-left: 40px;">
+private String searchTitleFromEventTable(String title) {
+	String titles = &quot;&quot;;
+
+	String[] projection = { 
+			&quot;_id&quot;, 
+			CalendarContract.Events.TITLE, 
+			CalendarContract.Events.EVENT_LOCATION,
+			CalendarContract.Events.DTSTART, 
+			CalendarContract.Events.DTEND, 
+			};
+
+	Uri uri = CalendarContract.Events.CONTENT_URI;
+	String selection = CalendarContract.Events.TITLE + &quot; <span style="color:#0000ff;">LIKE</span> ? &quot;;
+	String[] selectionArgs = new String[] { title };
+
+	Cursor cur = getContentResolver().<span style="color:#0000ff;">query</span>(uri, projection, selection, selectionArgs, null);
+
+	while (cur.moveToNext()) {
+		String titl = cur.getString(cur.getColumnIndex(CalendarContract.Events.TITLE));
+		titl += &quot;:&quot; + cur.getString(cur.getColumnIndex(CalendarContract.Events.EVENT_LOCATION));
+		titles += titl + &quot;\n&quot;;
+	}
+	cur.close();
+
+	return titles;
+}</pre>
+<p>
+	Effektiv wird aus dem obigen Code eine ganz normale SQL Abfrage gemacht.&nbsp; Wir können die Analogie mal im Einzeln aufdröseln:</p>
+<ul>
+	<li>
+		uri: hierüber wird festgelegt in welcher Tabelle wir suchen wollen.</li>
+	<li>
+		projection: gibt an welche Spalten uns interessieren.</li>
+	<li>
+		selection: das ist die eigentliche Abfrage, wonach wir suchen.</li>
+	<li>
+		selectionArgs; sind die Argumente für die <em>selection</em>, wie bei einer Stored Procedure.</li>
+	<li>
+		null: hier könnten noch zusätzliche Argumente kommen, wie z.B. ORDER BY.</li>
+</ul>
+<p>
+	Also in SQL übersetzt entspricht der obige Code in etwa:</p>
+<pre style="margin-left: 40px;">
+SELECT <span style="color:#0000ff;">TITLE, EVENT_LOCATION, DTSTART, DTEND</span> FROM <span style="color:#0000ff;">CalendarContract.Events</span> WHERE <span style="color:#0000ff;">TITLE</span> LIKE <span style="color:#0000ff;">title</span>;
+</pre>
+<p>
+	Eigentlich ist SQL gar nicht so schlecht, effizienter auf jeden Fall.</p>
+<p>
+	Ah eine Sache noch: wir wollen ja nicht, dass jeder auf unsere Kalendardaten zugreifen darf, deswegen müssen wir den Nutzer um Erlaubnis fragen ob wir auf seinen Kalendar zugreifen dürfen.&nbsp; Dazu müssen wir die folgende Zeile noch im AndroidManifest hinzufügen:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.READ_CALENDAR&quot; /&gt;
+</pre>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/MusicSearchActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />MusicSearch</h2>
+<p>
+	Android hat auch eine Datenbank für Medien, den MediaStore: beim Booten oder beim Einfügen einer SD Karte scannt Android alle Dateien und sucht nach Audio-, Video- und Bilddateien.&nbsp; Was es dann so an Metadaten gefunden hat speichert es im MediaStore ab.</p>
+<p>
+	Um den MediaStore mal verwendet zu haben, wollen wir nach einem Künstler in den Audiodateien suchen:</p>
+<pre style="margin-left: 40px;">
+private String searchArtistFromMediaStore(String artist) {
+	String artists = &quot;&quot;;
+
+	String[] projection = 
+            {&quot;_id&quot;, MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ALBUM,
+	      MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.COMPOSER, };
+
+	// Uri uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
+	Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+	String selection = MediaStore.Audio.Media.ARTIST + &quot; LIKE ? &quot;;
+	String[] selectionArgs = new String[] { artist };
+
+	Cursor cur = 
+            getContentResolver().query(uri, projection, 
+                                       selection, selectionArgs, null);
+
+	while (cur.moveToNext()) {
+		String titl = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.TITLE));
+		titl += &quot;:&quot; + cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+		titl += &quot;:&quot; + cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.COMPOSER));
+		artists += titl + &quot;\n&quot;;
+	}
+	cur.close();
+
+	return artists;
+}
+</pre>
+<p>
+	Der Code ist komplett analog zu dem vom vorherigen Beispiel, der einzige Unterschied ist, dass wir jetzt in der Tabelle MediaStore.Audio suchen.</p>
+<p>
+	Eine interessante Anmerkung sei hier vielleicht, dass eine App keine Berechtigungen benötigt um auf den MediaStore zuzugreifen.&nbsp; Aus Sicht eines Entwicklers ist das natürlich praktisch.&nbsp; Aus Sicht des Nutzers vielleicht nicht so, denn der MediaStore speichert auch Thumbnails.</p>
+<p>
+	Übrigens, den Prozess des Durchstöperns kann man mit folgenden Zeilen anstoßen:</p>
+<pre style="margin-left: 40px;">
+sendBroadcast(
+	new Intent(
+		Intent.ACTION_MEDIA_MOUNTED,
+		Uri.parse(&quot;file://&quot; + Environment.getExternalStorageDirectory())
+	)
+);
+</pre>
+<p>
+	Das dauert allerdings ein bisschen (Stunden) bis es fertig ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ContactsSearchActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ContactsSearch</h2>
+<p>
+	Als dritte Anwendung wollen wir mal in den Kontakten suchen.&nbsp; Das geht zwar schon recht gut mit der normalen Suche, aber was nicht geht ist nach Teilen zu suchen.&nbsp; Also z.B. nach Telefonnummern die mit &quot;0911&quot; losgehen.</p>
+<p>
+	Wie viele von den ContentProvidern, besteht auch die ContactsContract Datenbank aus mehreren Tabellen.&nbsp; Um jetzt nach Telefonnummern suchen zu können, müssen wir erst mal wissen wessen Telefonnummer.&nbsp; Deswegen gehen wir einfach mal alle Kontakte in unserer Datenbank durch:</p>
+<pre style="margin-left: 40px;">
+private String searchTelephoneInContacts(String telephone) {
+	String numbers = &quot;&quot;;
+
+	String[] projection = { 
+			ContactsContract.Contacts._ID, 
+			ContactsContract.Contacts.DISPLAY_NAME,
+			ContactsContract.Contacts.HAS_PHONE_NUMBER, 
+			ContactsContract.Contacts.TIMES_CONTACTED, };
+
+	Uri uri = ContactsContract.Contacts.CONTENT_URI;
+	ContentResolver cr = getContentResolver();
+	Cursor cur = cr.query(uri, projection, <span style="color:#0000ff;">null, null, null</span>);
+
+	while (cur.moveToNext()) {
+
+		String id = cur.getString(
+                    cur.getColumnIndex(ContactsContract.Contacts._ID));
+		String displayName = cur.getString(
+                    cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+		Integer hasPhone = cur.getInt(
+                    cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+		Integer timesContacted = cur.getInt(
+                    cur.getColumnIndex(ContactsContract.Contacts.TIMES_CONTACTED));
+
+		...
+
+	}
+	cur.close();
+
+	return numbers;
+}
+</pre>
+<p>
+	Die obigen Zeilen entsprechen einem &quot;SELECT * FROM contacts;&quot;, wenn man in SQL denken mag.</p>
+<p>
+	Hier sehen wir zwei interessante Informationen: <em>hasPhone</em> und <em>timesContacted</em>. Die erste benötigen wir gleich wenn wir nach Telefonnummer suchen wollen.&nbsp; Die zweite ist insofern interessant, als dass Android anscheinend zählt wie häufig wir mit jemandem Kontakt haben.&nbsp; Man will ja nichts Schlimmes denken, aber in Zeiten von Edward Snowden, fragt man sich ist das wirklich notwendig?</p>
+<p>
+	Aber machen wir weiter: es macht natütlich nur Sinn bei Leuten nach Telefonnummern zu suchen, wenn sie welche haben.&nbsp; Falls sie aber eine haben, dann suchen wir in der Telefonnummer Tabelle (CommonDataKinds.Phone) nach unserer gesuchten Nummer.&nbsp; Und da wir fit in SQL sind, verwenden wir den &quot;LIKE&quot; Operator, d.h. wir können mit &quot;%&quot; auch Teilsuchen ausführen:</p>
+<pre style="margin-left: 40px;">
+...
+String phone = null;
+if (hasPhone &gt; 0) {
+	String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + &quot; = ? AND &quot;;
+	selection += ContactsContract.CommonDataKinds.Phone.NUMBER + &quot; LIKE ?&quot;;
+	String[] selectionArgs = new String[] { id, telephone };
+
+	Cursor cp = cr.query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, 
+                        selection, selectionArgs, null);
+	if (cp != null &amp;&amp; cp.moveToFirst()) {
+		// while (cp.moveToNext()) {
+		phone = cp.getString(
+                        cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+	}
+	cp.close();
+}
+
+if (phone != null &amp;&amp; phone.length() &gt; 0) {
+	String titl = id;
+	titl += &quot;:&quot; + displayName;
+	titl += &quot;:&quot; + timesContacted;
+	titl += &quot;:&quot; + phone;
+	numbers += titl + &quot;\n&quot;;
+}
+...
+</pre>
+<p>
+	Ziemlich cool, oder?&nbsp; Auch das Stöpern durch die Kontakte ist nur möglich wenn wir uns die Erlaubnis dazu vom Nutzer holen.&nbsp; Dazu müssen wir folgende Zeile in die AndroidManifest.xml Datei einfügen:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.READ_CONTACTS&quot; /&gt;
+</pre>
+<p>
+	Von daher ist es vielleicht gar nicht so schlimm, wenn Android mitzählt wie häufig wir Kontakt mit jemandem haben. WhatsApp und Facebook freuen sich natürlich auch über diese Info.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ExportContactsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ContactsExport</h2>
+<p>
+	Ab und zu möchte man vielleicht mal einen Backup von seinen Kontaktdaten machen.&nbsp; Man kann jetzt natürlich im Play Store nach irgendeiner App suchen die das macht, aber da weiß man nie genau was die App dann noch so mit den eigenen Daten macht.</p>
+<p>
+	Deswegen wollen wir eine Anwendung schreiben, die alle Kontaktdaten ausliest und in eine Datei schreibt.&nbsp; Als Format verwenden wir JSON [9], da es uns erlaubt die Struktur in den Daten zu erhalten.&nbsp; Das Vorgehen ist ähnlich wie im letzten Beispiel: erst müssen wir uns alle Kontakte in der ContactsContract.Contacts Tabelle holen, und danach in den verschiedenen Untertabellen nach den Details suchen, als da sind:</p>
+<ul>
+	<li>
+		CommonDataKinds.Email: für die Emails</li>
+	<li>
+		CommonDataKinds.StructuredName: für Vorname, Nachname, Titel, etc</li>
+	<li>
+		CommonDataKinds.StructuredPostal: für die Addressen</li>
+	<li>
+		CommonDataKinds.Phone: für die Telefonnummern.</li>
+</ul>
+<p>
+	Jede dieser Untertabellen kann mehr als einen Datensatz enthalten, es soll ja Leute geben die mehr als eine Telefonnummer haben.&nbsp; Der Code sieht jetzt etwas lang aus, aber jeder einzelne Schritt ist nachvollziehbar:</p>
+<pre style="margin-left: 40px;">
+private String getAllContacts() {
+	String allContacts = &quot;&quot;;
+
+	String[] projection = { 
+            ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME,
+	    ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.TIMES_CONTACTED, };
+
+	Uri uri = ContactsContract.Contacts.CONTENT_URI;
+	String orderBy = ContactsContract.Contacts.DISPLAY_NAME + &quot; <span style="color:#0000ff;">ASC</span>&quot;;
+
+	ContentResolver cr = getContentResolver();
+	Cursor cur = cr.query(uri, projection, null, null, <span style="color:#0000ff;">orderBy</span>);
+
+	while (cur.moveToNext()) {
+
+		String id = cur.getString(
+                    cur.getColumnIndex(ContactsContract.Contacts._ID));
+		String displayName = cur.getString(
+                    cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+		Integer hasPhone = cur.getInt(
+                    cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+		Integer timesContacted = cur.getInt(
+                    cur.getColumnIndex(ContactsContract.Contacts.TIMES_CONTACTED));
+
+		String email = &quot;[&quot;;
+		Cursor ce = cr.query(
+                                ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+				ContactsContract.CommonDataKinds.Email.CONTACT_ID + &quot; = ?&quot;, 
+                                new String[] { id }, null);
+		// if (ce != null &amp;&amp; ce.moveToFirst()) {
+		while (ce.moveToNext()) {
+			email += ce.getString(
+                            ce.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+			email += &quot;;&quot;;
+		}
+		ce.close();
+		email += &quot;]&quot;;
+
+		String structuresName = &quot;[&quot;;
+		String whereName = ContactsContract.Data.MIMETYPE + &quot; = ? AND &quot;
+		    + ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID + &quot; = ?&quot;;
+		String[] whereNameParams = new String[] { 
+                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE, id };
+		Cursor cn = cr.query(
+                    ContactsContract.Data.CONTENT_URI, null, whereName, whereNameParams,
+		    ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME);
+		while (cn.moveToNext()) {
+			structuresName += cn.getString(
+			    cn.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
+			structuresName += &quot;;&quot; + cn.getString(
+			    cn.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+			structuresName += &quot;;&quot; + cn.getString(
+			    cn.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.MIDDLE_NAME));
+			structuresName += &quot;;&quot; + cn.getString(
+			    cn.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.PREFIX));
+			structuresName += &quot;;&quot;;
+		}
+		cn.close();
+		structuresName += &quot;]&quot;;
+
+		String address = &quot;[&quot;;
+		Cursor ca = cr.query(
+                    ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI, null,
+		    ContactsContract.CommonDataKinds.StructuredPostal.CONTACT_ID + &quot; = ?&quot;, 
+                    new String[] { id }, null);
+		// if (ca != null &amp;&amp; ca.moveToFirst()) {
+		while (ca.moveToNext()) {
+			address += ca.getString(ca.getColumnIndex(
+                            ContactsContract.CommonDataKinds.StructuredPostal.DATA));
+			address += &quot;;&quot;;
+		}
+		ca.close();
+		address += &quot;]&quot;;
+
+		String phone = &quot;[&quot;;
+		if (hasPhone &gt; 0) {
+			Cursor cp = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+			    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + &quot; = ?&quot;, 
+                            new String[] { id }, null);
+			// if (cp != null &amp;&amp; cp.moveToFirst()) {
+			while (cp.moveToNext()) {
+				phone += cp.getString(cp.getColumnIndex(
+                                    ContactsContract.CommonDataKinds.Phone.NUMBER));
+				phone += &quot;;&quot;;
+			}
+			cp.close();
+		}
+		phone += &quot;]&quot;;
+
+		String titl = &quot;{&quot; + id;
+		titl += &quot;;&quot; + displayName;
+		titl += &quot;;&quot; + timesContacted;
+		titl += &quot;;&quot; + structuresName;
+		titl += &quot;;&quot; + phone;
+		titl += &quot;;&quot; + email;
+		titl += &quot;;&quot; + address;
+		allContacts += titl + &quot;}\n&quot;;
+	}
+	cur.close();
+
+	return allContacts;
+}
+</pre>
+<p>
+	In dem Beispiel sehen wir auch, wie man mit <em>orderBy</em> sortieren kann.&nbsp; Die App ist jetzt nicht die schnellste, wenn man aber einen StringBuffer anstelle der vielen Strings verwenden würde, wäre das Ganze bestimmt zehnmal schneller.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HexEditorActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />HexEditor</h2>
+<p>
+	Basierend auf unserer Editor Activity kann man relativ einfach auch einen HexEditor implementieren.&nbsp; Anstelle eines FileReaders müssen wir aber einen FileInputStream in der fileSelected() Methode verwenden, da wir es ja mit binären Daten zu tun haben:</p>
+<pre style="margin-left: 40px;">
+	public void fileSelected(File file) {
+		try {
+			// open file
+			FileInputStream fis = new FileInputStream(file);
+
+			StringBuffer sbHex = new StringBuffer();
+			StringBuffer sbAscii = new StringBuffer();
+			int count = 0;
+			// read from file, line by line
+			int content;
+			while ((content = fis.read()) != -1) {
+				if (content &gt; 31 &amp;&amp; content &lt; 127) {
+					sbAscii.append((char) content);
+				} else {
+					sbAscii.append(&#39; &#39;);
+				}
+
+				byte b = (byte) content;
+				char c1 = DIGITS[(b &gt;&gt; 4) &amp; 0xf];
+				char c2 = DIGITS[b &amp; 0xf];
+				sbHex.append(c1);
+				sbHex.append(c2);
+				sbHex.append(&#39; &#39;);
+
+				count++;
+				if (count == NR_OF_BYTES_PER_LINE) {
+					sbHex.append(&quot;   &quot; + sbAscii + &quot;\n&quot;);
+					sbAscii = new StringBuffer();
+					count = 0;
+				}
+			}
+
+			// close file
+			fis.close();
+
+			// show file content
+			// display.setText(sbHex.toString());
+			et.setText(sbHex.toString());
+
+		} catch (Exception e) {
+			// System.out.println(&quot;File does not exist!&quot;);
+			Log.e(&quot;HexEditorActivity&quot;, e.getMessage());
+		}
+	}</pre>
+<p>
+	Und analog in der saveFile() Methode.</p>
+<p>
+	.</p>
+<h2>
+	ContactsImport</h2>
+<p>
+	Uns fehlt noch das Gegenstück zu ContactsExport mit dem wir die Kontaktdaten wieder importiert können.&nbsp; Wir müssen also die JSON Datei parsen, vielleicht mit dem JSONObject Parser aus dem Netzwerkkapitel, da sparen wir uns viel Arbeit.&nbsp; Danach fügen wir die Kontakte einfach mithilfe des ContactsContracts wieder ein.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Wenn Sie Ihr Android-Gerät ausschalten, gehen alle flüchtigen Daten (d.h. Daten die im RAM sind) verloren.&nbsp; Nennen Sie drei Möglichkeiten, um Daten auf einem Android Gerät zu persistieren, also so zu speichern, dass sie auch nach dem Ausschalten des Geräts wieder hergestellt werden können<strong>.</strong><br />
+		&nbsp;</li>
+	<li>
+		Was ist der Vorteil von Ressourcen und Assets und was ist deren Nachteil?<br />
+		&nbsp;</li>
+	<li>
+		Wofür verwendet man Shared Preferences?<br />
+		&nbsp;</li>
+	<li>
+		Was unterscheidet Internal Storage von External Storage?<br />
+		&nbsp;</li>
+	<li>
+		Wie heißt die Datenbank die Teil von Android ist?<br />
+		&nbsp;</li>
+	<li>
+		Sie können die Daten Ihrer Applikation sowohl in einer lokalen Datenbank als auch auf dem Dateisystem speichern.&nbsp; Geben Sie je ein Beispiel wann das eine und wann das andere Sinn macht.</li>
+	<li>
+		<p style="margin-bottom: 0in">
+			Wie können Sie Zugriff auf die Bookmarks des Browser bekommen?</p>
+		<style type="text/css">
+p { margin-bottom: 0.08in; }a:link {		</style>
+	</li>
+	<li>
+		Nennen Sie drei der standard Content Providers die es auf jedem Android gerät gibt.<br />
+		&nbsp;</li>
+	<li>
+		Erklären Sie kurz, welche Information jeder der folgenden Content Provider bereitstellt:
+		<ul>
+			<li>
+				ContactsContract:</li>
+			<li>
+				MediaStore:</li>
+			<li>
+				Browser:</li>
+			<li>
+				CallLog:</li>
+			<li>
+				UserDictionary:</li>
+			<li>
+				Settings:<br />
+				&nbsp;</li>
+		</ul>
+	</li>
+	<li>
+		Was kann alles schief gehen wenn Sie mit Dateien arbeiten (öffnen, lesen, schreiben)?<br />
+		&nbsp;</li>
+	<li>
+		Welche Klasse verwenden Sie um die Größe einer Datei festzustellen?<br />
+		&nbsp;</li>
+	<li>
+		Erklären Sie kurz was Serialisierung ist, und welche der Stream Klassen Sie dafür verwenden müssen.<br />
+		&nbsp;</li>
+	<li>
+		Nehmen Sie an Sie müssten ein Objekt der Klasse Point auf die SD Karte speichern, z.B. mit einem FileOutputStream.&nbsp; Erläutern Sie wie Sie das tun würden einmal mit Serialization und einmal ohne Serialization.<br />
+		<pre style="margin-left: 40px;">
+class Point {
+&nbsp;&nbsp;&nbsp; public int x;
+&nbsp;&nbsp;&nbsp; public int y;
+
+&nbsp;&nbsp;&nbsp; public Point(int x, int y) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.x = x;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.y = y;
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+		.</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] SQL, <a href="http://en.wikipedia.org/wiki/SQL">en.wikipedia.org/wiki/SQL</a></p>
+<p>
+	[2] Using SQLite Database with Android, <a href="http://www.codeproject.com/Articles/119293/Using-SQLite-Database-with-Android">www.codeproject.com/Articles/119293/Using-SQLite-Database-with-Android</a></p>
+<p>
+	[3] Sugar ORM, <a href="http://satyan.github.io/sugar/index.html">satyan.github.io/sugar/index.html</a></p>
+<p>
+	[4] Room Persistence Library, <a href="https://developer.android.com/topic/libraries/architecture/room">https://developer.android.com/topic/libraries/architecture/room</a></p>
+<p>
+	[5] greenDAO, <a href="http://greenrobot.org/greendao/">greenrobot.org/greendao/</a></p>
+<p>
+	[6] Firebase Android Codelab, <a href="https://codelabs.developers.google.com/codelabs/firebase-android/#0">https://codelabs.developers.google.com/codelabs/firebase-android/#0</a></p>
+<p>
+	[7] Realm Database, <a href="https://realm.io/products/realm-database">https://realm.io/products/realm-database</a></p>
+<p>
+	[8] Roger Keays, FileChooser, <a href="http://www.ninthavenue.com.au/simple-android-file-chooser">http://www.ninthavenue.com.au/simple-android-file-chooser</a></p>
+<p>
+	[9] JSON, <a href="https://en.wikipedia.org/wiki/JSON">https://en.wikipedia.org/wiki/JSON</a></p>
+<p>
+	.</p>
+<div id="cke_pastebin" style="position: absolute; top: 9962.77px; width: 1px; height: 1px; overflow: hidden; left: -1000px;">
+	&nbsp;</div>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

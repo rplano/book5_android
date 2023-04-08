@@ -1,0 +1,847 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch1_HelloWorld.png" style="display: block; margin-left: auto; margin-right: auto;width: 234px; height: 382px;" /></p>
+<h1>
+	Introduction</h1>
+<p>
+	Wenn wir uns fragen mit welchem unserer Computer interagieren wir am meisten, dann ist die Antwort ganz klar: unserem Handy. Smartphones sind aus unserem Leben nicht mehr wegzudenken.&nbsp; Sie begleiten uns täglich und überall hin.&nbsp; Deswegen ist auch das zentrale Thema dieses Buches das Programmieren von mobilen Endgeräten.&nbsp; Da weit über 80 Prozent aller mobilen Endgeräte Android als Betriebssystem haben, werden wir uns auch ausschließlich mit selbigem beschäftigten.&nbsp; Das hat auch einen weiteren gewaltigen Vorteil, denn die bevorzugte Programmiersprache für Android ist Java und das kennen wir ja bereits aus den vorherigen Semestern.</p>
+<p>
+	.</p>
+<h2>
+	Introduction</h2>
+<p>
+	Microsoft hat Linux immer ein bisschen belächelt.&nbsp; Und auf dem Desktop mag das sogar immer noch berechtigt sein.&nbsp; Aber auf dem Servermarkt war das schon von Anfang an nicht begründet, und auf den mobilen Endgeräten hat Linux seinen wahren Siegeszug angetreten, denn Android ist Linux.</p>
+<p>
+	Was die Hardware angeht, denkt man bei Android zunächst an Smartphones und Tablets.&nbsp; Es gibt aber auch Uhren (Smartwatch) und Fernseher (Amazon Fire TV) mit Android als Betriebssystem, und es gibt sogar Android Spielekonsolen, wobei die sich aber bisher nicht durchgesetzt haben.</p>
+<p>
+	Glücklicherweise werden wir sehr wenig mit dem zugrunde liegenden Betriebssystem zu tun haben.&nbsp; So wie uns bei der Java Entwicklung für den Desktop und den Server das Betriebssystem eigentlich relativ egal war, so ist uns das auch bei der Entwicklung von Android Programmen relativ egal.&nbsp; Alles was wir wissen müssen, sind die APIs die uns in Java zur Verfügung gestellt werden.&nbsp; Diese APIs sind es auch was &quot;Google Java&quot; und &quot;Oracle Java&quot; unterscheidet, und warum es dieses Buch gibt.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SimpleActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Activity</h2>
+<p>
+	Für unseren Einstieg in Android beginnen wir mit der <em>Activity</em> Klasse.&nbsp; Dabei handelt es sich um die Basisklasse für UI Anwendungen.&nbsp; Eine Activity ist das Äquivalent der Java Swing <em>JFrame</em> Klasse oder der ACM <em>Program</em> Klasse.&nbsp; Unsere erste Activity ist eine einfache &quot;Hello World&quot; Anwendung:</p>
+<pre style="margin-left: 40px;">
+public class SimpleActivity extends <span style="color:#0000ff;">Activity</span> {
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void <span style="color:#0000ff;">onCreate</span>(Bundle savedInstanceState) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onCreate(savedInstanceState);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LinearLayout ll = new LinearLayout(this);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ll.setOrientation(LinearLayout.VERTICAL);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TextView tv = new TextView(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setTextSize(24);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tv.setText(&quot;Hello World!&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ll.addView(tv);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setContentView(ll);
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	Was früher unsere <em>init()</em> Methode war (oder der Konstruktor), heißt jetzt <em>onCreate()</em>.&nbsp; Das <em>LinearLayout</em> entspricht grob dem <em>FlowLayout</em> wie wir es von Swing Anwendungen her kennen.&nbsp; Die Klasse <em>TextView</em> entspricht dem <em>JLabel</em> von Swing.&nbsp; Der Syntax ist ein klein bisschen anders, aber ansonsten verhalten sich die Klassen fast identisch.&nbsp; Damit wir unsere erste Activity allerdings zu sehen bekommen, benötigen wir noch einen Container, die <em>Application</em>.</p>
+<p>
+	.</p>
+<h2>
+	Application</h2>
+<p>
+	Für das Android Betriebssystem ist ein Android Programm eine <em>Application</em>.&nbsp; Applications werden in der <em>AndroidManifest.xml</em> Datei definiert und bestehen in der Regel aus einer oder mehreren Activities.&nbsp; Eine einfache AndroidManifest.xml Datei sieht wie folgt aus:</p>
+<pre style="margin-left: 40px;">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+&nbsp;&nbsp;&nbsp; package=&quot;de.variationenzumthema.android&quot;
+&nbsp;&nbsp;&nbsp; android:versionCode=&quot;1&quot;
+&nbsp;&nbsp;&nbsp; android:versionName=&quot;1.0&quot; &gt;
+
+&nbsp;&nbsp;&nbsp; &lt;uses-sdk android:minSdkVersion=&quot;19&quot; /&gt;
+
+&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">application</span> android:label=&quot;MainApplication&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;<span style="color:#0000ff;">activity</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:name=&quot;<span style="color:#0000ff;">SimpleActivity</span>&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:label=&quot;Title SimpleActivity&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;intent-filter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/intent-filter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/<span style="color:#0000ff;">activity</span>&gt;
+&nbsp;&nbsp;&nbsp; &lt;/<span style="color:#0000ff;">application</span>&gt;
+
+&lt;/manifest&gt;</pre>
+<p>
+	Hier wird zunächst die Application definiert, sie hat den Namen &quot;MainApplication&quot;.&nbsp; Innerhalb der Application gibt es eine Activity, unsere &quot;SimpleActivity&quot;.&nbsp; Da eine Application aus mehreren Activities bestehen kann, müssen wir noch mitteilen wo es denn losgeht, und das ist was der Intent-Filter macht.&nbsp; Was das Coden angeht sind wir mit unserer ersten Anwendung fertig.&nbsp; War doch gar nicht so schwer.</p>
+<p>
+	.</p>
+<h2>
+	Android Versionen</h2>
+<p>
+	So wie alle Betriebssysteme, entwickelt sich auch Android und deswegen gibt es inzwischen schon einige verschiedene Versionen.&nbsp; Offiziell sind wir inzwischen bei Android 8, auch <em>Oreo</em> genannt, angekommen.&nbsp; Wichtig für uns ist das deswegen, weil mit jeder neuen Android Version zusätzliche Features hinzukommen.&nbsp; Wenn wir also in unserem Android Programm bestimmte Features verwenden, die es erst ab einer gewissen Version gibt, müssen wir das im AndroidManifest mitteilen, und das ist was die Zeile macht:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; &lt;uses-sdk android:minSdkVersion=&quot;19&quot; /&gt;</pre>
+<p>
+	Sie besagt, dass unser Programm nur auf Geräten läuft die mindestens das API-Level &quot;19&quot; haben.&nbsp; Auf älteren Geräten lässt sich unser Programm erst gar nicht installieren.&nbsp; API-Level &quot;19&quot; entspricht der Android Version 4.4, was momentan ca. 90% aller Android Geräte beinhaltet [1].&nbsp; Eine Liste mit allen API-Leveln und den entsprechenden Android Versionen findet man in Referenz [2].</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/ButtonActivity3.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />ButtonActivity</h2>
+<p>
+	Kommen wir zu unserer zweiten Activity. Es geht um die einfachste Form von User-Interaction: wir wollen auf einen Knopf drücken und ein Feedback erhalten.&nbsp; Wir verwenden dafür das <em>Button</em> Widget und verbinden es mit einem <em>OnClickListener</em>:</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity extends Activity {
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onCreate(savedInstanceState);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LinearLayout ll = new LinearLayout(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ll.setLayoutParams(new LayoutParams(
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; LayoutParams.MATCH_PARENT, 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; LayoutParams.MATCH_PARENT));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ll.setBackgroundColor(0x200000ff);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ll.setOrientation(LinearLayout.VERTICAL);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">Button</span> btn = new Button(this);
+        btn.setTypeface(Typeface.create(&quot;sans-serif&quot;, Typeface.NORMAL));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; btn.setText(&quot;Click me!&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; btn.<span style="color:#0000ff;">setOnClickListener</span>(new <span style="color:#0000ff;">OnClickListener</span>() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onClick</span>(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;Button was clicked!&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ll.addView(btn);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setContentView(ll);
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	Die <em>onClick()</em> Methode wird jedesmal aufgerufen, wenn auf den Knopf gedrückt wird.&nbsp; Dort verwenden wir dann einen <em>Toast</em> um dem Nutzer eine kurze Mitteilung zu geben.&nbsp; Ein Toast benötigt eine Referenz zu einem Context, in der Regel die Activity selbst (deswegen <em>this</em>):</p>
+<pre style="margin-left: 40px;">
+    Toast tst = new Toast(this);
+    tst.makeText(this, &quot;Button was clicked!&quot;, Toast.LENGTH_SHORT);
+    tst.show();</pre>
+<p>
+	Ausserdem benötigt er den Text den er anzeigen soll und wie lange der Text angezeigt werden soll.&nbsp; Mittels der <em>show()</em> Methode wird der Toast dann angezeigt.</p>
+<p>
+	Die Art und Weise wie Buttons und Listener funktionieren ist vollkommen analog zu den Swing Klassen im normalen Java.&nbsp; Lediglich die Namen haben sich ein wenig geändert.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BrowserActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Intent</h2>
+<p>
+	Das wirklich coole an Android ist, dass wir nicht jedesmal das Rad neu erfinden müssen.&nbsp; Wenn wir z.B. aus unserer Anwendung heraus mal kurz den Browser öffnen wollen, dann müssen wir keinen neuen Browser Code schreiben, sondern wir können den bereits exisitierenden Browser verwenden.&nbsp; Dafür gibt es die Klasse <em>Intent</em>.</p>
+<p>
+	Wir wollen eine einfache BrowserActivity schreiben, die aus einem Knopf besteht, und wenn wir auf den Knopf drücken soll sich ein Browser öffnen.&nbsp; Die BrowserActivity ist vollkommen analog zur ButtonActivity, lediglich in der onClick() Methode unterscheidet sie sich:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Uri uri = Uri.parse(&quot;http://www.variationenzumthema.de/&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">Intent</span> intent = new Intent(Intent.ACTION_VIEW, uri);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(intent);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...</pre>
+<p>
+	Als erstes generieren wir eine Uri, in diesem Fall eine Webaddresse.&nbsp; Die übergeben wir der Intent Klasse mit der Aufforderung <em>ACTION_VIEW</em>, was so viel heißt wie &quot;mach mal&quot;.&nbsp; Mittels <em>startActivity()</em> wird die andere Anwendung dann gestartet.&nbsp; Ist die andere Anwendung fertig, kehren wie wieder zu unserer ursprünglichen Anwendung zurück.</p>
+<p>
+	Allgemein kann man jede andere Android Anwendung damit starten.&nbsp; In der Regel beschränkt man sich aber auf die Standard Anwendungen.&nbsp; Mit den folgenden Zeilen, startet man die Standard Telefon Anwendung auf dem Gerät:</p>
+<pre style="margin-left: 40px;">
+    Uri uri = Uri.parse(&quot;tel:+49 123 456 7890&quot;);
+    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+    startActivity(intent);</pre>
+<p>
+	Man kann aber auch eigene Activities starten:</p>
+<pre style="margin-left: 40px;">
+    Intent intent = new Intent(this, SimpleActivity.class);&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp; startActivity(intent);</pre>
+<p>
+	In den Projekten werden wir sehen, wie wir auf diese Art und Weise SMS versenden, neue Kalendareinträge machen, Barcodes scannen oder Videos aufnehmen können.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Ch1_Lifecycle.png" style="margin-left: 10px; margin-right: 10px; width: 424px; float: right; height: 138px;" />Activity Lifecycle</h2>
+<p>
+	In allen Betriebssystemen mit einer graphischen Benutzeroberfläche, also z.B. Windows, Mac oder Linux, gibt es immer nur ein Fenster das im Vordergrund, also aktiv, ist.&nbsp; Genauso ist das in Android: es kann immer nur eine Activity gerade <em>active</em> sein. Die anderen Activities sind dann im sogenannten <em>paused</em> Zustand.&nbsp; Zusätzlich gibt es in Android auch noch den <em>stopped</em> Zustand.&nbsp; Dieser ist deswegen notwendig, da manche Android Geräte sehr begrenzte Resourcen haben, und es manchmal nicht möglich ist alle <em>paused</em> Activities im Speicher zu halten.&nbsp; Die werden dann einfach &quot;zwangs angehalten&quot;, also gestoppt.&nbsp; Deswegen gibt es in Android drei Zustände in denen sich eine Activity befinden kann:</p>
+<ul>
+	<li>
+		Active / Running</li>
+	<li>
+		Paused</li>
+	<li>
+		Stopped</li>
+</ul>
+<p>
+	Der Wechsel zwischen diesen Zuständen erfolgt über die sogenannten <em>State Switching</em> Methoden. Für dieses Wechseln (Switchen) ist der Activity Manager verantwortlich.&nbsp; Der weiß welche gerade die aktive Activity ist, und ist auch für das Neu-Anlegen, das Entfernen und Killen von Activities zuständig. In der Regel wird das Switchen vom Nutzer verursacht, weil er eine andere Activity startet.&nbsp; Es könnten aber auch externe Events sein, wie z.B. ein eingehender Telefonanruf.&nbsp; Der würde dafür sorgen, dass die momentan aktive Activity in den <em>paused</em> Zustand übergeht, und die TelefonActivity aktiv wird.</p>
+<h3>
+	State Switching Methods</h3>
+<p>
+	Wann immer ein Switching ansteht, sagt uns der Activity Manager kurz vorher Bescheid.&nbsp; Das tut er indem er eine der <em>State Switching</em> Methoden in unserer Activity aufruft.&nbsp; Für jeden Zustandswechsel gibt es genau eine Methode:</p>
+<ul>
+	<li>
+		<b>onCreate():</b> wenn unsere Activity startet.</li>
+	<li>
+		<b>onStart():</b> kurz bevor unsere Activity sichtbar wird.</li>
+	<li>
+		<b>onResume():</b> wenn unsere Activity aus dem <em>paused</em> Zustand zurückkehrt.</li>
+	<li>
+		<b>onPause():</b> wenn unsere Activity in den <em>paused</em> Zustand wechselt.</li>
+	<li>
+		<b>onStop():</b> wenn unsere Activity in den <em>stopped</em> Zustand wechselt.</li>
+	<li>
+		<b>onRestart():</b> wenn unsere Activity aus dem <em>stopped</em> Zustand zurückkehrt.</li>
+	<li>
+		<b>onDestroy():</b> kurz bevor die Activity beendet wird.</li>
+</ul>
+<p>
+	Am einfachsten betrachtet man das Activity Lifecycle Diagramm und dann wird der Zusammenhang sofort klar.&nbsp; Es sei noch angemerkt, dass die Methoden onStop() und onDestroy() nicht zwingend aufgerufen werden. Wenn das Betriebssystem irgendwann einmal ganz dringend Resourcen benötigt, kann es also durchaus passieren, dass diese beiden Methoden nicht aufgerufen werden.&nbsp; Allerdings, die onPause() wird immer aufgerufen.&nbsp; Deswegen sollte man wichtige Daten immer in der onPause() Methode abspeichern.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/StateSwitchingActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />StateSwitchingActivity</h2>
+<p>
+	Schauen wir uns doch die State Switching Methoden mal an.&nbsp; Dazu schreiben wir eine kleine Activity in der wir alle State Switching Methoden überschreiben:</p>
+<pre style="margin-left: 40px;">
+public class StateSwitchingActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private static final String TAG = &quot;StateSwitchingActivity&quot;;
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG, &quot;onCreate()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onCreate(savedInstanceState);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onStart() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG, &quot;onStart()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onStart();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onResume() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG,&quot;onResume()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onResume();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onRestart() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG,&quot;onRestart()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onRestart();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onPause() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG,&quot;onPause()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onPause();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onStop() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG,&quot;onStop()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onStop();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; protected void onDestroy() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.i(TAG,&quot;onDestroy()&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.onDestroy();
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	dabei sehen wir dann folgende Ausgabe im LogCat:</p>
+<p>
+	<img alt="" src="images/LogCat.png" style="margin-left: 10px; margin-right: 10px; width: 444px; height: 143px;" /></p>
+<p>
+	Beim Starten der Activity werden also die Methoden onCreate(), onStart() und onResume() nacheinander aufgerufen, und beim Schließen die Methoden onPause(), onStop() und onDestroy().</p>
+<p>
+	.</p>
+<h2>
+	Logging</h2>
+<p>
+	Da wir auf unseren Android Geräten keine Konsole zur Verfügung haben, funktioniert auch ein println() oder eine System.out.println(), wie wir es vielleicht von früher her gewohnt sind, nicht mehr.&nbsp; Dafür gibt es jetzt die Klasse <em>Log</em>, die wir gerade oben verwendet haben:</p>
+<pre style="margin-left: 40px;">
+    Log.i(&quot;StateSwitchingActivity&quot;, &quot;onCreate()&quot;);</pre>
+<p>
+	Hier ist das erste Argument in der Regel der Name der Activity und das zweite die Message die wir ausgeben möchten.&nbsp; Ausgegeben werden die Messages auf dem sogenannten LogCat Fenster in unserer Entwicklungsumgebung.</p>
+<p>
+	Es gibt verschiedene Levels von Severity, also wie wichtig oder schwerwiegend eine Message ist.&nbsp; Hier gibt es sechs verschiedene Levels:</p>
+<ul>
+	<li>
+		<strong>v():</strong> verbose, wenn man sehr mitteilsam ist, dann kann man <em>verbose</em> verwenden, wird aber sehr selten benötigt.</li>
+	<li>
+		<strong>d():</strong> debug, wird während der Entwicklungsphase zum Testen verwendet.</li>
+	<li>
+		<strong>i():</strong> informational, tut genau das, gibt Informationen aus, die hilfreich sein könnten.</li>
+	<li>
+		<strong>w():</strong> warning, sollte für unerwartete oder ungewöhnliche Vorkommnisse verwendet werden.</li>
+	<li>
+		<strong>e():</strong> error, verwendet man wenn etwas ernsthaft schief gelaufen ist.</li>
+</ul>
+<p>
+	Der sechste ist die <em>wtf()</em> Methode für Spaßvögel.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RotationActivity.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />RotationActivity</h2>
+<p>
+	Wo wir gerade bei den State Switching Methoden sind:&nbsp; Etwas interessantes passiert, wenn wir unser Android Gerät um 90 Grad drehen (im Emulator geht das über Ctrl-F11 oder Ctrl-Cmd-F12, je nach Betriebssystem).&nbsp; Im LogCat sehen wir, dass nacheinander die Methoden</p>
+<pre style="margin-left: 40px;">
+    onPause()
+    onStop()
+    onDestroy()
+    onCreate()
+    onStart()
+    onResume()</pre>
+<p>
+	aufgerufen werden, d.h., die Activity wird beendet und neu gestartet.&nbsp; Was zur Folge hat, dass alle Nutzerdaten etc. gelöscht werden (es sei denn wir haben sie vorher gespeichert).</p>
+<p>
+	Man kann diesen Neustart verhindern mit zwei kleinen Modifikationen. Zunächst muss man im AndroidManifest mitteilen, dass unsere Activity selbst Konfigurationsänderungen handelt:</p>
+<pre style="margin-left: 40px;">
+    ...
+&nbsp;&nbsp;&nbsp; &lt;activity
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:name=&quot;.RotationActivity&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:label=&quot;RotationActivity&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">android:configChanges=&quot;keyboardHidden|orientation|screenSize&quot;</span> &gt;
+&nbsp;&nbsp;&nbsp; &lt;/activity&gt;
+    ...
+</pre>
+<p>
+	Und natürlich müssen wir sie auch handeln, und das machen wir durch das Überschreiben der <em>onConfigurationChanged()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onConfigurationChanged(Configuration newConfig) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;onConfigurationChanged()&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onConfigurationChanged(newConfig);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//setContentView(R.layout.myLayout);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wenn wir die Anwendung jetzt testen und die Ausgabe im LogCat ansehen, stellen wir fest, dass die Activity nicht mehr beendet wird.&nbsp; Das ist jetzt nicht die feine Englische, und Google sagt auch, dass man das eigentlich nicht so machen soll, allerdings nennen sie auch keine wirklich einfache, nachvollziehbare Alternative.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	Wir haben nicht lange gekleckert und gleich unsere ersten Apps geschrieben. Dabei haben wir wichtige Konzepte kennengelernt, die wir für den Rest des Buches benötigen werden.&nbsp; Wir haben mit der Activity und dem AndroidManifest.xml begonnen.&nbsp; Mit dem TextView und dem Button haben wir unserer ersten UI Widgets verwendet.&nbsp; Der Toast wird für einfache, kurze Nachrichten an den Nutzer verwendet, während die Log Klasse Nachrichten für die Entwickler logt. Auch über die State-Switching Methoden und den Lifecycle den eine typische App durchläuft haben wir etwas gehört.&nbsp; Zum Abschluß haben wir uns noch intensiv mit Intents beschäftigt, mit denen man mit ganz wenig Befehlen bereits relativ viel erreichen kann.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	Schauen wir uns mal an was man mit Intents sonst noch so alles machen kann.&nbsp; Wir können z.B. Google Maps starten, SMS und Emails verschicken, oder einen Eintrag im Kalendar machen.&nbsp; Auch Barcodes scannen und Videos aufnehmen ist ganz einfach.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GeoActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GeoActivity</h2>
+<p>
+	Genauso wie wir den Browser vorhin gestartet haben, können wir auch Google Maps starten, über einen Intent:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp;&nbsp; public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Uri uri = Uri.parse(&quot;geo:0,0?q=&quot;+
+                &quot;Am%20Katharinenkloster%206,90403%20Nuremberg,Germany&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(intent);
+&nbsp;&nbsp;&nbsp;&nbsp; }</pre>
+<p>
+	Dabei können wir über die URI entweder die direkten Geo-Koordinaten mitgeben, oder wir können Maps über den Query Paramenter auch nach einer Adresse suchen lassen.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/SMSActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />SMSActivity</h2>
+<p>
+	Wenn wir eine SMS versenden wollen, dann können wir das auch über einen Intent tun.&nbsp; Jedem Intent können wir Zusatzinformationen mitgeben:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp;&nbsp; public void onClick(View v) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; smsIntent.addCategory(Intent.CATEGORY_DEFAULT);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; smsIntent.putExtra(&quot;sms_body&quot;, &quot;my first sms from an android app!&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; smsIntent.setType(&quot;vnd.android-dir/mms-sms&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; smsIntent.setData(Uri.parse(&quot;sms:&quot; + &quot;0123 456 7890&quot;));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; startActivity(smsIntent);
+&nbsp;&nbsp;&nbsp;&nbsp; }</pre>
+<p>
+	Über <em>putExtra()</em> können wir zusätzliche Daten mitgeben, in diesem Fall die eigentliche SMS.&nbsp; Über die <em>setType()</em> Methode sagen wir, dass wir eine SMS verschicken möchten, was dann Android dazu veranlasst die vorinstallierte SMS Activity aufzurufen.&nbsp; Mit <em>setData()</em> teilen wir dann noch die Nummer mit, an die die SMS gehen soll.&nbsp; Wichtig, und das ist bei allen Intents so, die SMS wird nur vorbereitet, das eigentliche Senden der SMS muss immer noch der Nutzer selbst veranlassen.&nbsp; Das ist absichtlich so, wie wir später noch sehen werden.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/EmailActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />EmailActivity</h2>
+<p>
+	Ganz ähnlich wie SMS können wir auch Emails mit einem Intent versenden.&nbsp; Auch hier können wir dem Intent wieder Zusatzinformationen mitgeben:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent emailIntent = 
+            new Intent(Intent.ACTION_SENDTO, 
+            Uri.fromParts(&quot;mailto&quot;, &quot;ralph@lano.de&quot;, null));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;emailIntent.putExtra(Intent.EXTRA_SUBJECT, &quot;Android Book&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;emailIntent.putExtra(Intent.EXTRA_TEXT, &quot;I like your book!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivity(Intent.createChooser(emailIntent, &quot;Send email...&quot;));
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Über <em>putExtra()</em> geben wir die zusätzliche Daten mit, hier den Betreff und den Text der Email.&nbsp; Der Empfänger der Email wird über die <em>Uri.fromParts()</em> Methode mitgelteilt.&nbsp; Die <em>createChooser()</em> erlaubt es dem Nutzer aus verschiedenen Emails Clients auszuwählen, falls mehrere installiert sind.&nbsp; Wenn nur einer installiert ist, wird kein Chooser gezeigt.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CalendarActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CalendarActivity</h2>
+<p>
+	Mittels Intents können wir auch Einträge im Kalendar unseres Nutzer vornehmen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void onClick(View v) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Calendar beginTime = Calendar.getInstance();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; beginTime.set(2017, 8, 1, 16, 00); //year, month, day, hour, minute
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long startMillis = beginTime.getTimeInMillis();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Calendar endTime = Calendar.getInstance();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endTime.set(2017, 8, 1, 17, 00);&nbsp;&nbsp; //year, month, day, hour, minute
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long endMillis = endTime.getTimeInMillis();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Intent intent = new Intent(Intent.ACTION_EDIT); &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intent.setType(&quot;vnd.android.cursor.item/event&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intent.putExtra(&quot;title&quot;, &quot;Some title&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intent.putExtra(&quot;description&quot;, &quot;Some description&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intent.putExtra(&quot;beginTime&quot;, startMillis);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; intent.putExtra(&quot;endTime&quot;, endMillis);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; startActivity(intent);
+&nbsp;&nbsp;&nbsp; }
+</pre>
+<p>
+	Wir müssen zunächst Beginn und Ende des Eintrags in Millisekunden berechnen, dann den Typ auf &quot;vnd.android.cursor.item/event&quot; setzen, und den eigentlichen Kalendereintrag wieder mittels <em>putExtra()</em> an die Calendar App mitgeben.&nbsp; Auch hier wird der Eintrag nur vorbereitet, der Nutzer muss immer noch seine Zustimmung geben, damit die Eintragung auch wirklich vorgenommen wird.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BarcodeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 370px; height: 184px; float: right;" />BarcodeActivity</h2>
+<p>
+	In den Beispielen die wir bisher gesehen haben, ging es darum über einen Intent eine andere Applikation zu starten und ihr evtl. noch etwas zusätzliche Information mitzugeben.&nbsp; Geht es aber auch umgekehrt, dass wir also Information von einer anderen Applikation erhalten?</p>
+<p>
+	Als Beispiel betrachten wir die BarcodeActivity: dabei geht es darum einen 2D Barcode einzulesen.&nbsp; Da auf den meisten Handys ja bereits eine solche App installiert ist, wäre es doch das einfachste die zu benutzen.&nbsp; Wir verwenden wieder einen Intent, dem wir ein bischen Zusatzinfos mitgeben, und starten ihn.&nbsp; Dieses mal aber nicht mit der startActivity() Methode, sondern mit der <em>startActivityForResult()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+public class BarcodeActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private TextView tv;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent(&quot;com.google.zxing.client.android.SCAN&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intent.setPackage(&quot;com.google.zxing.client.android&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intent.putExtra(&quot;SCAN_MODE&quot;, &quot;QR_CODE_MODE&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">startActivityForResult(intent, 0);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void <span style="color:#0000ff;">onActivityResult</span>(int requestCode, int resultCode, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (requestCode == 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (resultCode == RESULT_OK) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String contents = intent.getStringExtra(&quot;SCAN_RESULT&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String format = intent.getStringExtra(&quot;SCAN_RESULT_FORMAT&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(contents);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (resultCode == RESULT_CANCELED) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Scan was canceled&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Der Unterschied ist, dass im ersten Fall nichts passiert wenn die andere Anwendung fertig ist, im zweiten Fall wird aber die <em>onActivityResult()</em> Methode in unserer Activity aufgerufen.&nbsp; Man nennt so eine Methode auch einen <em>Callback</em>.&nbsp; In unserem Beispiel erhalten wir den Barcode der gescannt wurde.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RecordingVideoActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RecordVideoActivity</h2>
+<p>
+	Als zweites Beispiel für einen Intent der uns etwas zurückliefert betrachten wir die RecordVideoActivity.&nbsp; Wir möchten einen Video aufnehmen und dafür die ganz normale Kameraanwendung verwenden.&nbsp; Wir starten wieder einen Intent mittels der <em>startActivityForResult()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+public class RecordVideoActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private TextView tv;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivityForResult(intent, 1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (requestCode == 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (resultCode == RESULT_OK) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Uri videoLocation = intent.getData();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Video:&quot; + videoLocation, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (resultCode == RESULT_CANCELED) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Recording was canceled&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onActivityResult(requestCode, resultCode, intent);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Wenn wir dann fertig sind mit unserem Videodreh, wird wieder die <em>onActivityResult()</em> Methode aufgerufen mit dem Pfad wo die aufgenommene Videodatei zu finden ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/NumpadActivity2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />NumpadActivity</h2>
+<p>
+	Über die Methode <em>putExtra()</em> können wir anscheinend Daten von einer Activity an eine andere schicken.&nbsp; Was aber noch unklar ist, wie können wir denn aus der anderen Activity auf selbige zugreifen, und könnten wir evtl. wieder Daten zurück an die aufrufende Activity senden?</p>
+<p>
+	Betrachten wir das NumpadActivity Beispiel: dabei geht es darum, dass der Nutzer eine Zahl zwischen 1 und 9 auswählen soll.&nbsp; Wir wollen erst einmal Daten (einen int) von der <em>NumpadDemoActivity</em> an die <em>NumpadActivity</em> senden:</p>
+<pre style="margin-left: 40px;">
+public class NumpadDemoActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int btnId = 42;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intnt = 
+            new Intent(getApplicationContext(), NumpadActivity.class);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">intnt.putExtra(&quot;id&quot;, btnId);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivityForResult(intnt, 1);
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Das geht also via der <em>putExtra()</em> Methode, also wie gehabt.&nbsp;</p>
+<p>
+	Wie kommen die Daten denn bei der NumpadActivity an? Wir können uns eine Referenz auf den Intent geben lassen, und mittels <em>getIntExtra()</em> darauf zugreifen:</p>
+<pre style="margin-left: 40px;">
+public class NumpadActivity extends Activity ... {
+
+&nbsp;&nbsp; &nbsp;private int btnId = -1;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">btnId = getIntent().getIntExtra(&quot;id&quot;, -1);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;id=&quot; + btnId);
+        ...
+    }
+    ...
+}
+</pre>
+<p>
+	Diese &quot;Extras&quot; werden als Key-Value Paare abgespeichert und über den jeweiligen Key können wir auf die Werte zugreifen.&nbsp; Der zweite Parameter in der Methode <em>getIntExtra()</em> ist der Default-Wert, falls die aufrufende Activity keinen Wert mitgeliefert hat.&nbsp; Das vermeidet NullPointerExceptions.</p>
+<p>
+	So, nun wollen wir aber wieder Daten zurück an die <em>NumpadDemoActivity</em> schicken.&nbsp; Der Nutzer hat auf einen der neun Knöpfe gedrückt und in der <em>onClick()</em> Methode kreiieren wir einfach einen neuen Intent, den wir mit Daten füllen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int num = ((Button) v).getId();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent intent = new Intent();
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intent.putExtra(&quot;id&quot;, btnId);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;intent.putExtra(&quot;num&quot;, num);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setResult(RESULT_OK, intent);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;finish();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Mit der <em>finish()</em> Methode beenden wir uns selbst, und kehren zur aufrufenden Activity, also <em>NumpadDemoActivity</em> zurück.</p>
+<p>
+	Und wie kommen wir jetzt an die Daten in der <em>NumpadDemoActivity</em> ran? Über die <em>onActivityResult()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+public class NumpadDemoActivity extends Activity {
+    ...
+&nbsp;&nbsp; &nbsp;public void onActivityResult(int requestCode, int resultCode, <span style="color:#0000ff;">Intent data</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onActivityResult(requestCode, resultCode, data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (requestCode == 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (resultCode == RESULT_OK) {
+<span style="color:#0000ff;">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int id = data.getIntExtra(&quot;id&quot;, -1);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int num = data.getIntExtra(&quot;num&quot;, -1);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(TAG, &quot;id=&quot; + id + &quot;, sNum=&quot; + num);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Also, gar nicht so schwer.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/YoutubeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; float: right; height: 355px;" />YouTube, Google Maps and OpenStreetMap</h2>
+<p>
+	Am Ende diese Kapitels wollen nur kurz noch drei weitere Anwendungsszenarien für Intents liefern: einmal das Einbinden von YouTube Videos in unsere Anwendung und das Einbinden von Google Maps oder OpenStreetMap.</p>
+<p>
+	Einen YouTube Video kann man ganz einfach über seine Webadresse einbinden:</p>
+<pre>
+	Uri uri = Uri.parse(&quot;http://www.youtube.com/watch?v=6ytGmtmUVSU&quot;);
+	Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+	startActivity(intent);
+</pre>
+<p>
+	Bei Google Maps kann man einfach die Adresse, also z.B. &quot;Am Katharinenkloster 6,90403 Nuremberg,Germany&quot; angeben:</p>
+<pre>
+	Uri uri = Uri.parse(&quot;http://maps.google.com/?q=Am%20Katharinenkloster%206,90403%20Nuremberg,Germany&quot;);
+	Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+	startActivity(intent);
+</pre>
+<p>
+	und bei OpenStreetMap übergibt man einfach den Längen- und Breitengrad des Ortes:</p>
+<pre>
+	Uri uri = Uri.parse(&quot;http://www.openstreetmaps.org/?lat=49.452&amp;lon=11.082&amp;zoom=20&quot;);
+	Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+	startActivity(intent);
+</pre>
+<p>
+	In allen drei Szenarien wird effektiv der Browser verwendet.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	In diesem Buch geht es nicht nur um Android, sondern auch darum, dass wir jetzt seit mehr als zwei Jahren programmieren, und dass es Zeit wird auch mal etwas fortgeschrittenere Themen anzusprechen.</p>
+<p>
+	.</p>
+<h2>
+	SEP: Inner, Local and Anonymous Classes</h2>
+<p>
+	In Java gibt es neben den normalen Klassen auch noch zwei weitere: innere Klassen und anonyme Klassen.&nbsp; Die beiden nennt man manchmal auch innere Klassen im Gegensatz zu den normalen Klassen, die man auch äußere Klassen nennen könnte.&nbsp; Wir haben die anonymen Klassen schon mehrmals verwendet, ohne sie jedoch beim Namen zu nennen (daher der Name), z.B. bei der ButtonActivity:</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity extends Activity {
+
+&nbsp;&nbsp;&nbsp; @Override
+&nbsp;&nbsp;&nbsp; public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Button btn = new Button(this);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; btn.setText(&quot;Click me!&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; btn.setOnClickListener(<span style="color:#0000ff;">new OnClickListener() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(),
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&quot;Button was clicked!&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</span>);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+<p>
+	Was da innerhalb der <em>setOnClickListener()</em> Methode steht ist eine anonyme Klasse.&nbsp; Um zu verstehen, dass es sich dabei um eine anonymen Klasse handelt, wollen wir mal kurz die Metamorphose von einer normalen Klasse in eine lokale Klasse und schließlich in eine anonyme Klasse beobachten.</p>
+<h3>
+	Normal Class</h3>
+<p>
+	Wir beginnen mit zwei normalen Klassen, der <em>ButtonActivity</em> und der <em>MyOnClickListener</em> Klasse:</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity1 extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = new Button(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;Click me!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(<span style="color:#0000ff;">new MyOnClickListener()</span>);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}
+
+<span style="color:#0000ff;">class MyOnClickListener implements OnClickListener {
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;Button was clicked!&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;}
+}</span></pre>
+<p>
+	ButtonActivity ist wie gehabt, und MyOnClickListener ist eine eigene Klasse, die das OnClickListener Interface implementiert.&nbsp; Wir sehen, dass wir in der <em>setOnClickListener()</em> Methode eine neue Instanz der Klasse MyOnClickListener instanziieren.</p>
+<h3>
+	Inner Class</h3>
+<p>
+	Der Übergang zur inneren Klasse ist subtil:</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity2 extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = new Button(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;Click me!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new MyOnClickListener());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;class MyOnClickListener implements OnClickListener {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;Button was clicked!&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+<span style="color:#0000ff;">}</span></pre>
+<p>
+	Alles was sich ändert ist, dass die Klasse MyOnClickListener innerhalb der Klasse ButtonActivity deklariert wurde, also eigentlich wurde nur die geschweifte Klammer etwas anders gesetzt.&nbsp; Die Konsequenzen sind aber schon etwas schwerwiegender: zum Einen kann man die Klasse MyOnClickListener jetzt nur noch mit der Klasse ButtonActivity zusammen benutzen.&nbsp; D.h. sie hat ihre Eigenständigkeit verloren.&nbsp; Der Vorteil dieser Konstruktion ist allerdings, dass eine innere Klasse auf die Instanzvariablen ihrer äußeren Klasse zugreifen kann.&nbsp; Das kann sehr praktisch sein.&nbsp; Sehr häufig macht es auch noch Sinn die Sichtbarkeit der inneren Klasse auf <em>private</em> zu setzen.</p>
+<h3>
+	Anonymous Class</h3>
+<p>
+	Gibt es keine Notwendigkeit die innere Klasse beim Namen zu nennen (was sehr häufig der Fall ist), braucht man ihr auch gar nicht erst einen Namen zu geben.</p>
+<pre style="margin-left: 40px;">
+public class ButtonActivity3 extends Activity {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = new Button(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setText(&quot;Click me!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new <span style="color:#0000ff;">OnClickListener</span>() <span style="color:#0000ff;">{
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(v.getContext(), &quot;Button was clicked!&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}</span>);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Man macht hier zwei Dinge: zum Einen ruft man anstelle des Konstruktors von MyOnClickListener gleich den Konstruktor von OnClickListener auf.&nbsp; Zum Anderen schreibt man die Implementierung der zu überschreibenden Methoden gleich hinter den Konstruktor.&nbsp; Also bei einer anonymen Klasse handelt es sich also um eine innere Klasse die namenlos ist.</p>
+<h3>
+	Which is best?</h3>
+<p>
+	Welche sollte man wann verwenden?&nbsp; Da scheiden sich die Geister.&nbsp; Ganz klar die einfachste, pragmatischste, quick &amp; dirty Lösung ist die anonyme Klasse.&nbsp; Hier ist der Code der zum Button gehört gleich beim Button und man kann auch gleich noch auf die Instanzvariablen der äußeren Klasse zugreifen.&nbsp; Allerdings verletzt die anonyme Klasse das softwareengineering Prinzip des Separation of Concerns, d.h., dass eine Klasse nur eine Sache tun sollte, und auch der Zugriff von einer Klasse auf die Instanzvariablen (speziell der privaten) einer anderen, verletzt eigentlich das Prinzip des Information Hiding.&nbsp; Allgemein kann man aber sagen, macht die anonyme Klasse zu viel, dann sollte sie wohl eine lokale Klasse werden.&nbsp; Wird eine lokale Klasse auch in anderen Klassen benötigt, dann sollte sie wohl eher eine normale Klasse werden.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Erklären Sie den Lebenszyklus (life cycle) einer Android Aktivität.<br />
+		&nbsp;</li>
+	<li>
+		Was sind mögliche Ursachen die Ihre Anwendung aus dem Active / Running-Zustand in den Pause-Status übergehen lassen?&nbsp; (Nennen Sie drei)<br />
+		&nbsp;</li>
+	<li>
+		Zeichnen Sie das Activity Life Cycle Diagramm, mit den drei Zuständen in denen eine Activity sich befinden kann, und nennen Sie auch die wichtigsten State Switching Methoden.<br />
+		&nbsp;</li>
+	<li>
+		In jeder Activity gibt es sieben sogenannte State Switching Methoden:<br />
+		<br />
+		&nbsp;&nbsp;&nbsp; onCreate(), onStart(), onPause(), onResume(), onStop(), onRestart(), onDestroy()<br />
+		<br />
+		Von diesen werden manchmal die onStop() und die onDestroy() nicht aufgerufen.&nbsp;&nbsp; Geben Sie einen Grund warum das sein könnte und was die für Sie daraus resultierenden Konsequenzen sind.<br />
+		&nbsp;</li>
+	<li>
+		Welche der state-switching Methoden wird garantiert aufgerufen?<br />
+		&nbsp;</li>
+	<li>
+		Nennen Sie drei Beispiele was man mit einem Intent machen kann.<br />
+		&nbsp;</li>
+	<li>
+		Wie kann man Daten zwischen zwei verschiedenen Intents austauschen?<br />
+		&nbsp;</li>
+	<li>
+		Es gibt zwei Möglichkeiten eine Activity oder einen Intent zu starten:<br />
+		o&nbsp;&nbsp;&nbsp; startActivity()<br />
+		o&nbsp;&nbsp;&nbsp; startActivityForResult()<br />
+		Erklären Sie kurz den Unterschied.<br />
+		&nbsp;</li>
+	<li>
+		Im folgenden sehen Sie fünf Beispiele für die Verwendung von Intents.&nbsp; Beschreiben Sie kurz, was der jeweilge Code macht.<br />
+		<pre style="margin-left: 40px;">
+Uri uri = Uri.parse(&quot;http://www.ohm-hochschule.de/&quot;);
+Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+startActivity(intent);</pre>
+	</li>
+	<li>
+		<p style="margin-bottom: 0in">
+			Was macht man mit einem Toast?</p>
+	</li>
+	<li>
+		<p style="margin-bottom: 0in">
+			Wofür wird die Datei &ldquo;AndroidManifest.xml&rdquo; verwendet? Geben Sie mindestens zwei Beispiele.<br />
+			&nbsp;</p>
+	</li>
+	<li>
+		<style type="text/css">
+p { margin-bottom: 0.08in; }		</style>
+		<style type="text/css">
+p { margin-bottom: 0.08in; }		</style>
+		Warum benötigt man in Android eine Log Klasse?<br />
+		&nbsp;</li>
+	<li>
+		Erklären Sie grob den Unterschied zwischen normalen, inneren und lokalen Klassen, und wann man welche verwenden sollte.<br />
+		&nbsp;</li>
+	<li>
+		Was ist aus Entwicklersicht zu beachten, wenn das Smartphone vom Nutzer um 90 Grad gedreht wird?</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Android version history, <a href="https://en.wikipedia.org/wiki/Android_version_history">https://en.wikipedia.org/wiki/Android_version_history</a></p>
+<p>
+	[2] Codenames, Tags, and Build Numbers, <a href="https://source.android.com/source/build-numbers">https://source.android.com/source/build-numbers</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

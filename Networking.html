@@ -1,0 +1,2415 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/Ch7_TicTacToe.png" style="display: block; margin-left: auto; margin-right: auto;width: 226px; height: 363px;" /></p>
+<h1>
+	Networking</h1>
+<p>
+	Was wäre ein Smartphone ohne eine Internetverbindung?&nbsp; Ziemlich langweilig wenn man nicht surfen, whatsappn oder online spielen könnte.&nbsp; Deswegen schreiben wir hier einen einfachen Browser, wir laden Webseiten herunter und auch ein eigener Server ist auf dem Programm.&nbsp; Mit einer kleinen Chatapplikation lernen wir auch wofür man TCP und UDP verwenden kann und was der Unterschied ist.&nbsp; JSON steht kurz auf dem Menu, und wir implementieren einen Wifi- und einen Netzwerkscanner.&nbsp; Dann verbringen wir noch ein bisschen Zeit mit Bluetooth.&nbsp; Als Schmankerl gibts dann unser TicTacToe als Netzwerkspiel und wir steuern unseren Computer mit dem Handy.</p>
+<p>
+	In diesem Kapitel wird es auch ziemlich threadig, soll heißen, dass fast jedes Programm mit Threads arbeitet.&nbsp; Es kann also nix schaden ab und zu mal im Kapitel fünf nachzusehen wenn was unklar ist.&nbsp; Sobald man Netzwerksachen macht, benötigt man viele Permissions.&nbsp; Will man sich es einfach machen, dann erlaubt man mal alles was irgendwo mal gebraucht werden könnte:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH_ADMIN&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.NFC&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.CHANGE_WIFI_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_SETTINGS&quot; /&gt;
+</pre>
+<p>
+	Das ist natürlich nicht besonders nutzerfreundlich, aber wenn WhatsApp das kann, können wir das alle mal.&nbsp; Wir machen das ja nur aus didaktischen Gründen, WhatsApp aus wirtschaftlichen.&nbsp; Ach ja, für alle Beispiele in diesem Kapitel muss natürlich Wifi eingeschaltet sein.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WebView.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />WebView</h2>
+<p>
+	Als erstes wollen wir ein bisschen im Web browsen.&nbsp; Wie das mit einem Intent geht, haben wir bereits im ersten Kapitel gesehen.&nbsp; Hier wollen wir einen <em>WebView</em> verwenden.&nbsp; Dabei handelt es sich um einen View der HTML und CSS darstellen kann, und der auch bei Androids hauseigenem Browser verwendet wird.&nbsp; Neben einem EditText und Button Widget, fügen wir den WebView in unsere Layoutdatei ein:</p>
+<pre style="margin-left: 40px;">
+&lt;LinearLayout ... &gt;
+&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; &lt;WebView
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:id=&quot;@+id/webView&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_width=&quot;match_parent&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:layout_height=&quot;match_parent&quot; /&gt;
+&lt;/LinearLayout&gt;
+</pre>
+<p>
+	Wenn wir nur möchten, dass der WebView eine Webseite lädt und anzeigt, dann genügen die Zeilen,</p>
+<pre style="margin-left: 40px;">
+WebView webView = (WebView) findViewById(R.id.webView);
+webView.loadUrl(&quot;http://www.google.com/&quot;);</pre>
+<p>
+	Sobald der Nutzer aber auf irgendeinen Link klicken würde, dann würde Android den Default-Browser öffnen und dort den Link anzeigen.&nbsp; Um das zu verhindern, müssen wir die <em>setWebViewClient()</em> Methode des WebViews aufrufen und ihr einen WebViewClient übergeben:</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;super.onCreate(savedInstanceState);
+&nbsp;&nbsp; &nbsp;setContentView(R.layout.webview_activity);
+
+&nbsp;&nbsp; &nbsp;final EditText et = (EditText) findViewById(R.id.editText);
+
+&nbsp;&nbsp; &nbsp;final WebView webView = (WebView) findViewById(R.id.webView);
+&nbsp;&nbsp; <span style="color:#0000ff;">&nbsp;webView.setWebViewClient(new WebViewClient());</span>
+
+&nbsp;&nbsp; &nbsp;Button btn = (Button) findViewById(R.id.btn);
+&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new View.OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String sUri = et.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!sUri.startsWith(&quot;http://&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sUri = &quot;http://&quot; + sUri;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">webView.loadUrl(sUri);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;webView.requestFocus();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+}
+</pre>
+<p>
+	Im Unterschied zu dem Browserbeispiel aus dem ersten Kapitel, benötigt unser Beispiel noch die Erlaubnis ins Internet gehen zu dürfen.&nbsp; Das erledigen wir durch die folgende Zeile in unserer AndroidManifest Datei:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;</pre>
+<p>
+	Interessant ist vielleicht noch, dass wir die Klasse WebViewClient auch erweitern können, und dann das Verhalten unseres Browsers voll unter Kontrolle haben.&nbsp; Wie das geht haben wir im Projekt <em>HelpPages</em> im vierten Kapitel gesehen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/InetAddress.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />InetAddress</h2>
+<p>
+	Wenn wir im Browser &quot;www.google.com&quot; eingeben, dann wissen wir, dass wir auf den Google Server wollen.&nbsp; Unser Smartphone kann aber erst mal mit der Domain &quot;www.google.com&quot; nicht viel anfangen [1].&nbsp; Es braucht die IP Adresse.&nbsp; Dieses Umwandeln von Domain nach IP Adresse und umgekehrt macht in Java die <em>InetAddress</em> Klasse:</p>
+<pre style="margin-left: 40px;">
+String networkInfo = &quot;&quot;;
+InetAddress localAdr = InetAddress.getLocalHost();
+networkInfo += &quot;Local IP: &quot; + localAdr.<span style="color:#0000ff;">getHostAddress()</span>;
+
+InetAddress remoteAdr = InetAddress.getByName(&quot;www.google.com&quot;);
+networkInfo += &quot;\nGoogle IP: &quot; + remoteAdr.getHostAddress();
+
+InetAddress[] remoteAdrs = InetAddress.getAllByName(&quot;www.google.com&quot;);
+for (int i = 0; i &lt; remoteAdrs.length; i++) {
+&nbsp;&nbsp; &nbsp;networkInfo += &quot;\nGoogle IP&quot; + i + &quot;: &quot; + remoteAdrs[i].getHostAddress();
+}
+</pre>
+<p>
+	Für einen Reverse-DNS-Lookup verwendet man die <em>getHostName()</em> Methode, die macht aus einer IP Adresse wieder einen Domainnamen.&nbsp; Braucht man eher selten.</p>
+<p>
+	Damit der obige Code ohne weiteres funktioniert, müssen wir zwei Dinge tun: zunächst müssen wir wieder die Erlaubnis haben ins Internet gehen zu dürfen, aber wir müssen zusätzlich noch eine <em>ThreadPolicy</em> setzen [2]:</p>
+<pre style="margin-left: 40px;">
+StrictMode.ThreadPolicy policy = 
+    new StrictMode.ThreadPolicy.Builder().permitAll().build();
+StrictMode.setThreadPolicy(policy);</pre>
+<p>
+	Tun wir das nicht, bekommen wir eine <em>NetworkOnMainThreadException</em>.&nbsp; Aus irgendeinem Grund hat es Android nicht so gerne, dass wir aus dem Main Thread heraus auf&#39;s Netzwerk zugreifen.&nbsp; Natürlich kann man jetzt immer einen Extra-Thread für&#39;s Netzwerk starten.&nbsp; Unsere Beispiele würden dadurch aber so unübersichtlich und unlesbar, dass wir aus didaktischen Gründen darauf verzichten werden.&nbsp; Deswegen müssen wir in all unseren Programmen immer diese zwei Zeilen am Anfang der onCreate() einfügen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/URL.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />URL</h2>
+<p>
+	Sehr häufig wollen wir nur eine simple HTML Seite runterladen.&nbsp; Dafür verwendet man die <em>URL</em> Klasse.&nbsp; Die URL Klasse erlaubt es uns eine HTTP-Verbindung (connection) zu einem Webserver herzustellen, und die liefert uns einen InputStream:</p>
+<pre style="margin-left: 40px;">
+public static String getWebpage(String address) {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">URL url = new URL(address);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;HttpURLConnection con = (HttpURLConnection) url.openConnection();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">InputStream is = con.getInputStream();</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedReader br = new BufferedReader(new InputStreamReader(is, &quot;UTF-8&quot;));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String content = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String line = br.readLine();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (line == null)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;content += line;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;br.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;con.disconnect();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return content;
+
+&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return null;
+}
+</pre>
+<p>
+	Dieser InputStream ist der gleiche wie wir ihn vom Lesen von Dateien her kennen, dort ist es ein FileInputStream.&nbsp; Deswegen ist der Rest des Codes auch identisch mit dem aus der EditorActivity im fünften Kapitel.&nbsp; Verwenden können wir unsere Methode dann ganz einfach:</p>
+<pre style="margin-left: 40px;">
+String html = getWebpage(&quot;http://www.lano.de&quot;));</pre>
+<p>
+	Mit der URL Klasse kann man noch viel mehr machen als einfach nur Dateien runterzuladen, aber für den Anfang soll das genügen.</p>
+<p>
+	<img alt="" src="images/Ch7_OSSI.png" style="margin-left: 10px; margin-right: 10px; width: 254px; height: 320px;" /></p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Socket.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Socket</h2>
+<p>
+	Die URL Klasse baut eine TCP Verbindung auf, läd die gewünschte Seite von einem Server, und schließt die Verbindung wieder.&nbsp; Wenn wir nur eine Seite laden wollen dann genügt das auch.&nbsp; Manchmal möchte man aber mehr als eine Seite laden, oder man möchte die Verbindung offen halten.&nbsp; Dann benötigen wir einen <em>Socket</em>, genauer eine TCP Socket [3].</p>
+<p>
+	Die Socket Klasse ist relativ einfach zu verwenden: man gibt ihr eine IP Adresse und einen Port [4].&nbsp; Dann sagt man ihr, dass sie sich verbinden soll:</p>
+<pre style="margin-left: 40px;">
+SocketAddress sockaddr = new InetSocketAddress(&quot;www.google.com&quot;, 80);
+Socket socket = new Socket();
+socket.<span style="color:#0000ff;">connect</span>(sockaddr, TIMEOUT);
+Log.i(&quot;SocketActivity&quot;, &quot;&quot;+socket.getLocalAddress());
+Log.i(&quot;SocketActivity&quot;, &quot;&quot;+socket.getRemoteSocketAddress());</pre>
+<p>
+	Wenn es einen interessiert, kann man mit&nbsp; <em>getLocalAddress()</em> die eigene Adresse erfahren und mit <em>getRemoteSocketAddress()</em> die Adresse des Servers.</p>
+<p>
+	Steht unsere TCP Verbindung, können wir mit dem Server reden.&nbsp; Wir müssen natürlich die Sprache des Servers sprechen.&nbsp; Der Google Server spricht HTTP [5], und deswegen schreiben wir in den OutputStream:</p>
+<pre style="margin-left: 40px;">
+OutputStream os = socket.getOutputStream();
+os.write(&quot;GET / \r\n&quot;.getBytes());
+os.flush();</pre>
+<p>
+	Das &quot;GET / \r\n&quot; sagt soviel wie &quot;Gib mir doch Deine Einstiegsseite&quot;.&nbsp; Die <em>flush()</em> Methode schickt die Daten schon mal los, sonst würde der Socket nämlich warten, ob wir noch mehr zu sagen haben.</p>
+<p>
+	Jetzt antwortet uns der Server, deswegen müssen wir zuhören, und das machen wir mit dem InputStream, den wir vom Socket bekommen:</p>
+<pre style="margin-left: 40px;">
+InputStream is = socket.getInputStream();
+while (true) {
+&nbsp;&nbsp; &nbsp;int len = is.read();
+&nbsp;&nbsp; &nbsp;if (len == -1)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;tv.append(&quot;&quot;+(char) len);
+}&nbsp;&nbsp; 
+</pre>
+<p>
+	Wir lesen vom Socket solange bis nichts mehr kommt.&nbsp; Wir könnten jetzt noch eine zweite Anfrage schicken, und so weiter.</p>
+<p>
+	Wenn wir dann fertig sind, müssen wir alle Türen wieder zu machen, und derer sind drei:</p>
+<pre style="margin-left: 40px;">
+os.close();
+is.close();
+socket.close();</pre>
+<p>
+	Und das wars.&nbsp; Natürlich muss man um den ganzen Code einen dicken try-catch Block schreiben, weil da kann ja alles mögliche schief laufen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TimeServer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TimeServer</h2>
+<p>
+	Nach dem Client Socket wollen wir uns jetzt den Server Socket ansehen, der ist auch nicht viel schwieriger.&nbsp; Wir wollen einen kleinen Server schreiben, der aktuelles Datum und Uhrzeit ausgibt.&nbsp; Dazu benötigen wir erst einmal einen <em>ServerSocket</em>:</p>
+<pre style="margin-left: 40px;">
+ServerSocket server = new ServerSocket(3737);
+while (true) {
+&nbsp;&nbsp; &nbsp;Socket socket = server.<span style="color:#0000ff;">accept()</span>;
+
+&nbsp;&nbsp; &nbsp;OutputStream os = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;String daytime = new Date().toString();
+&nbsp;&nbsp; &nbsp;os.write(daytime.getBytes());
+
+&nbsp;&nbsp; &nbsp;os.close();
+&nbsp;&nbsp; &nbsp;socket.close();
+}
+</pre>
+<p>
+	Der hört auf einem bestimmten Port, in unserem Fall 3737.&nbsp; Dann wartet der Server in der <em>accept()</em> Methode solange bis jemand etwas von ihm will.&nbsp; Man nennt das auch einen &quot;blocking&quot; Call.&nbsp; Versucht jetzt irgend ein Client sich mit dem Server zu verbinden, dann liefert die accept() Methode einen ganz normalen Client Socket als Rückgabewert.&nbsp; Mit dem können wir wie im Socket Beispiel oben arbeiten.&nbsp; In diesem Fall schicken wir einfach Datum und Uhrzeit zurück.</p>
+<p>
+	Bei Servern ist es üblich, da sie blockieren, dass man sie in einem separaten Thread startet:</p>
+<pre style="margin-left: 40px;">
+public class TimeServerActivity extends Activity <span style="color:#0000ff;">implements Runnable</span> {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">Thread th = new Thread(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;th.start();</span>
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;... server code ...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Und das ist der Teil, der Server etwas komplizierter macht, aber nicht viel.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TimeClient.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TimeClient</h2>
+<p>
+	Jetzt haben wir einen Server, fehlt natürlich noch der Client. Der ist fast identisch zu unserem vorigen Socket Beispiel:</p>
+<pre style="margin-left: 40px;">
+String daytime = &quot;&quot;;
+SocketAddress sockaddr = new InetSocketAddress(<span style="color:#0000ff;">IP</span>, 3737);
+Socket socket = new Socket();
+socket.connect(sockaddr, TIMEOUT);
+
+InputStream is = socket.getInputStream();
+while (true) {
+&nbsp;&nbsp; &nbsp;int len = is.read();
+&nbsp;&nbsp; &nbsp;if (len == -1)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;daytime += (char) len;
+}
+
+is.close();
+socket.close();</pre>
+<p>
+	Hypothetisch könnte man auch einen Browser als Client nehmen, aber die Browser sprechen nur HTTP.&nbsp; Dazu später mehr.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/Yo.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Yo</h2>
+<p>
+	Neben dem TCP Protokoll gibt es auch noch das UDP Protokoll [6].&nbsp; Da das UDP Protokoll nicht verbindungsorientiert ist, ist es sogar einfacher als das TCP Protokoll.&nbsp; Und, mit dem UDP Protokoll kann man auch Broadcasts versenden, soll heißen man kann eine Nachricht an alle schicken.&nbsp;</p>
+<p>
+	In unserer Yo Anwendung [7] wollen wir ein einfaches &quot;Yo&quot; per UDP Broadcast versenden.&nbsp; Dazu benötigen wir einen <em>DatagramSocket</em>, also eine UDP Sockel:</p>
+<pre style="margin-left: 40px;">
+private void sendYoToEveryone() {
+&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] data = &quot;Yo&quot;.getBytes();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramPacket theOutput = 
+            new DatagramPacket(data, data.length, 
+                Util.getLocalBroadcastAddress(), YO_PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramSocket theSocket = new DatagramSocket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;theSocket.<span style="color:#0000ff;">send</span>(theOutput);
+
+&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Über den schicken wir dann ein <em>DatagramPacket</em>, also ein UDP Datenpaket.&nbsp; Man kann das entweder an eine bestimmte IP Adresse schicken, oder eben an einen Broadcast, das macht die Methode <em>getLocalBroadcastAddress()</em> der Util Klasse.&nbsp; DatagramPackets können nicht beliebig groß sein: maximal gehen 65507 Byte, garantiert sind aber nur 512 Byte. Das hat mit dem evtl. Umverpacken von Datenpacketen in Routern, Bridges und Switches zu tun.</p>
+<p>
+	Kommen wir zum UDP Server: auch der sollte wieder als separater Thread laufen.&nbsp; Im Gegensatz zu TCP, wird bei UDP für Client und Server der gleiche Sockel verwendet.&nbsp; Der einzige Unterschied ist, dass wir im ersten Fall die Methode <em>send()</em> verwenden und im zweiten die Methode <em>receive()</em>:</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[MAX_PACKET_SIZE];
+&nbsp;&nbsp; &nbsp;DatagramSocket server = new DatagramSocket(YO_PORT);
+&nbsp;&nbsp; &nbsp;DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server.<span style="color:#0000ff;">receive</span>(packet);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String yoMessage = new String(packet.getData(), 0, packet.getLength());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final String msg = &quot;&quot; + packet.getAddress() + &quot;: &quot; + yoMessage;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// reset the length for the next packet
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;packet.setLength(buffer.length);
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Im Gegensatz zur <em>accept()</em> Methode, blockiert die <em>receive()</em> Methode nicht.&nbsp; D.h. es kann durchaus passieren, dass uns das eine oder andere Packet entwischt, wenn wir nicht gerade zuhören.&nbsp; Das ist der Nachteil von UDP.</p>
+<p>
+	<img alt="" src="images/Ch7_TPCvsUDP.png" style="margin-left: 10px; margin-right: 10px; width: 583px; height: 347px;" /></p>
+<p>
+	.</p>
+<p>
+	Zwei Anmerkungen noch: es stellt sich heraus, dass in einem kabelgebunden Netzwerk so gut wie keine UDP Packet verloren gehen, komischerweise verschwinden aber überraschend viele UDP Packete wenn sie über Wifi geschickt werden.&nbsp; Und leider gibt es einige Smartphones die keine UDP Broadcasts können, bzw. diese unterbinden, z.B. einige Samsung Handys tun sich da anscheinend schwer.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Review</h1>
+<p>
+	Wir haben die Grundlagen der Netzwerkprogrammierung mit Android Geräten gelegt.&nbsp; Mit dem WebView Widget können wir HTML Seiten anzeigen, mit der URL Klasse Webseiten herunterladen, und mit der InetAddress Klasse DNS Anfragen verschicken.&nbsp; Dann haben wir gesehen wie wir mit der Socket und der ServerSocket Klasse TCP Verbindungen herstellen können, sowohl clientseitig als auch serverseitig.&nbsp; Und im letzten Beispiel haben wir UDP Packete verschickt und empfangen mit Hilfe der DatagramPacket und DatagramSocket Klassen.&nbsp;</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Projekte</h1>
+<p>
+	Was wir bisher gesehen haben, haut einen noch nicht so vom Hocker.&nbsp; Aber wir haben die Grundlagen gelegt für eine ganze Reihen von interessanten Anwendungen.&nbsp; Dazu gehörten Netzwerkscanner, Server- und Chatanwendungen, ein bisschen Bluetooth und natürlich ein Spiel.&nbsp; Am coolsten ist aber wahrscheinlich die RemoteDesktopClient Anwendung.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/NetworkScanner.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />NetworkScanner</h2>
+<p>
+	Eine interessante Methode der InetAddress Klasse ist die <em>isReachable()</em> Methode: diese schickt einen ICMP Request an eine bestimmte Adresse, macht also eine &#39;ping&#39; Anfrage [8].&nbsp; Wir können uns das für einen kleine Network Scanner zu Nutze machen:</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;InetAddress myIP = Util.getMyLocalIpAddress();
+&nbsp;&nbsp; &nbsp;byte[] localAddresses = myIP.getAddress();
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; 256; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;localAddresses[3] = (byte) i;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final InetAddress address = InetAddress.getByAddress(localAddresses);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (address.<span style="color:#0000ff;">isReachable</span>(TIMEOUT)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;NetworkScannerActivity&quot;, address.getHostAddress());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	In dem Code oben gehen wir einfach alle lokalen Adressen durch und schauen ob irgendjemand antwortet.&nbsp; Danach wissen wir welche Rechner es in unserem lokalen Netz gibt (falls diese auf einen &#39;ping&#39; antworten).&nbsp; Interessanterweise scheint das nur im lokalen Netz zu funktionieren.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AllMyIPs.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />AllMyIPs</h2>
+<p>
+	Solange wir als Client unterwegs sind, kann es uns eigentlich egal sein, was unsere IP Adresse ist.&nbsp; Wenn wir allerdings einen Server auf unserem Smartphone hosten wollen, dann müssten wir schon wissen was unsere IP ist, denn sonst kann sich ja niemand mit unserem Server verbinden.</p>
+<p>
+	Stellt sich heraus, die meisten Smartphones haben mehr als eine IP Adresse.&nbsp; Das kommt daher, dass man sich ja einmal über Wifi mit dem Internet verbinden kann, aber natürlich auch über das mobile Datennetz.&nbsp; Deswegen müssen wir uns zunächst alle Netzwerkkarten (nics) unseres Gerätes geben lassen, und dann von jeder dieser Karten die IP Adressen:</p>
+<pre style="margin-left: 40px;">
+private String getAllLocalIpAddresses() {
+&nbsp;&nbsp; &nbsp;String sIPs = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;for (Enumeration&lt;NetworkInterface&gt; <span style="color:#0000ff;">nics</span> = NetworkInterface.getNetworkInterfaces(); 
+            nics.hasMoreElements();) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;NetworkInterface nic = nics.nextElement();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (Enumeration&lt;InetAddress&gt; <span style="color:#0000ff;">ips</span> = nic.getInetAddresses(); 
+                ips.hasMoreElements();) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InetAddress ip = ips.nextElement();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sIPs += nic.getName();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (InetAddressUtils.isIPv4Address(ip.getHostAddress())) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sIPs += &quot; (IPv4):&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sIPs += &quot; (IPv6):&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sIPs += &quot;&nbsp; &quot; + ip.getHostAddress() + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;return sIPs;
+}
+</pre>
+<p>
+	Je nachdem wie wir uns mit dem Internet verbinden, liefert diese Methode verschiedene Resultate.&nbsp;</p>
+<p>
+	Interessant ist allerdings, dass es sich bei all diesen Adressen um lokale Adressen im Sinne von IP handelt, d.h. sie beginnen entweder mit &quot;192.168.y.z&quot; oder mit &quot;10.x.y.z&quot;.&nbsp; Wenn wir unsere wirkliche externe IP Adresse erfahren wollen, müssen wir einen Server draussen im Internet fragen:</p>
+<pre style="margin-left: 40px;">
+private String getMyExternalIP() {
+&nbsp;&nbsp; &nbsp;String webpage = Util.getWebpage(&quot;http://wikimusicapp.appspot.com/myip&quot;);
+&nbsp;&nbsp; &nbsp;if (webpage != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] words = webpage.split(&quot; &quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return words[3];
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;return &quot;No external IP available&quot;;
+}
+</pre>
+<p>
+	Wenn ich das auf meinem Handy laufen lasse, dann ist meine externe IP Adresse die &quot;80.187.122.215&quot;.&nbsp; Wir können nachsehen, wem die Adresse gehört.&nbsp; Es stellt sich heraus, dass das eine Adresse der Telekom ist, also unseres mobilen Dienstleisters.&nbsp; Im Gegensatz zu unserem DSL oder Kabelanschluss, teilen wir die Adresse mit vielen anderen Leuten.&nbsp; Deswegen können wir leider keinen externen Server auf unseren mobilen Endgeräten hosten.&nbsp; Wenn wir uns allerdings auf Wifi und das lokale Netzwerk beschränken geht das sehr wohl.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TimeClientNIST.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TimeClientNIST</h2>
+<p>
+	Will man die genaue Uhrzeit wissen, dann kann man beim National Institute of Standards and Technology (NIST) nachfragen [9].&nbsp; Die betreiben nämlich unter der Adresse &quot;time.nist.gov&quot; einen Server, der sowohl das Time Protocol (RFC-868) auf Port 37 als auch das Daytime Protocol (RFC-867) auf Port 13 zur Verfügung stellt [10]. Mit einer kleinen Modifikation können wir unsere SocketActivity dafür verwenden:</p>
+<pre style="margin-left: 40px;">
+private long getTimeFromNIST() {
+&nbsp;&nbsp; &nbsp;long time = 0;
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;SocketAddress sockaddr = new InetSocketAddress(&quot;time.nist.gov&quot;, PORT_TIME);
+&nbsp;&nbsp; &nbsp;Socket socket = new Socket();
+&nbsp;&nbsp; &nbsp;socket.connect(sockaddr, TIMEOUT);
+
+&nbsp;&nbsp; &nbsp;InputStream is = socket.getInputStream();
+
+&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[4];
+&nbsp;&nbsp; &nbsp;int len = is.read(buffer, 0, 4);
+&nbsp;&nbsp; &nbsp;time = 4294967296l + Util.byteArrayToBigEndianInt(buffer);
+
+&nbsp;&nbsp; &nbsp;is.close();
+&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;return time;
+}</pre>
+<p>
+	Die Zahl die wir bekommen ist die Zeit in Sekunden, die seit dem 1. Januar 1900 vergangen ist.&nbsp; Wenn wir das mit unserer lokalen Zeit vergleichen wollen,</p>
+<pre style="margin-left: 40px;">
+private long getLocalTime() {
+&nbsp;&nbsp; &nbsp;long localTime = (new Date().getTime() - new Date(0, 0, 1).getTime()) / 1000;
+&nbsp;&nbsp; &nbsp;return localTime;
+}
+</pre>
+<p>
+	müssen wir noch 3600 abziehen, da sich die Zeit auf UTC bezieht [11].</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/JSONBooks.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />JSONBooks</h2>
+<p>
+	Viele Webservices im Netz verwenden die JavaScript Object Notation, kurz JSON [12], so auch Google Books [13].&nbsp; Wenn wir im Browser auf folgende Adresse gehen,</p>
+<pre style="margin-left: 40px;">
+https://www.googleapis.com/books/v1/volumes?q=isbn:9780521427067</pre>
+<p>
+	dann bekommen wir folgendes JSON zu sehen:</p>
+<pre style="margin-left: 40px;">
+{
+&nbsp;&quot;kind&quot;: &quot;books#volumes&quot;,
+&nbsp;&quot;totalItems&quot;: 1,
+&nbsp;&quot;items&quot;: [
+&nbsp; {
+&nbsp;&nbsp; &quot;kind&quot;: &quot;books#volume&quot;,
+&nbsp;&nbsp; ...
+&nbsp;&nbsp; &quot;volumeInfo&quot;: {
+&nbsp;&nbsp;&nbsp; &quot;title&quot;: &quot;A Mathematician&#39;s Apology&quot;,
+&nbsp;&nbsp;&nbsp; &quot;authors&quot;: [
+&nbsp;&nbsp;&nbsp;&nbsp; &quot;G. H. Hardy&quot;
+&nbsp;&nbsp;&nbsp; ],
+&nbsp;&nbsp; }
+&nbsp;&nbsp; ...
+&nbsp; }
+&nbsp;]
+}</pre>
+<p>
+	Man kann das Ganze jetzt von Hand parsen oder man kann es sich etwas einfacher machen und die Java Klasse <em>JSONObject</em> verwenden.&nbsp; Zunächst einmal laden wir das JSON mit der URL Klasse herunter:</p>
+<pre style="margin-left: 40px;">
+String url = &quot;https://www.googleapis.com/books/v1/volumes?q=isbn:&quot; + isbn;
+String json = Util.getWebpage(url);
+Book bk = new Book(json);</pre>
+<p>
+	Im Constructor der Book Klasse, verwenden wir dann die JSONObject Klasse:</p>
+<pre style="margin-left: 40px;">
+class Book {
+&nbsp;&nbsp; &nbsp;private String title;
+&nbsp;&nbsp; &nbsp;private String author;
+
+&nbsp;&nbsp; &nbsp;public Book(String json) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;JSONObject jsonObject = new JSONObject(json);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;JSONArray items = jsonObject.getJSONArray(&quot;items&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;JSONObject book1 = (JSONObject) items.get(0);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;JSONObject volumeInfo = (JSONObject) book1.get(&quot;volumeInfo&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;title = volumeInfo.getString(&quot;title&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;JSONArray authors = volumeInfo.getJSONArray(&quot;authors&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;author = (String) authors.get(0);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (JSONException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public String toString() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return &quot;Book [author=&quot; + author + &quot;, title=&quot; + title + &quot;]&quot;;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wir müssen natürlich grob wissen, wie unser JSON aufgebaut ist, aber ansonsten geht das Parsen relativ einfach von der Hand.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GSONCities.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GSONCities</h2>
+<p>
+	Noch einfacher geht das Ganze mit der <em>Gson</em> Klasse von Google [14].&nbsp; Dazu schauen wir das Cities Beispiel aus dem fünften Semester noch einmal an.&nbsp; Als Webservice können wir es unter</p>
+<pre style="margin-left: 40px;">
+http://wikimusicapp.appspot.com/cities?city=Rome</pre>
+<p>
+	erreichen.&nbsp; Dieser Webservice liefert uns das folgende JSON:</p>
+<pre style="margin-left: 40px;">
+{&#39;<span style="color:#0000ff;">country</span>&#39;:&#39;Italy&#39;,&#39;<span style="color:#0000ff;">name</span>&#39;:&#39;Rome&#39;,&#39;<span style="color:#0000ff;">latitute</span>&#39;:&#39;41 48 N&#39;,&#39;<span style="color:#0000ff;">longitute</span>&#39;:&#39;12 36 E&#39;}</pre>
+<p>
+	Wenn wir nun eine Klasse <em>City</em> wie folgt deklarieren (die Instanzvariablen müssen identisch mit den Bezeichnern im JSON sein),</p>
+<pre style="margin-left: 40px;">
+class City {
+&nbsp;&nbsp; &nbsp;private String <span style="color:#0000ff;">country</span>;
+&nbsp;&nbsp; &nbsp;private String <span style="color:#0000ff;">name</span>;
+&nbsp;&nbsp; &nbsp;private String <span style="color:#0000ff;">latitute</span>;
+&nbsp;&nbsp; &nbsp;private String <span style="color:#0000ff;">longitute</span>;
+
+&nbsp;&nbsp; &nbsp;public City() {
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public String toString() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	dann erlaubt uns Gson ohne große Umschweife daraus eine Klasse zu machen:</p>
+<pre style="margin-left: 40px;">
+String url = &quot;http://wikimusicapp.appspot.com/cities?city=&quot; + cityName;
+String json = Util.getWebpage(url);
+
+Gson gson = new Gson();
+City city = gson.fromJson(json, City.class);</pre>
+<p>
+	Einfacher geht&#39;s nicht.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WebServer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />WebServer</h2>
+<p>
+	Inzwischen haben wir alles was nötig ist, um einen eigenen Webserver zu schreiben.&nbsp; Wie beim TimeServer verwenden wir einen ServerSocket.&nbsp; Idealerweise sollte der auf dem HTTP Port 80 hören, aber auf Linux Systemen (und Android ist ein Linux System) darf nur Root auf Ports unterhalb von 1024 zugreifen.&nbsp; Deswegen verwenden wir irgendeinen Port der größer ist.&nbsp; Den ServerSocket starten wir, wie gehabt, in einem separaten Thread:</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;int threadNr = 0;
+&nbsp;&nbsp; &nbsp;ServerSocket server = new ServerSocket(8008);
+&nbsp;&nbsp; &nbsp;while (isRunning) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = server.accept();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">(new ConnectionThread(++threadNr, socket)).start()</span>;
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;server.close();
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Neu ist jetzt, dass wir einen zweiten Thread starten, den ConnectionThread, sobald sich jemand mit uns verbindet.&nbsp; Der Grund dafür ist, dass unser Server ja mehr als nur eine Seite und mehr als nur einen Client bedienen soll.&nbsp; Wenn also ein Request reinkommt, dann lassen wir einen neuen Thread diesen Request beantworten, der Server selbst kann aber sofort wieder auf neue Requests antworten.&nbsp; Anderfalls, müssten nämlich neue Requests immer erst mal warten bis der alte fertig ist.&nbsp; Das Internet wäre so ziemlich nutzlos, wenn man bei Amazon mit seinem Einkauf warten müsste bis der andere fertig ist.&nbsp; Da kann ich ja gleich in den Laden um die Ecke gehen und dort in der Schlange warten.</p>
+<p>
+	Sehen wir uns als nächstes den <em>ConnectionThread</em> mal etwas genauer an:&nbsp; Im Constructor bekommen wir eine Referenz auf den Sockel zum Client, sowie einen Zähler, der uns sagt wie viele Users schon bei uns waren:</p>
+<pre style="margin-left: 40px;">
+class ConnectionThread extends Thread {
+&nbsp;&nbsp; &nbsp;private int threadNr;
+&nbsp;&nbsp; &nbsp;private Socket socket;
+
+&nbsp;&nbsp; &nbsp;public ConnectionThread(int threadNr, Socket socket) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.threadNr = threadNr;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.socket = socket;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream out = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String http = <span style="color:#0000ff;">createHTTPResponse()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.write(http.getBytes());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.flush();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket = null;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Der ConnectionThread erweitert die Thread Klasse.&nbsp; Wir hätten natürlich auch das Runnable Interface implementieren können, aber wir wollen ab und zu ja mal was Neues lernen.&nbsp; In der run() Methode geht es zu wie gehabt: wir holen uns den OutputStream vom Socket und schreiben unsere Daten in den Stream.&nbsp; Da das HTTP Protokoll in seiner einfachsten Version zustandslos ist, machen wir den Socket gleich wieder zu.&nbsp; Da wir nur einen einfachen Webserver schreiben wollen, der immer nur die gleiche Seite zurückliefert, interessiert uns der InputStream nicht.</p>
+<p>
+	Kommen wir zum HTTP, also zur <em>createHTTPResponse()</em> Methode: die HTTP Response besteht aus dem HTTP Header und der Payload, in unserem Fall dem HTML:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private String createHTTPResponse() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String html = createDummyHTML();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String httpHeader = createHTTPHeader(html.length(), &quot;text/html&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return httpHeader + html;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Das HTML erzeugen wir in der <em>createDummyHTML()</em> Methode, die natürlich beliebiges HTML erzeugen könnte:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private String createDummyHTML() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String html = &quot;&lt;html&gt;&lt;body&gt;&quot; + &quot;&lt;h1&gt;Hello from WebServerActivity!&lt;/h1&gt;&quot; 
+                + &quot;&lt;p&gt;You are visitor number &quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ threadNr + &quot;.&lt;/p&gt;&quot; + &quot;&lt;/body&gt;&lt;/html&gt;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return html;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Den HTTP Header erzeugen wir in der <em>createHTTPHeader()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private String createHTTPHeader(long contentLength, String mimeType) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String httpHeader = &quot;HTTP/1.0 200 OK\r\n&quot; 
+                + &quot;Server: WebServerActivity 1.0\r\n&quot; 
+                + &quot;Content-length: &quot; + contentLength + &quot;\r\n&quot; 
+                + &quot;Content-type: &quot; + mimeType 
+                + &quot;\r\n\r\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return httpHeader;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wie so ein HTTP Header auszusehen hat kann man im RFC 2616 [15] nachlesen.&nbsp; Effektiv was der Header sagt ist:</p>
+<ol>
+	<li>
+		Alles ist o.k.:&nbsp; &quot;HTTP/1.0 200 OK&quot;;</li>
+	<li>
+		ich heiße: &quot;WebServerActivity 1.0&quot;;</li>
+	<li>
+		es kommen jetzt <em>contentLength</em> Bytes an Daten, mach Dich bereit;</li>
+	<li>
+		und die Daten sind vom Typ &quot;text/html&quot;.</li>
+</ol>
+<p>
+	Ganz wichtig sind auch die zwei CRLF, also &quot;\r\n\r\n&quot;, damit wird das Ende des HTTP Headers markiert, und der Browser weiß dann was danach kommt sind die Daten.</p>
+<p>
+	Eine kleine Anmerkung noch zu unserem Zähler threadNr: der ist natürlich nur hübsches Beiwerk und eigentlich gar nicht nötig.&nbsp; Interessant ist er aber trotzdem: wenn wir nämlich eine Seite mit Firefox herunterladen, dann funktioniert der Zähler wie gewünscht, bei jedem Versuch erhöht sich der Zähler um eins.&nbsp; Verwenden wir aber den Chrome Browser, dann erhöht sich der Count um zwei.&nbsp; D.h. Chrome Nutzer verursachen eine doppelt so hohe Last auf unserem Server wie Firefox Nutzer.&nbsp; Wir sollten natürlich von Chrome Nutzern daher auch doppelt so hohe Gebühren verlangen.&nbsp; Ganz so schlimm ist es aber nicht: Chrome möchte neben dem eigentlich Request immer noch gerne ein Favicon [16] haben.&nbsp; Sobald wir ihm ein Favicon schicken, hört er auf danach zu fragen.&nbsp; Wir schicken ihm aber keins, geht ihn doch nix an was unser Favicon ist.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/FileServer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />FileServer</h2>
+<p>
+	Wie kann man denn Bilder zwischen zwei Smartphones oder einem Smartphone und einem Laptop einfach austauschen?&nbsp; Richtig, wir modifzieren unseren WebServer ein klein wenig und schon geht das.&nbsp; Alles was notwendig ist, ist ein kleiner InputStream im ConnectionThread:</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;byte[] rawData;
+
+&nbsp;&nbsp; &nbsp;// what do you want?
+&nbsp;&nbsp; &nbsp;InputStream in = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;BufferedReader br = new BufferedReader(new InputStreamReader(in));
+&nbsp;&nbsp; &nbsp;String request = br.readLine();
+&nbsp;&nbsp; &nbsp;String[] parts = request.split(&quot; &quot;);
+&nbsp;&nbsp; &nbsp;String <span style="color:#0000ff;">whatDoYouWant</span> = parts[1];
+&nbsp;&nbsp; &nbsp;Log.i(&quot;FileServerActivity&quot;, &quot;request: &quot; + whatDoYouWant);
+
+&nbsp;&nbsp; &nbsp;File dir = android.os.Environment.getExternalStorageDirectory();
+&nbsp;&nbsp; &nbsp;final File downloadFile = new File(dir, whatDoYouWant);
+&nbsp;&nbsp; &nbsp;if (!&quot;/&quot;.equals(whatDoYouWant) &amp;&amp; downloadFile.exists()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rawData = getRawData(downloadFile);
+&nbsp;&nbsp;&nbsp; } else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String content = getDirectoryContent(dir);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String header = createHTTPHeader(content.length(), &quot;text/html&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;rawData = (header + content).getBytes();
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;// here it is:
+&nbsp;&nbsp; &nbsp;OutputStream out = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;out.write(rawData);
+&nbsp;&nbsp; &nbsp;out.flush();
+
+&nbsp;&nbsp; &nbsp;out.close();
+&nbsp;&nbsp; &nbsp;in.close();
+&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;socket = null;
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Wir bereiten zunächst ein Bytearray für die Rohdaten vor.&nbsp; Dann fragen wir was unser Nutzer denn haben möchte.&nbsp; Die Information bekommen wir aus dem HTTP GET Request der vom Browser kommt, welcher in der Regel wie folgt aussieht:</p>
+<pre style="margin-left: 40px;">
+GET /<span style="color:#0000ff;">filename</span> HTTP/1.1</pre>
+<p>
+	Das was nach dem GET kommt ist die Datei die der Nutzer haben möchte.&nbsp;</p>
+<p>
+	Wie weiß denn unser Nutzer was er gerne haben möchte?&nbsp; Bei der ersten Anfrage geben wir ihm einfach eine Liste von Dateien mit der Methode <em>getDirectoryContent()</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private String getDirectoryContent(File dir) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String content = &quot;&lt;html&gt;&lt;body&gt;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;File[] files = dir.listFiles();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (File file : files) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (file.isFile()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;content += &quot;&lt;a href=&#39;&quot; + file.getName() + &quot;&#39;&gt;&quot; + file.getName() + &quot;&lt;/a&gt;&lt;br/&gt;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;content += &quot;&lt;/body&gt;&lt;/html&gt;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return content;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Schließlich brauchen wir noch die Methode <em>getRawData()</em> um die Datei in Binärform an den Clientbrowser zu schicken:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private byte[] getRawData(File downloadFile) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String mimeType = <span style="color:#0000ff;">&quot;application/octet-stream&quot;</span>; // &quot;text/html&quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (downloadFile.getAbsolutePath().endsWith(&quot;.png&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mimeType = <span style="color:#0000ff;">&quot;image/png&quot;</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] data = new byte[(int) downloadFile.length()];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ByteArrayOutputStream baos = new ByteArrayOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;FileInputStream fis = new FileInputStream(downloadFile);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int read = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while ((read = fis.read(data)) != -1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;baos.write(data, 0, read);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;fis.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String header = createHTTPHeader(downloadFile.length(), mimeType);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] head = header.getBytes();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[header.length() + (int) downloadFile.length()];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(head, 0, buffer, 0, head.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(data, 0, buffer, head.length, data.length);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return buffer;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Browser verstehen verschiedene MIME Types [17]: z.B. HTML (&quot;text/html&quot;), Bilder (&quot;image/png&quot;) oder eben Binärdaten (&quot;application/octet-stream&quot;).</p>
+<p>
+	Besonders sicher ist unser FileServer natürlich nicht, jeder der im lokalen Netz ist und unsere IP kennt, kann Dateien von unserem Handy runterladen.&nbsp; Da müsste man sich noch was überlegen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TCPChat.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />TCPChat</h2>
+<p>
+	Mit unserer FileServer Actiity können wir Dateien austauschen, wie wäre es denn wenn wir Textnachrichten (oder auch Sprachnachrichten) austauschen könnten?&nbsp; Hier wollen wir zwei Versionen implementieren, erst eine One-To-One Version die TCP verwendet, und danach eine One-To-Many, die UDP verwendet.&nbsp; Die Nachrichten sollen &quot;live&quot; übertragen werden, d.h. sobald man auf &quot;Send&quot; klckt soll die Nachricht gesendet werden und beim Gegenüber sofort angezeigt werden.&nbsp; Dazu benötigen wir eine stehende TCP Verbindung.&nbsp; D.h. im Gegensatz zu früher, lassen wir die TCP Verbindung offen, und schließen sie erst wieder wenn unsere Unterhaltung beendet ist.</p>
+<p>
+	Zwei Dinge machen die TCPChatActivity etwas komplizierter als unsere bisherigen Anwendungen: zunächst wissen wir nie genau wann unser Gegenüber eine Nachricht schickt.&nbsp; Das lösen wir durch einen separaten Server-Thread, der auf eingehende Nachrichten wartet.&nbsp; Daraus ergibt sich aber eine anderes Problem: ein Nicht-UI Thread darf eigentlich nicht auf unsere UI zugreifen.&nbsp; Das muss er aber, sonst sehen wir ja nicht was der Andere getippt hat.&nbsp; Man könnte das durch ein runOnUiThrea() lösen, die bessere Lösung ist aber das mit einem AsyncTask zu lösen:</p>
+<pre style="margin-left: 40px;">
+class ConnectionTask extends AsyncTask&lt;Void, byte[], Boolean&gt; {
+&nbsp;&nbsp; &nbsp;private Socket socket;
+&nbsp;&nbsp; &nbsp;private InputStream is;
+&nbsp;&nbsp; &nbsp;private OutputStream os;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected Boolean doInBackground(Void... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onProgressUpdate(byte[]... values) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Erinnern wir uns, die <em>doInBackground()</em> Methode wird über die <em>execute()</em> Methode aufgerufen, in ihr &quot;lebt&quot; unser AsyncTask.&nbsp; In der <em>onProgressUpdate()</em> können wir dann auf den UI Thread zugreifen.&nbsp; Der ConnectionTask ist am besten eine lokale Klasse, dann kann er nämlich ohne große Probleme auf Instanzvariablen der übergeordneten UI Klasse zugreifen.</p>
+<p>
+	Bevor wir aber den AsyncTast starten können, müssen wir eine TCP Verbindung zwischen den beiden Gesprächspartnern aufbauen.&nbsp; Dazu ist es zwingend notwendig, dass einer von beiden einen TCP Server in Form eines ServerSockets startet (es sei denn man hat wie WhatsApp einen zentralen Server irgendwo im Internet stehen [18]).&nbsp; In unserer App gibt es daher einen Knopf &quot;Run as Server&quot;, der den Server startet.&nbsp; Der andere muss sich jetzt mit dem Server verbinden, dazu muss er natürlich die IP Adresse des Servers kennen.&nbsp; Je nachdem ob wir als Server oder Client starten, müssen wir das dem ConnectionTask mitteilen.&nbsp; Das geht am einfachsten über die <em>runAsServer</em> Instanzvariable:</p>
+<pre style="margin-left: 40px;">
+public class TCPChatActivity extends Activity {
+    private boolean <span style="color:#0000ff;">runAsServer</span> = false;
+&nbsp;&nbsp; &nbsp;private EditText editMessage;
+&nbsp;&nbsp; &nbsp;private TextView textConversation;
+    ...
+}</pre>
+<p>
+	Um den ConnectionTask zu starten verwenden wir:</p>
+<pre style="margin-left: 40px;">
+connectionTask.execute();</pre>
+<p>
+	Abhängig davon ob wir als Server oder als Client unterwegs sind, passieren verschiedene Dinge in der doInBackground() Methode des ConnectionTasks:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected Boolean doInBackground(Void... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; if (<span style="color:#0000ff;">runAsServer</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ServerSocket server = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; server = new ServerSocket(PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; socket = server.accept();
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; } else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; String sIP = editServerIP.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SocketAddress sockaddr = new InetSocketAddress(sIP, PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; socket = new Socket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; socket.connect(sockaddr, TIMEOUT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; if (socket.isConnected()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; os = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; receiveMessages();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; } else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Log.e(getLocalClassName(), &quot;socket not connected, should not happen...&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Im ersten Fall initialisieren wir einen ServerSocket und lassen ihn auf eingehende Verbindungen warten, im anderen Fall stellen wir eine Verbindung als Client her.&nbsp; Wenn die Verbindung erfolgreich hergestellt wurde, erhalten wir sowohl auf Server- als auch auf Clientseite einen Socket.&nbsp; Von dem lassen wir uns sowohl InputStream als auch OutputStream geben, und verarbeiten diese dann in der <em>receiveMessages()</em> Methode, die identisch ist für Server und Client:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void receiveMessages() throws IOException {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[BUFFER_SIZE];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int read = is.read(buffer, 0, BUFFER_SIZE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (read == -1)
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// need to make a copy, since this is used in the other thread:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] temp = new byte[read];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(buffer, 0, temp, 0, read);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">publishProgress</span>(temp);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(getLocalClassName(), &quot;Done: should not happen... &quot;);
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Über die <em>publishProgress()</em> Methode zeigen wir die ankommenden Nachrichten im UI Thread an:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected void onProgressUpdate(byte[]... values) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (values.length &gt; 0) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;textConversation.setText(&quot;you: &quot; 
+                + new String(<span style="color:#0000ff;">values[0]</span>) + &quot;\r\n&quot; 
+                + textConversation.getText());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir sind fast fertig: was noch fehlt ist das Senden von Nachrichten.&nbsp; Dazu implementieren wir die <em>sendMessage()</em> Methode im ConnectionTask:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void sendMessage() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String message = <span style="color:#0000ff;">editMessage</span>.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (socket.isConnected()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;os.write(message.getBytes());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(getLocalClassName(), &quot;sendMessage(): Socket is closed&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(getLocalClassName(), &quot;sendMessage(): &quot; + e);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir greifen dazu auf das EditText Widget im UI Thread zu und schicken den Inhalt über den OutputStream an unseren Gesprächspartner.&nbsp; Das Senden selbst wird durch einen Klick auf den &quot;Send&quot; Button in der UI ausgelöst:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; ...
+    btnSend = (Button) findViewById(R.id.btnSend);
+&nbsp;&nbsp; &nbsp;btnSend.setOnClickListener(new OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;connectionTask.sendMessage();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;textConversation
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;.setText(&quot;me: &quot; + editMessage.getText().toString() + &quot;\r\n&quot; 
+                             + textConversation.getText());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;});
+    ...
+</pre>
+<p>
+	Tada.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/UDPChat.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />UDPChat</h2>
+<p>
+	Die UDPChatActivity ist etwas einfacher als die TCP Variante.&nbsp; Das hat damit zu tun, dass wir nicht zwischen Client und Server unterscheiden müssen.&nbsp; Auch benötigen wir nicht die IP Adresse der anderen, da wir einfach einen Broadcast an alle im lokalen Netz schicken.</p>
+<p>
+	Schauen wir uns zunächst die <em>sendMessage()</em> Methode in der UDP Version an:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void sendMessage() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String sMessage = et.getText().toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramSocket ds = new DatagramSocket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InetAddress serverAddr = Util.getLocalBroadcastAddress();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramPacket dp = 
+                new DatagramPacket(sMessage.getBytes(), sMessage.length(), 
+                                   serverAddr, PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ds.setBroadcast(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ds.send(dp);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(getLocalClassName(), &quot;sendMessage(): &quot; + e);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die sieht zwar ein klein wenig komplizierter aus, aber im Gegensatz zur TCP Version benötigen wir keine Referenzen auf InputStream, OutputStream oder Socket.</p>
+<p>
+	Ähnlich verhält es sich beim Empfangen der Nachrichten, das wir in der doInBackground() Methode erledigen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; protected Boolean doInBackground(Void... params) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[MAX_PACKET_SIZE];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DatagramSocket socket = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket = new DatagramSocket(PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.receive(packet);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InetAddress senderIP = packet.getAddress();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String senderName = &quot;&quot; + senderIP.getAddress()[3];
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;byte[] temp = new byte[packet.getLength()];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.arraycopy(buffer, 0, temp, 0, temp.length);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;publishProgress(senderName.getBytes(), temp);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return result;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Da es sich um einen Boadcast handelt, wollen wir den Sender der Nachricht anhand des letzten Bytes seiner IP Adresse, <em>senderIP.getAddress()[3]</em>, indentifizieren.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GameServer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GameServer</h2>
+<p>
+	Will man ein Netzwerkspiel implementieren, dann müssen sich die Spieler erst einmal finden und verbinden.&nbsp; Es gibt zwar von Google die Wi-Fi Peer-to-Peer API [19], die scheint aber nicht viel zu taugen.&nbsp; Deswegen implementieren wir mal kurz unsere eigene Version.</p>
+<p>
+	Nehmen wir an wir wollen ein Spiel für zwei Spieler schreiben, z.B. TicTacToe.&nbsp; Wir könnten, wie im Webserver Beispiel, einen ServerSocket starten und auf eingehende Verbindungen warten.&nbsp; Dazu müsste der Client aber die IP Adresse des Servers kennen und das ist ja so 20. Jahrhundert.&nbsp;</p>
+<p>
+	Im 21. Jahrhundert starten wir einen UDP Server,</p>
+<pre style="margin-left: 40px;">
+public void run() {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;byte[] buffer = new byte[MAX_PACKET_SIZE];
+&nbsp;&nbsp; &nbsp;DatagramSocket server = new DatagramSocket(GAME_SERVER_PORT);
+&nbsp;&nbsp; &nbsp;DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server.<span style="color:#0000ff;">receive</span>(packet);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InetAddress address = <span style="color:#0000ff;">packet.getAddress()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final String msg = address.getHostAddress();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...</pre>
+<p>
+	der auf ankommende UDP Packete hört.&nbsp; Die Spieler senden einfach nur einen UDP Broadcast.&nbsp; Kommt jetzt ein Packet von einem Spieler, dann können wir über <em>getAddress()</em> die IP Adresse des Spielers ermitteln.&nbsp; Wir warten also bis alle Spieler sich bemerkbar gemacht haben,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#0000ff;">playerSet</span>.add(address);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (playerSet.size() &gt;= NR_OF_PLAYERS_PER_TEAM) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = 0;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InetAddress[] addresses = new InetAddress[NR_OF_PLAYERS_PER_TEAM];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (InetAddress playerAddress : playerSet) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (i &lt; NR_OF_PLAYERS_PER_TEAM) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;addresses[i] = playerAddress;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;i++;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;establishConnectionBetweenPlayers(addresses);
+            playerSet.clear();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// reset the length for the next packet
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;packet.setLength(buffer.length);
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	und speichern die IP Adressen der Spieler in dem HashSet <em>playerSet</em> ab.&nbsp; Wenn wir alle Spieler haben, dann teilen wir über die <em>establishConnectionBetweenPlayers()</em> Methode allen Spielern die gegenseitigen IP Adressen mit:</p>
+<pre style="margin-left: 40px;">
+private void establishConnectionBetweenPlayers(final InetAddress[] addresses) {
+&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; addresses.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final InetAddress inetAddress = addresses[i];
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread th = new Thread(new Runnable() {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendAddressesToClient(inetAddress, addresses);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;private void sendAddressesToClient(final InetAddress inetAddress, final InetAddress[] addresses) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SocketAddress sockaddr = new InetSocketAddress(inetAddress, GAME_SERVER_PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = new Socket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.connect(sockaddr, TIMEOUT);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream os = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ObjectOutputStream oos = new ObjectOutputStream(os);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oos.writeObject(addresses);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oos.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;os.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;th.start();
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Diese Methode ist ein bisschen fies: sie startet so viele Threads wie es Spieler gibt und schickt jedem Spieler die IP Adressen der anderen.&nbsp; Die Spieler müssen natürlich zuhören.</p>
+<p>
+	Eine Anmerkung, wahrscheinlich ist es besser den GameServer nicht als Activity zu starten, sondern als Service.&nbsp; Oder man lässt den Server mitspielen, soll heißen er ist auch einer der Clients.&nbsp; Macht den Code aber ein klein wenig komplizierter.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GameClient.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GameClient</h2>
+<p>
+	Kommen wir zum Gegenpart: dem GameClient.&nbsp; Der schickt erst einmal einen UDP Broadcast, was er da schickt ist egal.&nbsp; Deswegen verwenden wir einfach unsere sendYoToEveryone() von früher:</p>
+<pre style="margin-left: 40px;">
+public class GameClientActivity extends Activity implements Runnable {
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; sendYoToEveryone();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Thread th = new Thread(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; th.start();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Sobald wir unser &quot;Yo&quot; verschickt haben, müssen wir auf Nachricht vom Server warten, dazu starten wir lokal einen TCP ServerSocket,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// then wait for TCP answer from server
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ServerSocket server = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server = new ServerSocket(GAME_SERVER_PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = server.accept();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream is = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ObjectInputStream ois = new ObjectInputStream(is);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final InetAddress[] <span style="color:#0000ff;">addresses</span> = (InetAddress[]) ois.readObject();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ois.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;is.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und warten darauf, dass uns der GameServer kontaktiert.&nbsp; Danach haben wir alle Adressen der anderen Spieler und können mit dem eigentlichen Spiel beginnen.&nbsp; Ob wir da dann mit TCP oder UDP kommunizieren, hängt von der Spielart ab.&nbsp; Bei einem rundenbasierten Spiel wie TicTacToe, würde ich die TCP Variante wählen, bei einem schnelleren Actionspiel wahrscheinlich eher die UDP Variante.</p>
+<p>
+	<img alt="" src="images/Ch7_GameClient1.png" style="margin-left: 10px; margin-right: 10px; width: 528px; height: 367px;" /></p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/GameClient2.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />GameClient2</h2>
+<p>
+	In dem Beispiel oben läuft der Server im lokalen Netz und verwendet UDP Broadcasts, damit sich die Spieler finden.&nbsp; Leider gibt es einige Smartphones die keinen UDP Broadcasts können.&nbsp; Alternativ kann man natürlich einen Server im Internet hosten. Dabei sind aber zwei Dinge zu beachten:</p>
+<ol>
+	<li>
+		wir können keinen UDP Broadcast ins Internet schicken, wir müssen also die Adresse des Servers im Internet kennen und verbinden uns ganz normal über einen HTTP Request;</li>
+	<li>
+		ein Server im Internet kann sich nicht einfach mit einem Computer in einem lokalen Netz verbinden. Es gibt zwar Websockets, die sind aber nicht ganz trivial und in unserem Fall auch gar nicht notwendig.</li>
+</ol>
+<p>
+	Mit dem Hintergedanken des Reuse (z.B. für TicTacToe später), lagern wir den Code der mit dem Verbindungsaufbau zu tun hat in die Klasse <em>ConnectionBroker</em> aus.&nbsp; Anstelle einen &quot;Yo&quot;-Broadcast zu schicken, schicken wir einen HTTP Request mittels der URL Klasse an den Server (in unserem Fall &quot;http://wikimusicapp.appspot.com/&quot;):</p>
+<pre style="margin-left: 40px;">
+public class ConnectionBroker extends Thread {
+&nbsp;&nbsp; &nbsp;private final int GAME_SERVER2_PORT = 3236;
+&nbsp;&nbsp; &nbsp;private final int TIMEOUT = 1000; // network timeout in ms
+
+&nbsp;&nbsp; &nbsp;private String myLocalIP;
+&nbsp;&nbsp; &nbsp;private Socket socket;
+&nbsp;&nbsp; &nbsp;private boolean isSocketAvailable = false;
+&nbsp;&nbsp; &nbsp;private boolean isServer = false;
+
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;myLocalIP = Util.getMyLocalIpAddress().getHostAddress();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;URL url = new URL(&quot;http://wikimusicapp.appspot.com/gameserver?internalIP=&quot; + myLocalIP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;HttpURLConnection con = (HttpURLConnection) url.openConnection();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String data = br.readLine();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;br.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (data != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (data.trim().equals(&quot;{}&quot;)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startServerAndWaitToBeContacted();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;connectToWaitingPlayer(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Das Ganze muss als separater Thread laufen, da es ja unter Umständen etwas dauern kann bis wir einen Partner finden.</p>
+<p>
+	Hier gibt es jetzt zwei Möglichkeiten:</p>
+<p>
+	1)&nbsp; Wenn sich noch nicht alle Spieler angemeldet haben, müssen wir warten.&nbsp; Das ist genauso wie im GameServer Beispiel oben: wir starten einen lokalen TCP ServerSocket und warten bis uns jemand kontaktiert:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void startServerAndWaitToBeContacted() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ServerSocket server = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server = new ServerSocket(GAME_SERVER2_PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket = server.accept();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isSocketAvailable = true;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;server.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	2)&nbsp; Alle anderen Spieler haben sich angemeldet, wir sind der letzte: dann gibt uns der Server die lokalen Adressen der anderen Spieler als JSON:</p>
+<pre style="margin-left: 40px;">
+{[192.168.32.23, 192.168.32.42]}</pre>
+<p>
+	Die warten ja darauf von uns kontaktiert zu werden, was wir in der <em>connectToWaitingPlayer()</em> Methode tun:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void connectToWaitingPlayer(String data) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String ipServer = getIPAddressToConnectTo(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SocketAddress sockaddr = new InetSocketAddress(ipServer, GAME_SERVER2_PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket = new Socket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.connect(sockaddr, TIMEOUT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;isSocketAvailable = true;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Hier gehen wir von einem Zweispieler-Spiel aus.&nbsp; Bei mehr Spielern müssten wir natürlich mit jedem Spieler eine separate Verbindung aufbauen oder wieder über UDP Broadcasts arbeiten.&nbsp; Ach ja, die getIPAddressToConnectTo() Methode fehlt noch:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private String getIPAddressToConnectTo(String data) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StringTokenizer st = new StringTokenizer(data, &quot;{[, ]}&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (st.hasMoreTokens()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String ip = st.nextToken();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!ip.equals(myLocalIP)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return ip;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return null;
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Diesen ConnectionBroker können wir jetzt problemlos in unserer Activity verwenden:</p>
+<pre style="margin-left: 40px;">
+public class GameClient2Activity extends Activity implements Runnable {
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread th = new Thread(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;th.start();
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String myLocalIP = Util.getMyLocalIpAddress().getHostAddress();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// establish connection to other player
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ConnectionBroker broker = new ConnectionBroker();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;broker.start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (!broker.<span style="color:#0000ff;">isSocketAvailable()</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(200);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// get InputStream and OutputStream
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final Socket socket = broker.getSocket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream is = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream os = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Auch hier starten wir wieder einen separaten Thread, der den ConnectionBroker startet und wartet bis sich ein Partner gefunden hat.&nbsp; Sobald <em>isSocketAvailable()</em> true ist, haben wir einen Partner und können dann mit dem Spiel beginnen.</p>
+<p>
+	Noch kurz zum Server: eine Möglichkeit ist diesen als Java Servlet zu implementieren [20].&nbsp; Der Code ist nicht besonders komplex, ist aber auch nicht besonders sicher:</p>
+<pre style="margin-left: 40px;">
+public class GameServer extends HttpServlet {
+
+&nbsp;&nbsp; &nbsp;private final int NR_OF_PLAYERS_PER_TEAM = 2;
+&nbsp;&nbsp; &nbsp;private Map&lt;String, Set&lt;String&gt;&gt; clients = new HashMap&lt;String, Set&lt;String&gt;&gt;();
+
+&nbsp;&nbsp; &nbsp;public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String internalIP = request.getParameter(&quot;internalIP&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (internalIP != null &amp;&amp; internalIP.length() &gt; 8 &amp;&amp; internalIP.length() &lt; 16) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String clientAddresses = &quot;{&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String externalIP = request.getRemoteAddr();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (clients.containsKey(externalIP)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Set&lt;String&gt; playerSet = clients.get(externalIP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;playerSet.add(internalIP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (playerSet.size() &gt;= NR_OF_PLAYERS_PER_TEAM) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;clientAddresses += playerSet.toString();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;clients.remove(externalIP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Set&lt;String&gt; playerSet = new HashSet&lt;String&gt;();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;playerSet.add(internalIP);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;clients.put(externalIP, playerSet);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;clientAddresses += &quot;}&quot;;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PrintWriter out = response.getWriter();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.println(clientAddresses);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Der Server wird nur kurz zum Austausch der lokalen IP Adressen verwendet, danach spielt er keine Rolle mehr.</p>
+<p>
+	<img alt="" src="images/Ch7_GameClient2.png" style="margin-left: 10px; margin-right: 10px; width: 512px; height: 318px;" /></p>
+<p>
+	.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BTDiscovery.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BTDiscovery</h2>
+<p>
+	Fast alle Smartphones heutzutage haben Bluetooth [21].&nbsp; Bluetooth wird wie Wifi zur drahtlosen Datenübertragung verwendet.&nbsp; Am bekanntesten sind wahrscheinlich Bluetooth Headsets und Lautsprecher.&nbsp; Es sendet im 2,4 GHz Band, was manchmal zu Problemen führt, wenn man Wifi auch im 2,4 GHz Band betreibt (Wifi kann man auch im 5,8 GHz Band betreiben, dann gibt es keine Störungen mehr).&nbsp; In der Regel ist die Reichweite von Bluetooth geringer, da es mit geringerer Leistung sendet, das muss aber nicht sein.</p>
+<p>
+	Als erstes Beispiel wollen wir mal sehen, was es denn so an Bluetooth Geräten in der Nähe gibt.&nbsp; Dafür verwenden wir den <em>BluetoothAdapter</em>:</p>
+<pre style="margin-left: 40px;">
+public class BTDiscoveryActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter btAdapter;
+&nbsp;&nbsp; &nbsp;private BroadcastReceiver btReciever;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btAdapter = BluetoothAdapter.getDefaultAdapter();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (btAdapter.isDiscovering()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btAdapter.cancelDiscovery();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Set&lt;BluetoothDevice&gt; pairedDevices = btAdapter.getBondedDevices();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btReciever = new BluetoothReceiver();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.registerReceiver(btReciever, filter);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btAdapter.startDiscovery();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Zunächst einmal sagt uns der BluetoothAdapter mit welchen Geräten wir in der Vergangenheit ein &quot;Pairing&quot; durchgeführt haben.&nbsp; &quot;Pairing&quot; ist wichtig, da man sich nur mit gepairten Geräten verbinden kann.&nbsp; Allerdings heißt das nicht, dass diese Geräte gerade in der Nähe sind.&nbsp; Diese Information erhalten wir mit dem <em>BluetoothReceiver</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class BluetoothReceiver extends BroadcastReceiver {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onReceive(Context context, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String action = intent.getAction();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BluetoothClass bc = device.getBluetoothClass();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String mdc = BT_DEVICES.get(bc.getMajorDeviceClass());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String services = getBTServices(bc);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String sbc = &quot;&quot; + mdc + &quot;,&quot; + services;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final String tmp = &quot;&quot; + device.getAddress() + &quot;,&quot; 
+                        + sbc + &quot;,&quot; + device.getBondState() + &quot;,&quot;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;+ device.getName() + &quot;,&quot; 
+                        + BT_DEVICE_TYPES[device.getType()] + &quot;,&quot; 
+                        + rssi + &quot;db&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(tmp + &quot;\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Hier erhalten wir die MAC Adresse der Geräte, ob sie mit uns verbunden sind, ihren Namen, und die momentane Signalstärke.&nbsp; Was den Typ angeht unterscheidet Android zwischen den folgenden Typen:</p>
+<pre style="margin-left: 40px;">
+&quot;DEVICE_TYPE_UNKNOWN&quot;, &quot;DEVICE_TYPE_CLASSIC&quot;, &quot;DEVICE_TYPE_LE&quot;, &quot;DEVICE_TYPE_DUAL&quot;</pre>
+<p>
+	Ein Gerät ist also entweder klassisch oder &quot;Low Energy&quot;, manche sind auch beides.</p>
+<p>
+	Interessant sind auch noch die Arten von Geräten die es gibt (BT_DEVICES).&nbsp; In der Android Dokumentation [22] finden sich:</p>
+<ul>
+	<li>
+		AUDIO_VIDEO</li>
+	<li>
+		COMPUTER</li>
+	<li>
+		HEALTH</li>
+	<li>
+		IMAGING</li>
+	<li>
+		MISC</li>
+	<li>
+		NETWORKING</li>
+	<li>
+		PERIPHERAL</li>
+	<li>
+		PHONE</li>
+	<li>
+		TOY</li>
+	<li>
+		UNCATEGORIZED</li>
+	<li>
+		WEARABLE</li>
+</ul>
+<p>
+	Und zusätzlich können folgende Services zu Verfügung gestellt werden (BT_SERVICES):</p>
+<ul>
+	<li>
+		AUDIO</li>
+	<li>
+		CAPTURE</li>
+	<li>
+		INFORMATION</li>
+	<li>
+		LIMITED_DISCOVERABILITY</li>
+	<li>
+		NETWORKING</li>
+	<li>
+		OBJECT_TRANSFER</li>
+	<li>
+		POSITIONING</li>
+	<li>
+		RENDER</li>
+	<li>
+		TELEPHONY</li>
+</ul>
+<p>
+	Wenigstens sind das die Services die Android verwenden kann.&nbsp;</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BTChatServer.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BTChatServer</h2>
+<p>
+	Bevor wir irgendetwas mit Bluetooth machen, müssen die beiden Geräte, die miteinander reden sollen, erst einmal gepairt werden.&nbsp; Das macht man über die Bluetooth Einstellung auf dem Smartphone.&nbsp; Da wir hier einen Chat zwischen zwei Smartphones implementieren wollen, muss man das natürlich auf beiden Geräten tun.</p>
+<p>
+	Für unseren Bluetooth ChatServer benötigen wir natürlich wieder Zugriff auf den BluetoothAdapter:</p>
+<pre style="margin-left: 40px;">
+public class BTChatServerActivity extends Activity implements Runnable {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter mBluetoothAdapter;
+&nbsp;&nbsp; &nbsp;private BluetoothServerSocket mBluetoothServerSocket;
+&nbsp;&nbsp; &nbsp;private BluetoothSocket socket;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Thread th = new Thread(this);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;th.start();
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Da es sich um einen Server handelt, muss das Ganze wieder als eigener Thread laufen.&nbsp; In dessen run() Methode starten wir einen BluetoothServerSocket:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothServerSocket = 
+            mBluetoothAdapter.listenUsingRfcommWithServiceRecord(
+                &quot;BTChatActivity_Server&quot;,
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;UUID.fromString(<span style="color:#0000ff;">MY_UUID</span>));
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BluetoothSocket socket = mBluetoothServerSocket.<span style="color:#0000ff;">accept()</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;BTChatServerActivity&quot;, &quot; connection accepted.&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (socket != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream is = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream os = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (isRunning) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final int data = is.read();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;os.write(data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;runOnUiThread(new Runnable() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(&quot;&quot; + (char) data);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Danach warten wir in der accept() Methode ganz geduldig auf hereinkommende Verbindungsanfragen.&nbsp; Der Code der folgt ist eins zu eins identisch mit dem was wir bereits bei TCP gesehen haben: wir haben je einen InputStream und einen OutputStream, vom einen lesen wir, in den anderen schreiben wir.&nbsp; In dem Beispiel gerade, haben wir einen einfachen Echo-Server implementiert [23].</p>
+<p>
+	Eine Anmerkung noch zur UUID: oben haben wir folgende verwendet:</p>
+<pre style="margin-left: 40px;">
+BASE_BLUETOOTH_UUID = &quot;-0000-1000-8000-00805F9B34FB&quot;;
+MY_UUID = &quot;00420042&quot; + BASE_BLUETOOTH_UUID;
+</pre>
+<p>
+	Es scheint so zu sein, dass man den vorderen Teil frei wählen kann, der hintere Teil aber vorgegeben ist.&nbsp; So richtig zu verstehen scheint das aber niemand [24].</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BTChatClient.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BTChatClient</h2>
+<p>
+	Kommen wir zum Bluetooth ChatClient: Zunächst benötigen wir wieder den BluetoothAdapter,</p>
+<pre style="margin-left: 40px;">
+public class BTChatClientActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter mBluetoothAdapter;
+&nbsp;&nbsp; &nbsp;private BluetoothSocket socket;
+&nbsp;&nbsp; &nbsp;private OutputStream os;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(&quot;mBluetoothAdapter: &quot; + mBluetoothAdapter.getAddress() + &quot;\n&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BluetoothDevice mBluetoothDevice = findPairedBluetoothDevice(&quot;<span style="color:#0000ff;">Moto</span>&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; if (mBluetoothDevice != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket = 
+                mBluetoothDevice.createRfcommSocketToServiceRecord(
+                    UUID.fromString(BTChatServerActivity.<span style="color:#0000ff;">MY_UUID</span>));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.connect();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;os = socket.getOutputStream();
+            os.write(&quot;Hi there!\n&quot;.getBytes());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(&quot;No device found!\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Dann suchen wir unter den gepairten Devices eines mit dem wir uns verbinden wollen, hier ist es das &quot;Moto&quot; Gerät.&nbsp; Haben wir das Gerät gefunden, dann lassen wir uns den Sockel geben und dessen OutputStream.&nbsp; Wichtig ist, dass die UUID die gleiche ist wie die des Servers.</p>
+<p>
+	Die Methode findPairedBluetoothDevice() ist ziemlich einfach,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private BluetoothDevice findPairedBluetoothDevice(String name) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BluetoothDevice mBluetoothDevice = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Set&lt;BluetoothDevice&gt; pairedDevices = mBluetoothAdapter.getBondedDevices();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (BluetoothDevice device : pairedDevices) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (device.getName().trim().startsWith(name)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothDevice = device;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return mBluetoothDevice;
+&nbsp;&nbsp; &nbsp;}
+</pre>
+<p>
+	das kann man auch besser machen.</p>
+<p>
+	In der momentanen Version, schickt nur der Client Nachrichten an den Server.&nbsp; Aber mit dem was wir aus den Projekt zum TCP-Chat gelernt haben, ist es ein leichtes auch Nachrichten zu empfangen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BLEScanner.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BLEScanner</h2>
+<p>
+	Bluetooth Low Energy [25] ist Teil der Bluetooth 4.0 Spezifikation und viele der neureren Geräte verwenden es.&nbsp; Der Vorteil ist, dass es viel stromsparender sein soll.&nbsp; Prinzipiell funktioniert Bluetooth LE sehr ähnlich: wir benötigen wieder einen BluetoothAdapter, allerdings müssen wir den explizit vom System anfordern:</p>
+<pre style="margin-left: 40px;">
+public class BLEScannerActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter mBluetoothAdapter;
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter.LeScanCallback mLeScanCallback;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final BluetoothManager bluetoothManager = 
+           (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter = bluetoothManager.getAdapter();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String address = device.getAddress();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String name = device.getName();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int strength = rssi;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;BLEScannerActivity&quot;, address + &quot;: &quot; + name + &quot;, &quot; + strength);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;};
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter.startLeScan(mLeScanCallback);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Dann definieren wir einen <em>LeScanCallback</em>, der aufgerufen wird, wenn Bluetooth LE Geräte gefunden wurden.&nbsp; Vorher müssen wir aber den Scan mit <em>startLeScan()</em> starten.</p>
+<p>
+	Eine Besonderheit an Bluetooth LE ist, dass wir die Permissions ACCESS_COARSE_LOCATION und/oder ACCESS_FINE_LOCATION anfordern müssen.&nbsp; Ohne findet der Scanner keine der LE Geräte.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BLEBeaconFinder.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BLEBeaconFinder</h2>
+<p>
+	Eine hübsche Anwendung für Bluetooth LE ist ein Beacon Finder.&nbsp; Bluetooth Beacons kann man für ein, zwei Euro in China bestellen.&nbsp; Die kann man dann in seinem Haus verstecken und mit unserer BeaconFinder Activity wieder finden.&nbsp; Ist ein bisschen wie Ostereier suchen.</p>
+<p>
+	Der Code ist fast eins-zu-eins identisch mit unserem Bluetooth Scanner.&nbsp; Hier starten wir den Scan aber erst wenn auf den Knopf gedrückt wurde, und nur der Beacon mit der richtigen MAC Adresse soll angezeigt werden:</p>
+<pre style="margin-left: 40px;">
+public class BLEBeaconFinderActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final EditText et = (EditText) findViewById(R.id.editText);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;et.setText(&quot;FF:FF:40:00:7B:EA&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String mac = et.getText().toString().trim();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (<span style="color:#0000ff;">mac.equals(device.getAddress().toUpperCase())</span>) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String tmp = &quot;&quot; + device.getAddress() + &quot;: &quot; + rssi + &quot;db&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(tmp + &quot;\n&quot; + tv.getText());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;};
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Button btn = (Button) findViewById(R.id.button);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btn.setOnClickListener(new OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final String mac = et.getText().toString().trim();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter.startLeScan(mLeScanCallback);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Auch dieses Bespiel könnte man für Indoor Location verwenden.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/BLETurnOnBT.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />BLETurnOnBT</h2>
+<p>
+	Unser letztes Bluetooth Beispiel soll noch zeigen wie wir Bluetooth über einen Intent einschalten können.&nbsp;&nbsp; Zunächst holen wir uns wieder eine Referenz auf den BluetoothManager:</p>
+<pre style="margin-left: 40px;">
+public class BLETurnOnBTActivity extends Activity {
+&nbsp;&nbsp; &nbsp;private final int REQUEST_ENABLE_BT = 42;
+&nbsp;&nbsp; &nbsp;private TextView tv;
+&nbsp;&nbsp; &nbsp;private BluetoothAdapter mBluetoothAdapter;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final BluetoothManager bluetoothManager = 
+            (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mBluetoothAdapter = bluetoothManager.getAdapter();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (requestCode == REQUEST_ENABLE_BT &amp;&amp; resultCode == RESULT_OK) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(&quot;Everything is fine!\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onActivityResult(requestCode, resultCode, intent);
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Dann starten wir einen Intent mit der Action &quot;BluetoothAdapter.ACTION_REQUEST_ENABLE&quot; und warten auf das Resultat.&nbsp; Falls alles o.k. ist, wurde Bluetooth eingeschaltet.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/NFC.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />NFC</h2>
+<p>
+	Einige Android Smartphones beherrschen auch die Near-Field Kommunikation, kurz NFC [26].&nbsp; Obwohl hautpsächlich für elektronische Bezahlung beworben, kann man damit auch andere interessante Dinge machen.&nbsp; Z.B. kann man zwischen zwei Smartphones kommunizieren und, was noch viel nützlicher ist, man kann RFID Tags auslesen [27], und abhängig vom Gerät, sogar beschreiben.&nbsp; Wir wollen sie aber nur lesen.</p>
+<p>
+	Als erstes müssen wir im AndroidManifest um Erlaubnis fragen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; &lt;uses-permission android:name=&quot;android.permission.NFC&quot; /&gt;
+&nbsp;&nbsp;&nbsp; &lt;uses-feature
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:name=&quot;android.hardware.nfc&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; android:required=&quot;true&quot; /&gt;</pre>
+<p>
+	Außerdem startet man eine NFCActivity über einen Intent, auch das geschieht in der AndroidManifest Datei:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;activity android:name=&quot;variationenzumthema_pr7.NFCActivity&quot; &gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;intent-filter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;action android:name=&quot;<span style="color:#0000ff;">android.nfc.action.TAG_DISCOVERED</span>&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/intent-filter&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/activity&gt;</pre>
+<p>
+	Hält man also sein Smartphone in die Nähe eines RFID Tags, dann wird unsere Activity gestartet.</p>
+<p>
+	Kommen wir zur Activity selbst.&nbsp; Zunächst einmal sollten wir in der onCreate() feststellen ob unser Gerät überhaupt NFC unterstützt und wenn ja ob es auch eingeschaltet ist:</p>
+<pre style="margin-left: 40px;">
+public void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+&nbsp;&nbsp; &nbsp;if (nfcAdapter == null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;Your device does not support NFC!&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;} else if (!nfcAdapter.isEnabled()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(this, &quot;You need to enable NFC for this app to work!&quot;, Toast.LENGTH_LONG).show();
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Sollte beides der Fall sein, dann können wir ein RFID Tag mit folgendem Code auslesen:</p>
+<pre style="margin-left: 40px;">
+protected void onResume() {
+&nbsp;&nbsp; &nbsp;super.onResume();
+
+&nbsp;&nbsp; &nbsp;Intent intent = getIntent();
+&nbsp;&nbsp; &nbsp;String action = intent.getAction();
+
+&nbsp;&nbsp; &nbsp;if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (tag != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String tmp = &quot;Id: &quot; + Util.byteArrayToHexString(tag.getId()) + &quot;\n\n&quot;;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tmp += &quot;Supported NFC Technologies:\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String[] technologies = tag.getTechList();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int i = 0; i &lt; technologies.length; i++) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tmp += &quot;- &quot; + technologies[i] + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(tmp);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	In dem Beispiel geben wir nur die ID des Tags aus und welche Techologie das Tag verwendet.&nbsp; Das ist eigentlich ziemlich nutzlos.&nbsp; Interessant sind aber aktive RFID Tags: die haben Reichweiten bis zu mehreren hundert Metern, und über die Signalstärke kann man die grobe Entfernung des Tags abschätzen.&nbsp; Das kann zum Finden von Gegenständen ganz nützlich sein.&nbsp; Übrigens sowohl der Reisepass als auch der Personalausweis enthalten einen RFID Tag.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/CellTower.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />CellTower</h2>
+<p>
+	Wir haben im Sensor-Kapitel gesehen, dass man neben dem Signal der GPS Satelliten auch die Mobilfunkmasten zur groben Ortsbestimmung verwenden kann.&nbsp; Das passiert eigentlich alles im Hintergrund und man muss sich da eigentlich nicht selbst darum kümmern.&nbsp; Trotzdem ist es interessant mal zu sehen welche Funkmasten denn in der Nähe sind.&nbsp; Das kann man mit dem <em>TelephonyManager</em>:</p>
+<pre style="margin-left: 40px;">
+TelephonyManager telephonyManager = 
+    (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+
+List&lt;CellInfo&gt; cells = telephonyManager.getAllCellInfo();
+for (CellInfo cellInfo : cells) {
+&nbsp;&nbsp; &nbsp;String type = &quot;none&quot;;
+&nbsp;&nbsp; &nbsp;CellSignalStrength strength = null;
+&nbsp;&nbsp; &nbsp;boolean registered = false;
+&nbsp;&nbsp; &nbsp;int latitude = 0;
+&nbsp;&nbsp; &nbsp;int longitude = 0;
+&nbsp;&nbsp; &nbsp;int cellid = 0;
+&nbsp;&nbsp; &nbsp;int celllac = 0;
+
+&nbsp;&nbsp; &nbsp;if (cellInfo instanceof CellInfoCdma) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = &quot;Cdma&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellInfoCdma ci = (CellInfoCdma) cellInfo;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;strength = ci.getCellSignalStrength();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registered = ci.isRegistered();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellIdentityCdma identity = ci.getCellIdentity();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cellid = identity.getNetworkId();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;latitude = identity.getLatitude();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;longitude = identity.getLongitude();
+
+&nbsp;&nbsp; &nbsp;} else if (cellInfo instanceof CellInfoGsm) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = &quot;Gsm&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellInfoGsm ci = (CellInfoGsm) cellInfo;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;strength = ci.getCellSignalStrength();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registered = ci.isRegistered();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellIdentityGsm identity = ci.getCellIdentity();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cellid = identity.getCid();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;celllac = identity.getLac();
+
+&nbsp;&nbsp; &nbsp;} else if (cellInfo instanceof CellInfoLte) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = &quot;Lte&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellInfoLte ci = (CellInfoLte) cellInfo;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;strength = ci.getCellSignalStrength();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registered = ci.isRegistered();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellIdentityLte identity = ci.getCellIdentity();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cellid = identity.getCi();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// celllac = identity.getLac();
+
+&nbsp;&nbsp; &nbsp;} else if (cellInfo instanceof CellInfoWcdma) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;type = &quot;Wcdma&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellInfoWcdma ci = (CellInfoWcdma) cellInfo;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;strength = ci.getCellSignalStrength();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registered = ci.isRegistered();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;CellIdentityWcdma identity = ci.getCellIdentity();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;cellid = identity.getCid();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;celllac = identity.getLac();
+
+&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.e(&quot;CellTowerActivity&quot;, &quot;Unknown CellInfo subclass.&quot;);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;if (strength != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int db = strength.getDbm();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String msg = &quot;&quot; + cellid + &quot;: &quot;;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;type=&quot; + type + &quot;, &quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;reg=&quot; + registered + &quot;, &quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;db=&quot; + db + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.append(msg);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Log.i(&quot;CellTowerActivity&quot;, &quot;&quot; + cellInfo.toString());
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Je nach verwendetem Mobilfunkstandard, also z.B. Cdma, Gsm, Lte oder Wcdma, erhält man unterschiedliche Informationen.&nbsp; Was man aber immer bekommt ist die Signalstärke und bei welchem Masten sich unser Telefon registriert hat.&nbsp; In der Regel ist das der mit dem stärksten Signal.&nbsp; Wenn man jetzt z.B. eine Liste der normalen Mobilfunkmasten hätte, und man auf einmal einen neuen entdeckt, der sich vielleicht sogar noch bewegt, könnte man mit dieser Information IMSI-Catcher entdecken [28].&nbsp; Oder wenn man den Ort aller Mobilfunkmasten kennt, kann man auch ein grobes Navigationssystem entwickeln.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/WifiScanner.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />WifiScanner</h2>
+<p>
+	Mit dem WifiScanner erhalten wir eine Liste von verfügbaren Wifi Accesspoints.&nbsp; Dafür verwenden wir den <em>WifiManager</em>:</p>
+<pre style="margin-left: 40px;">
+public class WifiScannerActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private TextView tv;
+&nbsp;&nbsp; &nbsp;private WifiManager wifiManager;
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;protected void onCreate(Bundle savedInstanceState) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (wifiManager.isWifiEnabled() == false) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiManager.setWifiEnabled(true);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;WifiReceiver wifiReceiver = new WifiReceiver();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;registerReceiver(wifiReceiver, 
+            new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiManager.startScan();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+    ...</pre>
+<p>
+	Mit <em>startScan()</em> starten wir den Scan.&nbsp; Das Resultat erhalten wir über einen BroadcastReceiver, die lokale Klasse <em>WifiReceiver</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class WifiReceiver extends BroadcastReceiver {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onReceive(Context c, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StringBuilder sb = new StringBuilder();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;List&lt;ScanResult&gt; wifiScanResultList = wifiManager.getScanResults();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sb.append(&quot;Number Of Wifi connections :&quot; + wifiScanResultList.size() + &quot;\n\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (ScanResult result : wifiScanResultList) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String bssid = result.BSSID;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int signalLevel = result.level;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sb.append(bssid + &quot;: &quot; + signalLevel + &quot;dB\n&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(sb);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}
+</pre>
+<p>
+	Das mag erst einmal ziemlich nutzlos erscheinen, aber im nächsten Beispiel sehen wir, wofür das gut sein kann.&nbsp; Denn es gibt überraschend viele Accesspoints.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/IndoorLocation.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />IndoorLocation</h2>
+<p>
+	Bei einer gewissen Mindestzahl von Wifi Accesspoints kann man unseren WifiScanner zur groben Positionsbestimmung verwenden, auch innerhalb von Gebäuden.&nbsp; Das ist zwar nicht super-genau, aber den Raum in dem man sich befindet kriegt man auf jeden Fall raus.</p>
+<p>
+	Die Idee ist, einmal durchs Haus zu laufen und an verschiedenen Stellen die Signalstärke der verfügbaren Accesspoints zu messen.&nbsp; Das speichern wir dann in einer Map:</p>
+<pre style="margin-left: 40px;">
+// String is bssid, first integer is location-id, second is signal-strength
+Map&lt;String, Map&lt;Integer, Integer&gt;&gt; accessPoints;</pre>
+<p>
+	dabei ist der Key die BSSID des AccessPoints und der Value ist wieder eine Map, bei der jetzt der Key der Ort war an dem wir eine Messung durchgeführt haben, und der Value ist die Signalstärke an dem Ort.&nbsp;</p>
+<p>
+	Wenn wir jetzt wissen wollen wo wir sind, dann verwenden wir unseren WifiScanner und vergleichen die gefunden Accesspoints und Signalstärken mit unseren gespeicherten Werten.&nbsp; Daraus können wir dann den wahrscheinlichen Ort bestimmen.&nbsp; Dabei verwenden wir ein einfaches Voting, das funktioniert überraschend gut.&nbsp; Dieses Voting ist in die Klasse <em>WifiLocationManager</em> ausgelagert.</p>
+<p>
+	Unsere IndoorLocation Activity ist analog zum WifiScanner aufgebaut.&nbsp; Über den WifiManager starten wir Scans, und die Resultate kommen wieder im WifiReceiver an.&nbsp; Zusätzlich benötigen wir aber noch den WifiLocationManager:</p>
+<pre style="margin-left: 40px;">
+public class IndoorLocationActivity extends Activity {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private STATE state = STATE.IDLE;
+&nbsp;&nbsp; &nbsp;private WifiLocationManager wifiLocMangr;
+    ...
+}</pre>
+<p>
+	Weiter benötigen wir eine Zustandsvariable <em>state</em>, die in einem von drei möglichen Zuständen sein kann:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; enum STATE {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;IDLE, SCANNING_MODE, LOCATION_MODE
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Bei IDLE passiert gar nichts.&nbsp; Wenn wir gerade durchs Haus laufen und Signalstärken messen, sind wir im SCANNING_MODE.&nbsp; Und wenn wir versuchen unsere Position zu bestimmen, dann sind wir im LOCATION_MODE.&nbsp;</p>
+<p>
+	Die UI ist trivial: z.B. der Knopf der den Scan startet, hat den folgenden OnClickListener:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Button btnScanWifi = (Button) this.findViewById(R.id.buttonScanWifi);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;btnScanWifi.setOnClickListener(new OnClickListener() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onClick(View v) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;state = STATE.SCANNING_MODE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiManager.startScan();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(&quot;Starting Scan...&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;});</pre>
+<p>
+	Der Knopf für die Ortsbestimmung ist vollkommen analog.&nbsp; Interessant sind die Änderungen an unserem <em>WifiReceiver</em>:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; class WifiReceiver extends BroadcastReceiver {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public void onReceive(Context c, Intent intent) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (state == STATE.SCANNING_MODE) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;List&lt;ScanResult&gt; wifiScanResultList = wifiManager.getScanResults();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int loctn = Integer.parseInt(edt.getText().toString());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiLocMangr.<span style="color:#0000ff;">addScanResults</span>(wifiScanResultList, loctn);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(wifiLocMangr.listAccessPoints());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else if (state == STATE.LOCATION_MODE) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;List&lt;ScanResult&gt; wifiScanResultList = wifiManager.getScanResults();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;TreeMap&lt;Integer, Integer&gt; votes = wifiLocMangr.<span style="color:#0000ff;">getLocationEstimates</span>(wifiScanResultList);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// print votes
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;String msg = &quot;&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (int vote : votes.keySet()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;msg += &quot;loc: &quot; + votes.get(vote) + &quot;, count: &quot; + vote + &quot;\n&quot;;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;tv.setText(msg);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;state = STATE.IDLE;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir unterscheiden jetzt zwischen den zwei Zuständen, im ersten Fall rufen wir die <em>addScanResults()</em> Methode des WifiLocationManagers auf, im anderen die <em>getLocationEstimates()</em> Methode.</p>
+<p>
+	Vermutlich könnte man mit einem Kalman Filter oder einem Neuronalen Netz die Genauigkeit um einiges erhöhen, aber wir wissen ja noch gar nicht wie das geht.&nbsp; Kommt im nächsten Buch.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/HotSpot.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />HotSpot</h2>
+<p>
+	Für die eine oder andere Anwendung wäre es ganz cool wenn man das Smartphone in einen Wifi Hotspot verwandeln könnte.&nbsp; Das ist mit der Klasse HotSpotAPManager von Nick Russler und Ahmet Yueksektepe sogar ganz einfach.</p>
+<p>
+	Zunächst benötigen wir eine HotSpotAPManager Instanzvariable, die wir in der onResume() initialisieren:</p>
+<pre style="margin-left: 40px;">
+public class HotSpotActivity extends Activity {
+
+&nbsp;&nbsp; &nbsp;private HotSpotAPManager wifiApManager = null;
+
+&nbsp;&nbsp; &nbsp;protected void onResume() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onResume();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiApManager = new HotSpotAPManager(this);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;protected void onPause() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;super.onPause();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;wifiApManager = null;
+&nbsp;&nbsp; &nbsp;}
+    ...
+}</pre>
+<p>
+	Danach können wir mit</p>
+<pre style="margin-left: 40px;">
+    wifiApManager.setWifiApEnabled(null, true);</pre>
+<p>
+	den Hotspot starten, mit</p>
+<pre style="margin-left: 40px;">
+    wifiApManager.setWifiApEnabled(null, false);</pre>
+<p>
+	den Hotspot anhalten, und mit</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;List&lt;String&gt; clients = wifiApManager.getClientList();
+</pre>
+<p>
+	können wir feststellen, wer sich denn alles mit unserem Hotspot verbunden hat.&nbsp; Natürlich benötigt man spezielle Permissions um einen Hotspot starten zu können. Ich hätte mal vermutet, dass es die folgenden drei sind:</p>
+<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.CHANGE_WIFI_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_SETTINGS&quot; /&gt;</pre>
+<p>
+	Idealerweise hat der Nutzer vorher schon mal einen Hotspot eingerichtet.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Challenges</h1>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/RemoteControlClient.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />RemoteDesktopClient</h2>
+<p>
+	In dem java.awt Packet gibt es eine sehr interessante Klasse namens <em>Robot</em>: mit der kann man Screenshots machen, aber man kann auch die Maus auf dem Computer bewegen und sogar Tastatureingaben simulieren.&nbsp; Mit der App RemoteDesktopClient wollen wir also unseren Computer vom Handy aus steuern.&nbsp; Das kann z.B. ganz praktisch sein für eine Powerpoint Präsentation wenn wir keine von den teuren Fernbedienungen haben.&nbsp; Oder wenn wir in den Ferien sind und zu Hause auf unserem Computer was nachschauen wollen (wobei das nicht sehr schlau ist ohne entsprechende Sicherheitsvorkehrungen).</p>
+<p>
+	Als erstes schreiben wir das Programm das auf unserem normalen Desktop-Computer läuft.&nbsp; Das geht sowohl auf Windows, Mac als auch Linux.&nbsp; Es handelt sich um ein ganz einfaches Programm das aus einer <em>main()</em> heraus gestartet wird:</p>
+<pre style="margin-left: 40px;">
+package variationenzumthema_pr7;
+...
+public class RemoteControlServer {
+&nbsp;&nbsp; &nbsp;private int PORT = 1778;
+
+&nbsp;&nbsp; &nbsp;enum COMMAND {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GET_SCREENSHOT, MOUSE_MOVE, MOUSE_CLICKED
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int port = 1778;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (args.length == 1) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;port = Integer.parseInt(args[0]);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;RemoteControlServer rcs = new RemoteControlServer(port);
+&nbsp;&nbsp; &nbsp;}
+    ...
+</pre>
+<p>
+	Im Constructor läuft unser eigentliches Programm:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public RemoteControlServer(int PORT) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.PORT = PORT;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ServerSocket echod = new ServerSocket(PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = echod.accept();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;connection established.&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream in = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DataInputStream din = new DataInputStream(in);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int command = din.readInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (COMMAND.values()[command]) {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case GET_SCREENSHOT:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendScreenshot(socket);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MOUSE_MOVE:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int x = din.readInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int y = din.readInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mouseMove(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MOUSE_CLICKED:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x = din.readInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y = din.readInt();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;mouseClick(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Unknown command.&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;in.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Wir haben einen ServerSocket und warten auf Kommandos die in Form von Integern hereinkommen.&nbsp; In unserem Beispiel haben wir drei Kommandos implementiert: GET_SCREENSHOT, MOUSE_MOVE und MOUSE_CLICKED.&nbsp; Die folgenden drei Methode zeigen wie man diese Kommandos mit der Robot Klasse umsetzt:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void mouseClick(int x, int y) throws AWTException {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Robot robot = new Robot();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;robot.mouseMove(x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;robot.mousePress(InputEvent.BUTTON1_MASK);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;robot.mouseRelease(InputEvent.BUTTON1_MASK);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void mouseMove(int x, int y) throws AWTException {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Robot robot = new Robot();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;robot.mouseMove(x, y);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;private void sendScreenshot(Socket socket) throws Exception {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream out = socket.getOutputStream();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Robot robot = new Robot();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;BufferedImage image = robot.createScreenCapture(new Rectangle(
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;screenSize));
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ImageIO.write(image, &quot;png&quot;, out);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.close();
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Zum Starten des Programms gibt man am Desktop Computer auf einer Konsole oder Terminal folgendes ein:</p>
+<pre style="margin-left: 40px;">
+java variationenzumthema_pr7.RemoteControlServer 1778</pre>
+<p>
+	No rocket science here.</p>
+<p>
+	Kommen wir zur Android App, der <em>RemoteDesktopClientActivity</em>:&nbsp; Zunächst einmal handelt es sich dabei um ein GraphicsProgram:</p>
+<pre style="margin-left: 40px;">
+public class RemoteDesktopClientActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;private final int PORT = <span style="color:#0000ff;">1778</span>;
+&nbsp;&nbsp; &nbsp;private final String IP = <span style="color:#0000ff;">&quot;192.168.178.54&quot;</span>;
+&nbsp;&nbsp; &nbsp;private final int TIMEOUT = 1000;
+&nbsp;&nbsp; &nbsp;private final double SCALE = 1.0;
+
+&nbsp;&nbsp; &nbsp;private GImage img;
+&nbsp;&nbsp; &nbsp;private int oldX, oldY;
+
+&nbsp;&nbsp; &nbsp;enum COMMAND {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;GET_SCREENSHOT, MOUSE_MOVE, MOUSE_CLICKED
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void init() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.setThreadPolicy(policy);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;addMouseListeners();
+&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	Aus Faulheit sind IP und Port fest gecoded.&nbsp; In der init() wird die ThreadPolicy gesetzt und der MouseListener hinzugefügt (was glaub ich gar nicht mal notwendig ist).&nbsp; Die run() Methode haut jetzt auch niemanden vom Hocker:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;waitForTouch();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendRequestToServer(COMMAND.GET_SCREENSHOT, 0, 0);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (img != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;img.scale(SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;add(img);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(500);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Wir holen uns einfach einmal alle halbe Sekunde einen ScreenShot vom Server, skalieren es so damit es auf den Handybildschirm passt und zeigen es an.&nbsp; Die Methode sendRequestToServer() schickt die verschiedenen Requestarten an den Server,</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void sendRequestToServer(COMMAND cmd, int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;SocketAddress sockaddr = new InetSocketAddress(IP, PORT);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Socket socket = new Socket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.connect(sockaddr, TIMEOUT);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;OutputStream out = socket.getOutputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;DataOutputStream dos = new DataOutputStream(out);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeInt(cmd.ordinal());
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch (cmd) {
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case GET_SCREENSHOT:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">getScreenShotFromServer(socket);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MOUSE_MOVE:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeInt(x);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeInt(y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case MOUSE_CLICKED:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeInt(x);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;dos.writeInt(y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;default:
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(&quot;Unknown command.&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;out.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;socket.close();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	und nur im Fall des Screenshots will sie auch wieder was haben:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void getScreenShotFromServer(Socket socket) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Bitmap image = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InputStream is = socket.getInputStream();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;image = BitmapFactory.decodeStream(is);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;is.close();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;System.out.println(e.toString());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (image != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (img != null) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// allow garbage collector to do its work
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;remove(img);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;img = null;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;img = new GImage(image);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Die Methode ist deswegen etwas komplizierter da wir so viele Bilder bekommen, dass wir unbedingt den Garbage Collector bei seiner Arbeit unterstützen müssen.&nbsp; Sonst stürzt unsere App nach ein paar Sekunden mit einer OutOfMemory Fehlermeldung ab.</p>
+<p>
+	Was jetzt noch fehlt sind die Mausgeschichten:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void mouseMoved(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x = (int) (x / SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y = (int) (y / SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendRequestToServer(COMMAND.MOUSE_MOVE, x, y);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void mousePressed(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oldX = (int) (x / SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oldY = (int) (y / SCALE);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;public void mouseReleased(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x = (int) (x / SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y = (int) (y / SCALE);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int dx = oldX - x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int dy = oldY - y;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// moved at less than 4 pixel
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (dx * dx + dy * dy &lt;= 16) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendRequestToServer(COMMAND.MOUSE_CLICKED, x, y);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Viola.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/TicTacToeActivity.png" style="margin-left: 10px; margin-right: 10px; width: 185px; height: 357px; float: right;" />TicTacToeActivity</h2>
+<p>
+	Erinnern wir uns an das TicTacToe Spiel aus dem ersten Semester: wäre doch cool wenn wir das jetzt endlich über&#39;s Netzwerk spielen könnten.&nbsp; Mit dem ConnectionBroker aus dem GameClient2 Beispiel ist das auch gar nicht so schwer.</p>
+<p>
+	Zunächst benötigen neben den bereits existierenden Instanzvariablen noch die folgenden,</p>
+<pre style="margin-left: 40px;">
+public class TicTacToeActivity extends GraphicsProgram {
+&nbsp;&nbsp; &nbsp;...
+&nbsp;&nbsp; &nbsp;private int <span style="color:#0000ff;">me</span> = 1;
+
+&nbsp;&nbsp; &nbsp;private boolean gameHasStarted = false;
+&nbsp;&nbsp; &nbsp;private ObjectOutputStream oos;
+
+&nbsp;&nbsp; &nbsp;public void init() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.setThreadPolicy(policy);
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;...
+}</pre>
+<p>
+	und in der <em>init()</em> sollten wir wieder darauf achten die ThreadPolicy zu setzen.&nbsp; In der run() Methode stellen wir die Verbindung zum anderen Spieler her:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;waitForTouch();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setup();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// establish connection to other player
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ConnectionBroker broker = new ConnectionBroker();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;broker.start();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (!broker.isSocketAvailable()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;pause(200);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showToastInUIThread(&quot;Game has started!&quot;);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// who starts?
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (broker.isServer()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">me = 2</span>;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;...</pre>
+<p>
+	Dabei müssen wir festsetzen welcher Spieler die Nummer 1 und welcher die Nummer 2 ist.&nbsp; Wir benutzen dafür die Methode isServer() vom Broker.</p>
+<p>
+	Als nächstes benötigen wir den InputStream und den OutputStream.&nbsp; Da wir ja nie wissen wann der andere Spieler seinen Zug macht, müssen wir alles was vom anderen Spieler kommt in einem eigenen Thread, dem <em>InConnectionThread</em>, auslagern:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // now get InputStream and OutputStream
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;final Socket socket = broker.getSocket();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;InConnectionThread in = new InConnectionThread(socket.getInputStream());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;in.start();
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oos = new ObjectOutputStream(socket.getOutputStream());
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;gameHasStarted = true;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (currentPlayer == me) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showToastInUIThread(&quot;Your move!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;showToastInUIThread(&quot;Wait for the other player to make the first move!&quot;);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Der InConnectionThread ist eine lokale Klasse,</p>
+<pre style="margin-left: 40px;">
+class InConnectionThread extends Thread {
+&nbsp;&nbsp; &nbsp;private InputStream is;
+
+&nbsp;&nbsp; &nbsp;public InConnectionThread(InputStream is) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;StrictMode.setThreadPolicy(policy);
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.is = is;
+&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;@Override
+&nbsp;&nbsp; &nbsp;public void run() {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ObjectInputStream ois = new ObjectInputStream(is);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while (true) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point p = (Point) ois.readObject();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">displayPlayer(p.x, p.y, currentPlayer);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (Exception e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Über den InputStream bekommen wir die Position auf die der andere Spieler geklickt hat.&nbsp; Die Klasse Point ist trivial:</p>
+<pre style="margin-left: 40px;">
+public class Point implements Serializable {
+&nbsp;&nbsp; &nbsp;public int x;
+&nbsp;&nbsp; &nbsp;public int y;
+
+&nbsp;&nbsp; &nbsp;public Point(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.x = x;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;this.y = y;
+&nbsp;&nbsp; &nbsp;}
+}</pre>
+<p>
+	Muss aber eine eigene Klasse und serialisierbar sein.</p>
+<p>
+	Wir sind fast fertig: in der <em>mousePressed()</em> Methode müssen wir noch ein paar kleine Modifikationen vornehmen:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; public void mousePressed(int x, int y) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (gameHasStarted) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (currentPlayer == me) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int i = x / CELL_WIDTH;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;int j = y / CELL_WIDTH;
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (TicTacToeLogic.isMoveAllowed(currentPlayer, i, j)) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<span style="color:#0000ff;">displayPlayer(i, j, currentPlayer);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sendMoveToOtherPlayer(i, j);</span>
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (TicTacToeLogic.isGameOver()) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;displayGameOver();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(getApplicationContext(), &quot;It is not your turn!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} else {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Toast.makeText(getApplicationContext(), &quot;Other player still needs to join!&quot;, Toast.LENGTH_SHORT).show();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Und zwar müssen wir erst mal feststellen, ob das Spiel überhaupt schon begonnen hat.&nbsp; Soll heißen, der Spieler darf erst dann klicken, wenn sich ein Partner gefunden hat.&nbsp; Und natürlich darf er nur klicken wenn er wirklich an der Reihe ist.&nbsp; Falls der Spielzug denn erlaubt ist, zeigen wir ihn mit <em>displayPlayer()</em> wie gehabt an, aber wir müssen dem anderen Spieler natürlich noch mitteilen welchen Zug wir gemacht haben, das macht die <em>sendMoveToOtherPlayer()</em> Methode:</p>
+<pre style="margin-left: 40px;">
+&nbsp;&nbsp;&nbsp; private void sendMoveToOtherPlayer(int i, int j) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;try {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Point p = new Point(i, j);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oos.writeObject(p);
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;oos.flush();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;} catch (IOException e) {
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;e.printStackTrace();
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+&nbsp;&nbsp; &nbsp;}</pre>
+<p>
+	Niemand hat gesagt, dass Multiplayerspiele einfach sind... aber machbar sind sie schon.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Research</h1>
+<p>
+	Auch in diesem Kapitel gibt es viele Themen die man noch durch Eigenrecherche vertiefen kann, genannt seien die folgenden drei.</p>
+<p>
+	.</p>
+<h2>
+	MIME</h2>
+<p>
+	Die &quot;Multipurpose Internet Mail Extensions&quot;, kurz MIME, sind extrem wichtig wenn wir irgendetwas im Internet machen.&nbsp; Die wichtigste ist wohl &quot;text/html&quot; oder &quot;image/png&quot;, aber es gibt noch ganz viele andere.&nbsp; Auch hier ist das Internet eine gute Möglichkeit sich über MIME und die MIME Types einen Überblick zu verschaffen.</p>
+<p>
+	.</p>
+<h2>
+	RFC 2616</h2>
+<p>
+	RFC 2616 [2] ist die Spezifikation des HTTP Protokolls.&nbsp; Wir sollten uns die Spezifikation mal ansehen, nach bekannten Namen unter den Autoren suchen, und im Inhaltsverzeichnis mal nach Request und Response suchen, sowie identifizieren welche HTTP Methoden und welche HTTP Status Codes es gibt.</p>
+<p>
+	.</p>
+<h2>
+	JSON</h2>
+<p>
+	Wenn wir öfter mal mit Webservices zu tun haben, dann wird uns immer wieder die JavaScript Object Notation, kurz JSON begegnen [12].&nbsp; Deswegen macht es Sinn sich da mal einzulesen.</p>
+<p>
+	.</p>
+<hr />
+<h1>
+	Fragen</h1>
+<ol>
+	<li>
+		Nennen Sie ein Beispiel, wofür man die WebView Klasse verwenden kann?<br />
+		&nbsp;</li>
+	<li>
+		Für welche der folgenden Szenarien benötigen Sie die Permission :<br />
+		<pre style="margin-left: 40px;">
+&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;</pre>
+		Mehrere Antworten können richtig sein.<br />
+		O&nbsp; wenn ein externer Browser aus Ihrer App gestartet wird<br />
+		O&nbsp; wenn Sie die WebView Klasse in Ihrer App verwenden<br />
+		&nbsp;</li>
+	<li>
+		Geben Sie ein Beispiel für JSON und erklären Sie wofür man es verwendet.<br />
+		&nbsp;</li>
+	<li>
+		UDP hat Broadcast, TCP nicht.&nbsp; Warum ist das wichtig wenn Sie ein Multiplayer Spiel implementieren wollen?<br />
+		&nbsp;</li>
+	<li>
+		Wenn Sie versuchen einen Webserver auf einem Android Gerät laufen zu lassen, welches durch ein 3G Provider (z.B. O2 oder Vodaphone) mit dem Internet verbunden ist, kommt es zu Problemen.&nbsp; Erklären Sie bitte was der Grund dafür ist. (Hinweis: Bei diesen Providern ist die IP Adresse Ihres Gerätes von der Form 10.x.y.z).<br />
+		&nbsp;</li>
+	<li>
+		Jedes Smartphone hat in der Regel mindestens drei verschiedene IP Adressen.&nbsp; Können Sie näher erläutern warum?<br />
+		&nbsp;</li>
+	<li>
+		Wofür verwendet man die InetAddress Klasse und wofür die URL Klasse?<br />
+		&nbsp;</li>
+	<li>
+		Erklären Sie kurz was die folgenden Klassen tun:<br />
+		O&nbsp; InetAddress<br />
+		O&nbsp; URL<br />
+		O&nbsp; Socket<br />
+		O&nbsp; Datagram<br />
+		&nbsp;</li>
+	<li>
+		Mit welcher der nachfolgenden Java Klassen geht das Herunterladen von Internet Webseiten am einfachsten?<br />
+		O&nbsp; InetAddress<br />
+		O&nbsp; Socket<br />
+		O&nbsp; URL<br />
+		&nbsp;</li>
+	<li>
+		Was müssen Sie an der folgende Klasse ändern, damit sie serialisierbar wird?<br />
+		<pre style="margin-left: 40px;">
+class Point {
+&nbsp;&nbsp;&nbsp; public int x;
+&nbsp;&nbsp;&nbsp; public int y;
+
+&nbsp;&nbsp;&nbsp; public Point(int x, int y) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.x = x;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.y = y;
+&nbsp;&nbsp;&nbsp; }
+}</pre>
+		.</li>
+</ol>
+<p>
+	.</p>
+<hr />
+<h1>
+	Referenzen</h1>
+<p>
+	[1] Domain Name System, <a href="https://en.wikipedia.org/wiki/Domain_Name_System">https://en.wikipedia.org/wiki/Domain_Name_System</a></p>
+<p>
+	[2] StrictMode, <a href="https://developer.android.com/reference/android/os/StrictMode">https://developer.android.com/reference/android/os/StrictMode</a></p>
+<p>
+	[3] Transmission Control Protocol, <a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">https://en.wikipedia.org/wiki/Transmission_Control_Protocol</a></p>
+<p>
+	[4] Internet Protocol, <a href="https://en.wikipedia.org/wiki/Internet_Protocol">https://en.wikipedia.org/wiki/Internet_Protocol</a></p>
+<p>
+	[5] Hypertext Transfer Protocol, <a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol">https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol</a></p>
+<p>
+	[6] User Datagram Protocol, <a href="https://en.wikipedia.org/wiki/User_Datagram_Protocol">https://en.wikipedia.org/wiki/User_Datagram_Protocol</a></p>
+<p>
+	[7] Yo (app), <a href="https://en.wikipedia.org/wiki/Yo_(app)">https://en.wikipedia.org/wiki/Yo_(app)</a></p>
+<p>
+	[8] Internet Control Message Protocol, <a href="https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol">https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol</a></p>
+<p>
+	[9] National Institute of Standards and Technology, <a href="https://en.wikipedia.org/wiki/National_Institute_of_Standards_and_Technology">https://en.wikipedia.org/wiki/National_Institute_of_Standards_and_Technology</a></p>
+<p>
+	[10] NIST Internet time service, <a href="https://www.nist.gov/pml/time-and-frequency-division/services/internet-time-service-its">https://www.nist.gov/pml/time-and-frequency-division/services/internet-time-service-its</a></p>
+<p>
+	[11] Coordinated Universal Time, <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">https://en.wikipedia.org/wiki/Coordinated_Universal_Time</a></p>
+<p>
+	[12] JSON, <a href="https://en.wikipedia.org/wiki/JSON">https://en.wikipedia.org/wiki/JSON</a></p>
+<p>
+	[13] Google Books APIs, <a href="https://developers.google.com/books/">https://developers.google.com/books/</a></p>
+<p>
+	[14] Gson, <a href="https://en.wikipedia.org/wiki/Gson">https://en.wikipedia.org/wiki/Gson</a></p>
+<p>
+	[15] RFC2616, <a href="https://www.w3.org/Protocols/rfc2616/rfc2616.html">https://www.w3.org/Protocols/rfc2616/rfc2616.html</a></p>
+<p>
+	[16] Favicon, <a href="https://en.wikipedia.org/wiki/Favicon">https://en.wikipedia.org/wiki/Favicon</a></p>
+<p>
+	[17] Multipurpose Internet Mail Extensions (MIME), <a href="https://en.wikipedia.org/wiki/MIME">https://en.wikipedia.org/wiki/MIME</a></p>
+<p>
+	[18] WhatsApp, <a href="https://en.wikipedia.org/wiki/WhatsApp">https://en.wikipedia.org/wiki/WhatsApp</a></p>
+<p>
+	[19] Create P2P connections with Wi-Fi, <a href="https://developer.android.com/training/connect-devices-wirelessly/wifi-direct">https://developer.android.com/training/connect-devices-wirelessly/wifi-direct</a></p>
+<p>
+	[20] Java servlet, <a href="https://en.wikipedia.org/wiki/Java_servlet">https://en.wikipedia.org/wiki/Java_servlet</a></p>
+<p>
+	[21] Bluetooth, <a href="https://en.wikipedia.org/wiki/Bluetooth">https://en.wikipedia.org/wiki/Bluetooth</a></p>
+<p>
+	[22] android.bluetooth, <a href="https://developer.android.com/reference/android/bluetooth/package-summary">https://developer.android.com/reference/android/bluetooth/package-summary</a></p>
+<p>
+	[23] Echo Protocol, <a href="https://en.wikipedia.org/wiki/Echo_Protocol">https://en.wikipedia.org/wiki/Echo_Protocol</a></p>
+<p>
+	[24] Android: How do bluetooth UUIDs work?, <a href="https://stackoverflow.com/questions/13964342/android-how-do-bluetooth-uuids-work">https://stackoverflow.com/questions/13964342/android-how-do-bluetooth-uuids-work</a></p>
+<p>
+	[25] Bluetooth Low Energy, <a href="https://en.wikipedia.org/wiki/Bluetooth_Low_Energy">https://en.wikipedia.org/wiki/Bluetooth_Low_Energy</a></p>
+<p>
+	[26] Near-field communication, <a href="https://en.wikipedia.org/wiki/Near-field_communication">https://en.wikipedia.org/wiki/Near-field_communication</a></p>
+<p>
+	[27] Radio-frequency identification, <a href="https://en.wikipedia.org/wiki/Radio-frequency_identification">https://en.wikipedia.org/wiki/Radio-frequency_identification</a></p>
+<p>
+	[28] IMSI-catcher, <a href="https://en.wikipedia.org/wiki/IMSI-catcher">https://en.wikipedia.org/wiki/IMSI-catcher</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>

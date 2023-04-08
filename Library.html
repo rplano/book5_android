@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="de"><head>
+  <title>Variationen zum Thema: Android</title>
+  <meta name="title" content="Variationen zum Thema: Android">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="description" content="Eine Einführung in mobile Anwendungen">
+  <meta name="keywords" content="Android,Java,Einführung,Mobile Anwendungen">
+  <meta name="author" content="Ralph P. Lano">
+  <meta name="robots" content="index,follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="book.css">
+</head>
+<body><center>
+<div id="wrap">
+	<ul class="sidenav">
+	  <p><a href="index.html">Variationen zum Thema</a><a href="index.html">Android</a></p>
+	  <li><a href="Intro.html">Intro</a></li>
+	  <li><a href="UI.html">UI</a></li>
+	  <li><a href="Graphics.html">Graphics</a></li>
+	  <li><a href="Persistence.html">Persistence</a></li>
+	  <li><a href="Sensors.html">Sensors</a></li>
+	  <li><a href="Threading.html">Concurrency</a></li>
+	  <li><a href="Networking.html">Networking</a></li>
+	  <li><a href="Multimedia.html">Multimedia</a></li>
+	  <li><a href="Performance.html">Performance</a></li>
+	  <li><a href="Library.html">Library</a></li>
+	  <li><a href="Services.html">Services</a></li>
+	  <li><a href="Cryptography.html">Cryptography</a></li>
+	  <li><a href="Addenda.html">Addenda</a></li>
+	</ul>
+<div class="content"><p>
+	<img src="images/ST2_GObject.png" style="display: block; margin-left: auto; margin-right: auto; width: 285px; height: 136px;" /></p>
+<h1>
+	Special Topic: Libraries</h1>
+<p>
+	Wiederverwendung ist das Thema in diesem Kapitel.&nbsp; Wir haben gesehen, dass wir unsere alten ACM Grafikprogramme mit ein paar Modifikationen auf Android portieren können.&nbsp; Die Frage ist, können wir das auch ohne Änderungen?&nbsp; Die Idee ist also, eine <em>acm.jar</em> Datei für Android zu erstellen.</p>
+<p>
+	.</p>
+<h2>
+	<img alt="" src="images/AsteroidsActivity.png" style="margin-left: 10px; margin-right: 10px; width: 184px; height: 355px; float: right;" />Requirements for GRect, GOval and GObject</h2>
+<p>
+	Sehen wir uns zunächst die Anforderungen für GRect, GOval und auch GObject an.&nbsp; Wir werfen dazu einen Blick auf BrickBreaker und fragen uns: welche Methoden benötigen wir, damit wir dieses Spiel implementieren können?&nbsp; Geht man Zeile für Zeile den Code von BrickBreaker durch, kommt folgende Liste heraus:</p>
+<ul>
+	<li>
+		getX() und getY()</li>
+	<li>
+		getWidth() und getHeight()</li>
+	<li>
+		move(dx, dy) und setLocation(x, y)</li>
+	<li>
+		setColor(col)</li>
+	<li>
+		setFilled(b) und setFillColor(col)</li>
+	<li>
+		und zwei Constructoren der Form GRect(w,h) und GRect(x,y,w,h)</li>
+</ul>
+<p>
+	Das ist also unsere Minimalanforderung.&nbsp; Aus der lässt sich folgendes Klassendiagramm ableiten:</p>
+<p style="margin-left: 40px;">
+	<img alt="" src="images/ClassDiagram_ACM1.png" style="width: 338px; height: 313px;" /></p>
+<p>
+	.</p>
+<h2>
+	GObject</h2>
+<p>
+	Beginnen wir mit der GObject Klasse.&nbsp; Da ausser der draw() Methode praktisch alle Methoden zwischen GRect und GOval identisch sind, macht es Sinn die in einer Elternklasse, GObject, zu implementieren.&nbsp; Die <em>draw()</em> Methode allerdings muss unterschiedlich sein, deswegen deklarieren wir sie als <em>abstract</em>:</p>
+<pre>
+    abstract void draw(Canvas canvas);</pre>
+<p>
+	Dies bedeutet, dass alle Klassen, die von GObject erben (wie GRect und GOval), diese Methode implementieren müssen.&nbsp; Es bedeutet aber auch das die Klasse GObject als <em>abstract</em> deklariert werden muss.&nbsp; In den jeweiligen Kinderklassen, also GRect und GOval, müssen wir dann diese Methode überschreiben.</p>
+<p>
+	.</p>
+<h2>
+	GFillable</h2>
+<p>
+	Wir hätten die Methoden <em>setFilled()</em> und <em>setFillColor()</em> auch in der GObject Klasse implementieren können.&nbsp; Allerdings gibt es Klassen, wie z.B. GLabel und GLine, für die diese Methoden keinen Sinn machen.&nbsp; Deswegen lagern wir diese in ein Interface aus, das GFillable Interface.&nbsp; Der Nachteil von Interfaces in Java ist, dass sie keinen Code beinhalten dürfen.&nbsp; Deswegen muss die eigentliche Implementierung dieser Methoden in den Klasse GRect und GOval passieren (Duplication of Code).&nbsp; Das ist der Preis den man dafür zahlen muss, dass es in Java keine Mehrfachvererbung gibt.</p>
+<p>
+	.</p>
+<h2>
+	GraphicsProgram</h2>
+<p>
+	Der nächste Schritt ist das GraphicsProgram von ACM.&nbsp; Wiederum werfen wir einen Blick auf BrickBreaker und sehen, dass wir mindestens die folgenden Methoden benötigen:</p>
+<ul>
+	<li>
+		run()</li>
+	<li>
+		waitForClick()</li>
+	<li>
+		pause(t)</li>
+	<li>
+		getElementAt(x, y)</li>
+	<li>
+		setSize(w, h)</li>
+	<li>
+		add(o)</li>
+	<li>
+		mouseMoved()</li>
+	<li>
+		und addMouseListeners().</li>
+</ul>
+<p>
+	Dies bestimmt im Wesentlichen, wie unsere GraphicsProgram Klasse aussehen muss:</p>
+<p style="margin-left: 40px;">
+	<img alt="" src="images/ClassDiagram_ACM1b.png" style="width: 367px; height: 213px;" /></p>
+<p>
+	Es gibt eine wichtige Sache, die wir beachten müssen: In Android wird das Zeichen in der onDraw() Methode der View Klasse durchgeführt. Touch Events hingegen werden an die onTouchEvent() Methode der Activity Klasse delegiert.&nbsp; Das bedeutet, dass das Zeichnen der GRects und GOvals in der GView-Klasse erfolgen muss, während die Bewegung der GObjecte aufgrund von GameLoop und/oder Touch Events, in der GraphicsProgram-Klasse erfolgen muss.&nbsp; Da beide Klassen also auf die GObjekte zugreifen müssen, müssen wir sie zwischen beiden Klassen teilen (shared Resource).</p>
+<p>
+	.</p>
+<h2>
+	Multi-Threading</h2>
+<p>
+	Bei Animationen und Spielen mit der ACM-Bibliothek waren wir uns dessen nicht bewusst, aber eigentlich geschahen zwei Dinge gleichzeitig: Einerseits war es der Game Loop der ständig gelaufen ist und unabhängig davon wurden die GObjects gezeichnet.&nbsp; Wir müssen dies nun von Hand implementieren, und der einzige Weg, dies zu tun, ist mit Threads zu arbeiten:&nbsp; Ein Thread macht den Game Loop (in GraphicsProgram) und der andere das Zeichnen (in GView).</p>
+<p>
+	Was passiert, ist am einfachsten mit einem Sequenzdiagramm zu sehen:</p>
+<p style="margin-left: 40px;">
+	<img alt="" src="images/SequenceDiagram_ACM1.png" style="width: 243px; height: 229px;" /></p>
+<p>
+	Solange zwei Threads keine gemeinsame Resource teilen, kann nicht viel schief gehen.&nbsp; Aber in unserem Fall teilen sich die beiden Threads eine gemeinsame Ressource, die Liste der GObjects.&nbsp; Diese Liste muss mit Vorsicht behandelt werden, und das ist es, was die folgende Zeile tut:</p>
+<pre>
+    private List&lt;GObject&gt; gobjects = 
+        Collections.synchronizedList(new ArrayList&lt;GObject&gt;());</pre>
+<p>
+	Es besagt im Grunde, dass jeder Zugriff auf diese Liste synchronisiert werden muss.</p>
+<p>
+	.</p>
+<h2>
+	Library - Reuse</h2>
+<p>
+	Wir können jetzt alle unsere Grafikprogramme aus dem ersten und zweiten Semester auf Android Geräten laufen lassen.&nbsp; Dazu müssen wir lediglich den Quellcode für die Grafikklassen dazu kopieren, und die Imports in den original Grafikprogrammen anpassen.&nbsp; Es geht aber noch einfacher: wir können aus unseren Grafikklassen auch eine jar-Bibliothek erstellen, ähnlich der acm.jar Bibliothek.&nbsp; Diese acm_graphics.jar müssten wir dann anstelle der acm.jar Bibiliothek verwenden, und schon laufen unsere alten Programme auf Android.</p>
+<p>
+	Um mit Eclipse eine jar Bibiliothek zu erstellen, beginnt man mit einem Standard-Java-Projekt.&nbsp; Dorthin kopiert man die Java-Quelldateien von acm_graphics.&nbsp; Nun müssen wir einen Verweis auf die Datei android.jar (zu finden z.B. in /Android/Sdk/platforms/android-21/) im Java Build Path hinzufügen.&nbsp; Dann müssten unsere Klassen eigentlich kompilieren.&nbsp; Zum Generieren der jar Datei, klickt man im Package Explorer mit der rechten Maustaste und wählt Export, dann Java-&gt;JAR-Datei und klickt auf Weiter.&nbsp; Auf dem nächsten Bildschirm wählt man nur die Dateien aus, die man auch in der jar Datei haben möchten.&nbsp; Als nächstes wählt man das Exportziel, etwa AppA_AcmLibrary/lib/acm_android.jar.&nbsp; Meist gibt es jetzt noch ein paar nichtssagende Fehlermeldungen, die meist nicht viel zu bedeuten haben.&nbsp; Man schaut einfach in die jar-Datei (es ist nur eine ZIP-Datei) und stellt sicher, dass sie das enthält, was sie soll.</p>
+<p>
+	Arbeitet man mit Android Studio, dann ist das Erstellen von jar-Bibliotheken etwas komplizierter, aber nicht viel [1].</p>
+<p>
+	.</p>
+<h2>
+	References</h2>
+<p>
+	[1] How to make a .jar out from an Android Studio project, <a href="http://stackoverflow.com/questions/21712714/how-to-make-a-jar-out-from-an-android-studio-project">stackoverflow.com/questions/21712714/how-to-make-a-jar-out-from-an-android-studio-project</a></p>
+<p>
+	.</p>
+<p class="footer">
+Copyright &copy; 2016-2021 <a href="http://www.lano.de">Ralph P. Lano</a>.  All rights reserved.
+</p>
+</div>
+</center>
+</div>
+</body>
+</html>
